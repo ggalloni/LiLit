@@ -1,5 +1,5 @@
 # import the new likelihood from like_inflation.py file
-from GitHub.LiLit.Templates.likelihoods import exactXX
+from likelihoods import exactXX
 import time
 
 info = {
