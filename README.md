@@ -50,7 +50,7 @@ There, you can find both the likelihood and a simple Python script to run the
 analysis. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist.
 
 Here I assume a fiducial cosmology according to Planck 2018, r001 = 0.02 and nt = 0.3. As for noise, 
-in this case I assume only the lensing B-mode signal. On my PC, the run takes less than 1 minute 
+in this case I assume only the lensing B-mode signal. On my PC, the run takes a little more than 2 minute 
 to converge without parallelizing multiple chains. In the "chains" folder there is a triangle plot
 showing the results of this test run.
 
