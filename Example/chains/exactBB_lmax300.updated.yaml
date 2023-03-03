@@ -1,0 +1,125 @@
+theory:
+  camb:
+    version: 1.3.5
+    path: null
+    speed: 0.3
+    stop_at_error: false
+    extra_args:
+      bbn_predictor: PArthENoPE_880.2_standard.dat
+      halofit_version: mead
+      lens_potential_accuracy: 1
+      parameterization: 2
+      num_nu_massless: 2.046
+      share_delta_neff: true
+      YHe: 0.2454006
+      pivot_tensor: 0.01
+      num_massive_neutrinos: 1
+      theta_H0_range:
+      - 20
+      - 100
+    ignore_obsolete: false
+    use_renames: false
+    external_primordial_pk: false
+    renames:
+      omegabh2: ombh2
+      omegach2: omch2
+      omegal: omega_de
+      omegak: omk
+      yhe: YHe
+      yheused: YHe
+      YpBBN: Y_p
+    input_params:
+    - As
+    - ns
+    - nt
+    - r
+    - ombh2
+    - omch2
+    - omnuh2
+    - H0
+    - tau
+    output_params: []
+likelihood:
+  BB:
+    type: []
+    speed: -1
+    stop_at_error: false
+    version: null
+    external: !!python/name:likelihood.exactBB ''
+    input_params: []
+    output_params: []
+params:
+  As:
+    value: 2.100549e-09
+  ns:
+    value: 0.9660499
+  ombh2:
+    value: 0.0223828
+    renames:
+    - omegabh2
+  omch2:
+    value: 0.1201075
+    renames:
+    - omegach2
+  omnuh2:
+    value: 0.0006451439
+  H0:
+    value: 67.32117
+  tau:
+    value: 0.05430842
+  nt:
+    latex: n_t
+    prior:
+      max: 5
+      min: -5
+    proposal: 0.1
+    ref: 0.3
+  r:
+    latex: r_{0.01}
+    prior:
+      max: 3
+      min: 1.0e-05
+    proposal: 0.0002
+    ref: 0.02
+  r005:
+    derived: 'lambda r, nt: r * (0.05/0.01)**(nt - 0.96605 + 1)'
+    min: 0
+    max: 3
+    latex: r_{0.05}
+sampler:
+  mcmc:
+    burn_in: 0
+    max_tries: 40d
+    covmat: null
+    covmat_params: null
+    proposal_scale: 2.4
+    output_every: 60s
+    learn_every: 40d
+    learn_proposal: true
+    learn_proposal_Rminus1_max: 2.0
+    learn_proposal_Rminus1_max_early: 30.0
+    learn_proposal_Rminus1_min: 0.0
+    max_samples: .inf
+    Rminus1_stop: 0.01
+    Rminus1_cl_stop: 0.2
+    Rminus1_cl_level: 0.95
+    Rminus1_single_split: 4
+    measure_speeds: true
+    oversample_power: 0.4
+    oversample_thin: true
+    drag: false
+    blocking:
+    - - 1
+      - - nt
+        - r
+    callback_function: null
+    callback_every: null
+    seed: null
+    check_every: null
+    oversample: null
+    drag_limits: null
+    fallback_covmat_scale: 4
+    version: 3.2.1
+output: exactBB_lmax300
+stop-at-error: true
+version: 3.2.1
