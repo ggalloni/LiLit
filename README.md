@@ -9,9 +9,7 @@ In this repository I provide some basic examples of forecasting likelihoods for 
 are implemented to be used a Cobaya context, which encapsulates CosmoMC in a Python framework. 
 The idea of this repository is to ease the creation of common framework among different 
 LiteBIRDers, trying to homogenize the post-PTEP works as we recently discussed among the 
-collaboration. before giong to the content of this repository, let me say that I am not an
-expert of Cobaya, thus something may not be in its absolute best shape. Still, this should 
-give to new Cobaya-users a good starting point to build upon. 
+collaboration. This should give to new Cobaya-users a good starting point to build upon. 
 
 Templates
 ---------
@@ -63,13 +61,13 @@ in some of the post-PTEP papers.
 Developing the code
 -------------------
 
-If you want to help developing the code, drop me an email at giacomo.galloni@roma2.infn.it.
+If you want to help developing the code, feel free to write me so that I can add you to the collaborators.
 Also, if you want to share the likelihood you are using, contact me or send a pull request 
 so that we can add it to the LiteBIRD applications already available.
 
 Support
 -------
 
-For additional details, or if you are having problems, I suggest to see the documentation at 
+For additional details on how Cobaya works, I suggest to see the documentation at 
 https://cobaya.readthedocs.io/en/latest/, which is very good to find whatever 
 is not working in you case. If you cannot find the problem there, feel free to open an issue.
