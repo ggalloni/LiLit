@@ -25,9 +25,14 @@ to work with this package. For instance, here I am considering a very simple cas
 I do not need to pass anything to the likelihood class but the spectra, and in which the
 likelihood does not provide any derived parameters.
 
+Together with these two example, you will find the template of a far more flexible likelihood.
+Indeed, once you have understood the basic ones, I suggest you to use what I called LiLit.
+It is independent of the number of fields considered and can be dynamically modified at
+declaration.
+
 The dictionary in sampling.py is taken from cobaya-cosmo-generator asking for 
 the full analysis of Planck 2018 + tensors, thus it may not apply for the specific 
-case we are looking at here as an example (XX). 
+cases depicted as templates. 
 However, this gives you a complete overview of what you can do with CAMB. Indeed, any 
 parameters that CAMB undestands (even custom parameters you may have implemented) can be 
 passed to the Cobaya framework in such a way. For the CLASS equivalent of this, refer again 
@@ -43,14 +48,14 @@ it will pass it also to CAMB to compute the spectra.
 Example
 ---------------
 
-To show an actual example, I report a very simple MCMC analysis on B-modes in the "Example" folder. 
-There, you can find both the likelihood and a simple Python script to run the
-analysis. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist.
+To show an actual example, I report two very simple MCMC analyses on BB and on TTTEEE in the "Example" folder. 
+There, you can find both the likelihood (LiLit) and the simple Python scripts to run the
+analyses. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist.
 
-Here I assume a fiducial cosmology according to Planck 2018, r001 = 0.02 and nt = 0.3. As for noise, 
-in this case I assume only the lensing B-mode signal. On my PC, the run takes a little more than 2 minute 
-to converge without parallelizing multiple chains. In the "chains" folder there is a triangle plot
-showing the results of this test run.
+The two analyses are carryed out by running samplingBB.py or samplingTTTEEE.py, and the inline output is stored
+in logBB.txt and logTTTEEE.txt. Usually I setup two extra scripts for the production of the fiducial power spectra 
+and the noise power spectra (here I give two simple examples). Also you will find the Planck 2018 ini file provided
+by CAMB.
 
 LiteBIRD applications
 ---------------------
