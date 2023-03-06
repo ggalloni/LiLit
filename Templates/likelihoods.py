@@ -148,7 +148,7 @@ class exactXX(Likelihood):
 
 class exactYYYKKK(Likelihood):
     """
-    This class is a template for an exact likelihood encoding more than pne field, here named here Y and K.
+    This class is a template for an exact likelihood encoding two fields, here named here Y and K.
     """
 
     def initialize(self):
@@ -322,3 +322,179 @@ class exactYYYKKK(Likelihood):
                 )
 
         return np.sum(logp_ℓ)
+
+
+class LiLit(Likelihood):
+    """
+    This is a far more flexible likelihood than what presented above. LiLit encodes both
+    the one field and the two fields cases. In fact, this implementation is independent
+    from the number of fields (as soon as you are consistent with yourself in what you
+    provide as an input). I suggest to use this class, since the others are just quick
+    examples of how Cobaya works.
+    """
+
+    def __init__(
+        self,
+        name=None,
+        fields=None,
+        lmax=None,
+        lmin=2,
+        cl_file="CLs.pkl",
+        nl_file="noise.pkl",
+        fsky=0.5,
+        debug=False,
+    ):
+        """
+        With the initializations of LiLit, I store useful quantities for the rest of the computation. These can
+        be passed to the class at declaration. Note that the one required for a healthy
+        run are initialized to None, so that you must provide them to avoid an error.
+        """
+        assert (
+            name is not None
+        ), "You must provide the name of the likelihood (e.g. 'BB' or 'TTTEEE')"
+        assert (
+            fields is not None
+        ), "You must provide the fields (e.g. 'b' or ['t', 'e'])"
+        assert lmax is not None, "You must provide the lmax (e.g. 300)"
+
+        self.fields = fields
+        self.n = len(fields)
+        self.lmin = lmin
+        self.lmax = lmax
+        self.fsky = fsky
+        self.cl_file = cl_file
+        self.nl_file = nl_file
+        self.debug = debug
+        Likelihood.__init__(self, name=name)
+
+    def cov_filling(self, dict):
+        """
+        This function takes self and a dictionary as input and returns the covariance matrix
+        of the considered fields, in a shape equal to (num_fields x num_fields x lmax).
+
+        Args:
+            dict: input dictionary of spectra
+
+        Returns:
+            ndarray: covariance matrix of the considered fields of shape (num_fields x num_fields x lmax)
+        """
+        res = np.zeros((self.n, self.n, self.lmax + 1))
+        for i in range(self.n):
+            for j in range(i, self.n):
+                key = self.fields[i] + self.fields[j]
+                self.keys.append(key)
+                res[i, j] = dict.get(key, np.zeros(self.lmax + 1))[: self.lmax + 1]
+                res[j, i] = res[i, j]
+        return res
+
+    def get_keys(self):
+        """
+        This extract the keys that has to be used as a function of the requested fields
+        """
+        self.keys = []
+        for i in range(self.n):
+            for j in range(i, self.n):
+                key = self.fields[i] + self.fields[j]
+                self.keys.append(key)
+
+    def initialize(self):
+        """
+        This time, at this point all the useful quantities are already stored, thus I proceed to initialize the fiducial
+        spectra.
+        """
+
+        with open(self.cl_file, "rb") as pickle_file:
+            self.fiduCLS = pickle.load(pickle_file)
+        with open(self.nl_file, "rb") as pickle_file:
+            self.noiseCLS = pickle.load(pickle_file)
+
+        self.keys = self.get_keys(self)
+        self.fiduCOV = self.cov_filling(self, self.fiduCLS)
+        self.noiseCOV = self.cov_filling(self, self.noiseCLS)
+
+        if self.debug:
+            print(f"Keys of fiducial CLs ---> {self.fiduCLS.keys()}")
+            print(f"Keys of noise CLs ---> {self.noiseCLS.keys()}")
+
+            field = "yy"
+            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print(f"Fiducial CLs for {field.upper()} ---> {self.fiduCLS[field][0:5]}")
+            print(f"Noise CLs for {field.upper()} ---> {self.noiseCLS[field][0:5]}")
+
+        self.data = (
+            self.fiduCOV[:, :, self.lmin : self.lmax + 1]
+            + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
+        )
+
+    def get_requirements(self):
+        req = {}
+        req["unlensed_Cl"] = {
+            cl: self.lmax for cl in self.keys
+        }  # Note that the keyword can be set to "Cl" to get the lensed ones
+        if self.debug:
+            req["CAMBdata"] = None
+            print(
+                f"\nYou requested that Cobaya provides to the likelihood the following items: {req}"
+            )
+        return req
+
+    def log_likelihood(self, theo):
+        ell = np.arange(self.lmin, self.lmax + 1, 1)
+        if self.n != 1:
+            logp_ℓ = np.zeros(ell.shape)
+            for i in range(0, self.lmax + 1 - self.lmin):
+                M = self.data[:, :, i] @ np.linalg.inv(theo[:, :, i])
+                norm = len(self.data[0, :, i])
+                logp_ℓ[i] = (
+                    -0.5
+                    * (2 * ell[i] + 1)
+                    * self.fsky
+                    * (np.trace(M) - np.linalg.slogdet(M)[1] - norm)
+                )
+        else:
+            M = self.data / theo
+            logp_ℓ = -0.5 * (2 * ell + 1) * self.fsky * (M - np.log(np.abs(M)) - 1)
+        return np.sum(logp_ℓ)
+
+    def logp(self, **params_values):
+
+        if self.debug:
+            CAMBdata = self.provider.get_CAMBdata()
+            pars = CAMBdata.Params
+            print(pars)
+
+        cobaCLs = self.provider.get_unlensed_Cl(ell_factor=True)
+
+        if self.debug:
+            print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
+
+            field = "yy"
+            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
+
+        cobaCOV = self.cov_filling(self, cobaCLs)
+
+        if self.debug:
+            ell = np.arange(0, self.lmax + 1, 1)
+            plt.loglog(
+                ell[2 - self.lmin :],
+                self.fiduCOV[0, 0, 2 - self.lmin :],
+                label="Fiducial CLs",
+            )
+            plt.loglog(
+                ell[2 - self.lmin :],
+                self.cobaCOV[0, 0, 2 - self.lmin :],
+                label="Cobaya CLs",
+            )
+            plt.legend()
+            plt.show()
+            exit()
+
+        coba = (
+            cobaCOV[:, :, self.lmin : self.lmax + 1]
+            + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
+        )
+
+        logp = self.log_likelihood(self, coba)
+
+        return logp

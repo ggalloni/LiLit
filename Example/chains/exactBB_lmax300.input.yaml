@@ -14,7 +14,7 @@ theory:
       - 20
       - 100
 likelihood:
-  BB: !!python/name:likelihood.exactBB ''
+  BB: true
 params:
   As: 2.100549e-09
   ns: 0.9660499
@@ -51,6 +51,6 @@ params:
 sampler:
   mcmc:
     Rminus1_cl_stop: 0.2
-    Rminus1_stop: 0.001
+    Rminus1_stop: 0.01
 output: exactBB_lmax300
 stop-at-error: true

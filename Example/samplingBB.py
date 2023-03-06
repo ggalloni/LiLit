@@ -1,8 +1,15 @@
-from likelihood import exactBB
 import time
+from likelihood import LiLit
+
+debug = False
+name = "BB"
+lmax = 300
+
+exactBB = LiLit(name=name, fields="b", debug=debug, lmax=lmax)
+
 
 info = {
-    "likelihood": {"BB": exactBB},
+    "likelihood": {name: exactBB},
     "params": {
         "As": 2.100549e-9,
         "ns": 0.9660499,
@@ -30,15 +37,15 @@ info = {
             "latex": "r_{0.05}",
         },
     },
-    "output": "chains/exactBB_lmax300",
+    "output": f"chains/exact{name}_lmax{lmax}",
     "force": True,
     "resume": False,
-    "debug": False,
+    "debug": debug,
     "stop-at-error": True,
     "sampler": {
         "mcmc": {
             "Rminus1_cl_stop": 0.2,
-            "Rminus1_stop": 0.001,
+            "Rminus1_stop": 0.01,
         }
     },
     "theory": {
