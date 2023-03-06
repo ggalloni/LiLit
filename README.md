@@ -9,9 +9,7 @@ In this repository I provide some basic examples of forecasting likelihoods for 
 are implemented to be used a Cobaya context, which encapsulates CosmoMC in a Python framework. 
 The idea of this repository is to ease the creation of common framework among different 
 LiteBIRDers, trying to homogenize the post-PTEP works as we recently discussed among the 
-collaboration. before giong to the content of this repository, let me say that I am not an
-expert of Cobaya, thus something may not be in its absolute best shape. Still, this should 
-give to new Cobaya-users a good starting point to build upon. 
+collaboration. This should give to new Cobaya-users a good starting point to build upon. 
 
 Templates
 ---------
@@ -27,9 +25,14 @@ to work with this package. For instance, here I am considering a very simple cas
 I do not need to pass anything to the likelihood class but the spectra, and in which the
 likelihood does not provide any derived parameters.
 
+Together with these two example, you will find the template of a far more flexible likelihood.
+Indeed, once you have understood the basic ones, I suggest you to use what I called LiLit.
+It is independent of the number of fields considered and can be dynamically modified at
+declaration.
+
 The dictionary in sampling.py is taken from cobaya-cosmo-generator asking for 
 the full analysis of Planck 2018 + tensors, thus it may not apply for the specific 
-case we are looking at here as an example (XX). 
+cases depicted as templates. 
 However, this gives you a complete overview of what you can do with CAMB. Indeed, any 
 parameters that CAMB undestands (even custom parameters you may have implemented) can be 
 passed to the Cobaya framework in such a way. For the CLASS equivalent of this, refer again 
@@ -45,14 +48,17 @@ it will pass it also to CAMB to compute the spectra.
 Example
 ---------------
 
-To show an actual example, I report a very simple MCMC analysis on B-modes in the "Example" folder. 
-There, you can find both the likelihood and a simple Python script to run the
-analysis. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist.
+To show an actual example, I report two very simple MCMC analyses on BB and on TTTEEE in the "Example" folder. 
+There, you can find both the likelihood (LiLit) and the simple Python scripts to run the
+analyses. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist.
 
-Here I assume a fiducial cosmology according to Planck 2018, r001 = 0.02 and nt = 0.3. As for noise, 
-in this case I assume only the lensing B-mode signal. On my PC, the run takes a little more than 2 minute 
-to converge without parallelizing multiple chains. In the "chains" folder there is a triangle plot
-showing the results of this test run.
+The two analyses are carryed out by running samplingBB.py or samplingTTTEEE.py, and the inline output is stored
+in logBB.txt and logTTTEEE.txt. Usually I setup two extra scripts for the production of the fiducial power spectra 
+and the noise power spectra (here I give two simple examples). Also you will find the Planck 2018 ini file provided
+by CAMB.
+
+Note that the BB run ihas converged in ~40 seconds, while the TTTEEE one has not converged yet (I interrupted it
+since it is not the scope of this repo to report actual results).
 
 LiteBIRD applications
 ---------------------
@@ -63,13 +69,13 @@ in some of the post-PTEP papers.
 Developing the code
 -------------------
 
-If you want to help developing the code, drop me an email at giacomo.galloni@roma2.infn.it.
+If you want to help developing the code, feel free to write me so that I can add you to the collaborators.
 Also, if you want to share the likelihood you are using, contact me or send a pull request 
 so that we can add it to the LiteBIRD applications already available.
 
 Support
 -------
 
-For additional details, or if you are having problems, I suggest to see the documentation at 
+For additional details on how Cobaya works, I suggest to see the documentation at 
 https://cobaya.readthedocs.io/en/latest/, which is very good to find whatever 
 is not working in you case. If you cannot find the problem there, feel free to open an issue.
