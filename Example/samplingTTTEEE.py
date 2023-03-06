@@ -74,7 +74,11 @@ info = {
                 "bbn_predictor": "PArthENoPE_880.2_standard.dat",
                 "halofit_version": "mead",
                 "lens_potential_accuracy": 1,
-                "nnu": 3.046,
+                "parameterization": 2,
+                "num_nu_massless": 2.046,
+                "share_delta_neff": True,
+                "YHe": 0.2454006,
+                "pivot_tensor": 0.01,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
             }
