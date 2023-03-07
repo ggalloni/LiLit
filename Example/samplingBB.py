@@ -5,8 +5,8 @@ debug = False
 name = "BB"
 lmax = 300
 
-exactBB = LiLit(name=name, fields="b", debug=debug, lmax=lmax)
-
+exactBB = LiLit(name=name, fields="b", like="exact", debug=debug, lmax=lmax)
+gaussBB = LiLit(name=name, fields="b", like="gaussian", debug=debug, lmax=lmax)
 
 info = {
     "likelihood": {name: exactBB},
