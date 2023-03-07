@@ -1,4 +1,4 @@
-LiLit: Likelihoods for LiteBIRD
+LiLit: Likelihood for LiteBIRD
 ==============================================
 
 Authors: Giacomo Galloni
