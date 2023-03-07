@@ -31,6 +31,9 @@ It is independent of the number of fields considered and can be dynamically modi
 declaration. As of now, the likelihood is able to compute the logP in two different ways:
 the exact likelihood and the Gaussian one.
 
+With LiLit, I tried to be as modular as possible so that you can plug whatever existing function you have.
+Also, this should make parallelization easier if you need it.
+
 The dictionary in sampling.py is taken from cobaya-cosmo-generator asking for 
 the full analysis of Planck 2018 + tensors, thus it may not apply for the specific 
 cases depicted as templates. 

@@ -113,17 +113,12 @@ class LiLit(Likelihood):
         res = np.zeros(self.lmax + 1, dtype=object)
 
         for i in range(self.lmax + 1):
-            # Check if matrix is singular
             COV = sigma[:, :, i]
             if np.linalg.det(COV) == 0:
-                # Get indices of null diagonal elements
                 idx = np.where(np.diag(COV) == 0)[0]
-                # Remove corresponding rows and columns
                 COV = np.delete(COV, idx, axis=0)
                 COV = np.delete(COV, idx, axis=1)
-            # Invert matrix
             res[i] = np.linalg.inv(COV)
-            # print(res[2:5])
         return res[2:]
 
     def initialize(self):

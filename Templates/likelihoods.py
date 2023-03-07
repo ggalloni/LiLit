@@ -487,7 +487,6 @@ class LiLit(Likelihood):
                 COV = np.delete(COV, idx, axis=1)
             # Invert matrix
             res[i] = np.linalg.inv(COV)
-            # print(res[2:5])
         return res[2:]
 
     def initialize(self):
