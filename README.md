@@ -3,6 +3,8 @@ LiLit: Likelihood for LiteBIRD
 
 Authors: Giacomo Galloni
 
+Contributors: Giulia Piccirilli
+
 Overview
 --------
 In this repository I provide some basic examples of forecasting likelihoods for LiteBIRD. These
