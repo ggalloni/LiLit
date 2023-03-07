@@ -3,15 +3,20 @@ from likelihood import LiLit
 
 debug = False
 name = "TTTEEE"
-lmax = 600
 
-exactTTTEEE = LiLit(name=name, fields=["t", "e"], like="exact", lmax=lmax, debug=debug)
+# Note that the order of these list has to be the same of the fields keyword
+lmax = [600, 500]
+fsky = [0.8, 0.5]
+
+exactTTTEEE = LiLit(
+    name=name, fields=["t", "e"], like="exact", lmax=lmax, fsky=fsky, debug=debug
+)
 gaussTTTEEE = LiLit(
-    name=name, fields=["t", "e"], like="gaussian", lmax=lmax, debug=debug
+    name=name, fields=["t", "e"], like="gaussian", lmax=lmax, fsky=fsky, debug=debug
 )
 
 info = {
-    "likelihood": {name: exactTTTEEE},
+    "likelihood": {name: gaussTTTEEE},
     "params": {
         "As": {"latex": "A_\\mathrm{s}", "value": "lambda logA: 1e-10*np.exp(logA)"},
         "H0": {"latex": "H_0", "max": 100, "min": 20},
@@ -60,10 +65,10 @@ info = {
             "renames": "theta",
         },
     },
-    "output": f"chains/exact{name}_lmax{lmax}",
+    "output": f"chains/lmax{name}_lmax{lmax}",
     "force": True,
     "resume": False,
-    "debug": debug,
+    "debug": False,
     "stop-at-error": True,
     "sampler": {
         "mcmc": {
