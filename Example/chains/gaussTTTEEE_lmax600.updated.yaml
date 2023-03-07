@@ -1,0 +1,173 @@
+theory:
+  camb:
+    version: 1.3.5
+    path: null
+    speed: 0.3
+    stop_at_error: false
+    extra_args:
+      bbn_predictor: PArthENoPE_880.2_standard.dat
+      halofit_version: mead
+      lens_potential_accuracy: 1
+      parameterization: 2
+      num_nu_massless: 2.046
+      share_delta_neff: true
+      YHe: 0.2454006
+      pivot_tensor: 0.01
+      num_massive_neutrinos: 1
+      theta_H0_range:
+      - 20
+      - 100
+    ignore_obsolete: false
+    use_renames: false
+    external_primordial_pk: false
+    renames:
+      omegabh2: ombh2
+      omegach2: omch2
+      omegal: omega_de
+      omegak: omk
+      yhe: YHe
+      yheused: YHe
+      YpBBN: Y_p
+    input_params:
+    - As
+    - ns
+    - cosmomc_theta
+    - mnu
+    - ombh2
+    - omch2
+    - tau
+    output_params:
+    - H0
+likelihood:
+  TTTEEE:
+    type: []
+    speed: -1
+    stop_at_error: false
+    version: null
+    external: true
+    input_params: []
+    output_params: []
+params:
+  As:
+    latex: A_\mathrm{s}
+    value: 'lambda logA: 1e-10*np.exp(logA)'
+    derived: true
+  H0:
+    latex: H_0
+    max: 100
+    min: 20
+    derived: true
+  cosmomc_theta:
+    derived: false
+    value: 'lambda theta_MC_100: 1.e-2*theta_MC_100'
+  logA:
+    drop: true
+    latex: \log(10^{10} A_\mathrm{s})
+    prior:
+      max: 3.91
+      min: 1.61
+    proposal: 0.001
+    ref:
+      dist: norm
+      loc: 3.05
+      scale: 0.001
+  mnu:
+    value: 0.06
+  ns:
+    latex: n_\mathrm{s}
+    prior:
+      max: 1.2
+      min: 0.8
+    proposal: 0.002
+    ref:
+      dist: norm
+      loc: 0.965
+      scale: 0.004
+  ombh2:
+    latex: \Omega_\mathrm{b} h^2
+    prior:
+      max: 0.1
+      min: 0.005
+    proposal: 0.0001
+    ref:
+      dist: norm
+      loc: 0.0224
+      scale: 0.0001
+    renames:
+    - omegabh2
+  omch2:
+    latex: \Omega_\mathrm{c} h^2
+    prior:
+      max: 0.99
+      min: 0.001
+    proposal: 0.0005
+    ref:
+      dist: norm
+      loc: 0.12
+      scale: 0.001
+    renames:
+    - omegach2
+  tau:
+    latex: \tau_\mathrm{reio}
+    prior:
+      max: 0.8
+      min: 0.01
+    proposal: 0.003
+    ref:
+      dist: norm
+      loc: 0.055
+      scale: 0.006
+  theta_MC_100:
+    drop: true
+    latex: 100\theta_\mathrm{MC}
+    prior:
+      max: 10
+      min: 0.5
+    proposal: 0.0002
+    ref:
+      dist: norm
+      loc: 1.04109
+      scale: 0.0004
+    renames: theta
+sampler:
+  mcmc:
+    burn_in: 0
+    max_tries: 40d
+    covmat: null
+    covmat_params: null
+    proposal_scale: 2.4
+    output_every: 60s
+    learn_every: 40d
+    learn_proposal: true
+    learn_proposal_Rminus1_max: 2.0
+    learn_proposal_Rminus1_max_early: 30.0
+    learn_proposal_Rminus1_min: 0.0
+    max_samples: .inf
+    Rminus1_stop: 0.1
+    Rminus1_cl_stop: 0.2
+    Rminus1_cl_level: 0.95
+    Rminus1_single_split: 4
+    measure_speeds: true
+    oversample_power: 0.4
+    oversample_thin: true
+    drag: false
+    blocking:
+    - - 1
+      - - ombh2
+        - omch2
+        - tau
+        - theta_MC_100
+    - - 3
+      - - logA
+        - ns
+    callback_function: null
+    callback_every: null
+    seed: null
+    check_every: null
+    oversample: null
+    drag_limits: null
+    fallback_covmat_scale: 4
+    version: 3.2.1
+output: gaussTTTEEE_lmax600
+stop-at-error: true
+version: 3.2.1

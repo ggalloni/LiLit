@@ -28,7 +28,8 @@ likelihood does not provide any derived parameters.
 Together with these two example, you will find the template of a far more flexible likelihood.
 Indeed, once you have understood the basic ones, I suggest you to use what I called LiLit.
 It is independent of the number of fields considered and can be dynamically modified at
-declaration.
+declaration. As of now, the likelihood is able to compute the logP in two different ways:
+the exact likelihood and the Gaussian one.
 
 The dictionary in sampling.py is taken from cobaya-cosmo-generator asking for 
 the full analysis of Planck 2018 + tensors, thus it may not apply for the specific 

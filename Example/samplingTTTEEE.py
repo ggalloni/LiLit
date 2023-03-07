@@ -5,7 +5,10 @@ debug = False
 name = "TTTEEE"
 lmax = 600
 
-exactTTTEEE = LiLit(name=name, fields=["t", "e"], lmax=lmax, debug=debug)
+exactTTTEEE = LiLit(name=name, fields=["t", "e"], like="exact", lmax=lmax, debug=debug)
+gaussTTTEEE = LiLit(
+    name=name, fields=["t", "e"], like="gaussian", lmax=lmax, debug=debug
+)
 
 info = {
     "likelihood": {name: exactTTTEEE},
