@@ -1,4 +1,7 @@
 import time
+from mpi4py import MPI
+from cobaya.run import run
+from cobaya.log import LoggedError
 from likelihood import LiLit
 
 debug = False
@@ -66,13 +69,8 @@ info = {
     },
 }
 
-from mpi4py import MPI
-
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
-
-from cobaya.run import run
-from cobaya.log import LoggedError
 
 start = time.time()
 
@@ -80,7 +78,7 @@ success = False
 try:
     upd_info, mcmc = run(info)
     success = True
-except LoggedError as err:
+except LoggedError:
     pass
 
 success = all(comm.allgather(success))
