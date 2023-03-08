@@ -65,12 +65,6 @@ by CAMB.
 Note that the BB run ihas converged in ~40 seconds, while the TTTEEE one has not converged yet (I interrupted it
 since it is not the scope of this repo to report actual results).
 
-LiteBIRD applications
----------------------
-
-Finally, in the "LB applications" folder, you can find the actual likelihoods that are being used
-in some of the post-PTEP papers.
-
 Developing the code
 -------------------
 
