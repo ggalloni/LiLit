@@ -16,7 +16,7 @@ class LiLit(Likelihood):
         nl_file="noise.pkl",
         fsky=1,
         sep="",
-        debug=False,
+        debug=None,
     ):
 
         assert (
@@ -100,7 +100,7 @@ class LiLit(Likelihood):
     def get_Gauss_keys(self):
         res = np.zeros(
             (int(self.n * (self.n + 1) / 2), int(self.n * (self.n + 1) / 2), 4),
-            dtype=np.str,
+            dtype=str,
         )
         for i in range(int(self.n * (self.n + 1) / 2)):
             for j in range(i, int(self.n * (self.n + 1) / 2)):
@@ -185,8 +185,7 @@ class LiLit(Likelihood):
     def get_reduced_data(self, mat):
         idx = np.where(np.diag(mat) == 0)[0]
         mat = np.delete(mat, idx, axis=0)
-        mat = np.delete(mat, idx, axis=1)
-        return mat
+        return np.delete(mat, idx, axis=1)
 
     def initialize(self):
 
@@ -210,7 +209,7 @@ class LiLit(Likelihood):
             print(f"Keys of noise CLs ---> {self.noiseCLS.keys()}")
 
             field = "bb"
-            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Fiducial CLs for {field.upper()} ---> {self.fiduCLS[field][0:5]}")
             print(f"Noise CLs for {field.upper()} ---> {self.noiseCLS[field][0:5]}")
 
@@ -248,11 +247,10 @@ class LiLit(Likelihood):
                 M = data @ np.linalg.inv(coba)
                 norm = len(self.data[0, :, i][self.data[0, :, i] != 0])
                 print(norm)
-                res = np.trace(M) - np.linalg.slogdet(M)[1] - norm
+                return np.trace(M) - np.linalg.slogdet(M)[1] - norm
             else:
                 M = self.data / self.coba
-                res = M - np.log(np.abs(M)) - 1
-                return res
+                return M - np.log(np.abs(M)) - 1
         elif self.like == "gaussian":
             if self.n != 1:
                 coba = self.data_vector(self.coba[:, :, i])
@@ -287,7 +285,7 @@ class LiLit(Likelihood):
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
 
             field = "bb"
-            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
 
         self.cobaCOV = self.cov_filling(self.cobaCLs)

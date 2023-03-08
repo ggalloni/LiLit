@@ -1,10 +1,13 @@
-# import the new likelihood from like_inflation.py file
+"""Example usage of the likelihoods defined in likelihood.py and of a typical Cobaya dictionary."""
+from mpi4py import MPI
+from cobaya.run import run
+from cobaya.log import LoggedError
 from likelihoods import exactXX
 import time
 
 info = {
     "likelihood": {
-        "XX": exactXX
+        "XX": exactXX,
     },  # Here "XX" will be the name Cobaya will use to refer to this likelihood, but it is completely arbitrary
     "params": {
         "A": {"derived": "lambda As: 1e9*As", "latex": "10^9 A_\\mathrm{s}"},
@@ -23,7 +26,7 @@ info = {
         },
         "cosmomc_theta": {
             "derived": False,
-            "value": "lambda theta_MC_100: " "1.e-2*theta_MC_100",
+            "value": "lambda theta_MC_100: 1.e-2*theta_MC_100",
         },
         "logA": {
             "drop": True,
@@ -69,11 +72,11 @@ info = {
             "latex": "\\sigma_8/h^{0.5}",
         },
         "s8omegamp25": {
-            "derived": "lambda sigma8, omegam: " "sigma8*omegam**0.25",
+            "derived": "lambda sigma8, omegam: sigma8*omegam**0.25",
             "latex": "\\sigma_8 \\Omega_\\mathrm{m}^{0.25}",
         },
         "s8omegamp5": {
-            "derived": "lambda sigma8, omegam: " "sigma8*omegam**0.5",
+            "derived": "lambda sigma8, omegam: sigma8*omegam**0.5",
             "latex": "\\sigma_8 \\Omega_\\mathrm{m}^{0.5}",
         },
         "sigma8": {"latex": "\\sigma_8"},
@@ -105,7 +108,7 @@ info = {
             "drag": True,
             "oversample_power": 0.4,
             "proposal_scale": 1.9,
-        }
+        },
     },
     "theory": {
         "camb": {
@@ -117,18 +120,13 @@ info = {
                 "nt": None,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
-            }
-        }
+            },
+        },
     },
 }
 
-from mpi4py import MPI
-
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
-
-from cobaya.run import run
-from cobaya.log import LoggedError
 
 start = time.time()
 
@@ -136,7 +134,7 @@ success = False
 try:
     upd_info, mcmc = run(info)
     success = True
-except LoggedError as err:
+except LoggedError:
     pass
 
 success = all(comm.allgather(success))

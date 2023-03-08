@@ -1,3 +1,4 @@
+"""File providing the verbose definition of three likelihoods. The main one would be the third, i.e. LiLit. The others are simple examples to get in touch with Cobaya."""
 from cobaya.likelihood import Likelihood
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,24 +6,15 @@ import pickle
 
 
 class exactXX(Likelihood):
-    """
-    This class is a template for an exact likelihood encoding one single field, here named X.
-    """
+    """Class to define the template for an exact likelihood encoding one single field, here named X."""
 
     def initialize(self):
+        """Prepare any computation, importing any necessary code, files, etc. Note that this function is run only once at the very beginning of the routine. e.g. here you load a cl_file containing the fiducial values of the power spectra according to some fiducial cosmology you want to probe. Furthermore, you import the CLs of the noise you are considering and you check for basic consistencies. In this example, I precomputed the fiducial power spectra (coming as a dict), but you may want to produce them on the fly using a CAMB inifile, or whatever you want.
+
+        Returns
+        -------
+            None
         """
-        Prepare any computation, importing any necessary code, files, etc. Note that this
-        function is run only once at the very beginning of the routine.
-
-        e.g. here you load a cl_file containing the fiducial values of the power spectra
-        according to some fiducial cosmology you want to probe. Furthermore, you import
-        the CLs of the noise you are considering and you check for basic consistencies.
-
-        In this example, I precomputed the fiducial power spectra (coming as a dict),
-        but you may want to produce them on the fly using a CAMB inifile, or whatever
-        you want.
-        """
-
         # Loading files
         cl_file = "path/to/cls.pkl"
         nl_file = "path/to/noise.pkl"
@@ -46,7 +38,7 @@ class exactXX(Likelihood):
 
             # For a field contained in the fiducial (here XX):
             field = "xx"
-            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Fiducial CLs for {field.upper()} ---> {self.fiduCLS[field][0:5]}")
             print(f"Noise CLs for {field.upper()} ---> {self.noiseCLS[field][0:5]}")
 
@@ -57,10 +49,12 @@ class exactXX(Likelihood):
         )
 
     def get_requirements(self):
-        """
-        return dictionary specifying quantities calculated by a theory code are needed
+        """Define requirements of the likelihood, specifying quantities calculated by a theory code are needed.
 
-        e.g. here we need C_L^{xx} to lmax=300 assigned before
+        Returns
+        -------
+            dict: dict with requirements
+        return dictionary
         """
         req = {}
         req["Cl"] = {"xx": self.lmax}
@@ -71,13 +65,12 @@ class exactXX(Likelihood):
         return req
 
     def logp(self):
-        """
-        Here the likelihood is computed for each step of the chain.
-        Note that this function has to return log-likelihood.
+        """Compute the likelihood for each step of the chain. Note that this function has to return log-likelihood.
 
-        e.g. here you calculate chi^2 using cls['xx'].
+        Returns
+        -------
+            float: log-likelihood
         """
-
         # You may want to check whether every parameter has been set as desided, thus you can print
         # the parameters set in CAMB. This also allows you to do some extra computation with the CAMB
         # results if needed.
@@ -97,7 +90,7 @@ class exactXX(Likelihood):
 
             # For a field contained in the fiducial (here YY):
             field = "xx"
-            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Cobaya CLs for {field.upper()} ---> {cobaCLs[field][0:5]}")
 
         coba = (
@@ -147,24 +140,15 @@ class exactXX(Likelihood):
 
 
 class exactYYYKKK(Likelihood):
-    """
-    This class is a template for an exact likelihood encoding two fields, here named here Y and K.
-    """
+    """Class to define the template for an exact likelihood encoding two fields, here named here Y and K."""
 
     def initialize(self):
+        """Prepare any computation, importing any necessary code, files, etc. Note that this function is run only once at the very beginning of the routine. e.g. here you load a cl_file containing the fiducial values of the power spectra according to some fiducial cosmology you want to probe. Furthermore, you import the CLs of the noise you are considering and you check for basic consistencies. In this example, I precomputed the fiducial power spectra (coming as a dict), but you may want to produce them on the fly using a CAMB inifile, or whatever you want.
+
+        Returns
+        -------
+            None
         """
-        Prepare any computation, importing any necessary code, files, etc. Note that this
-        function is run only once at the very beginning of the routine.
-
-        e.g. here you load a cl_file containing the fiducial values of the power spectra
-        according to some fiducial cosmology you want to probe. Furthermore, you import
-        the CLs of the noise you are considering and you check for basic consistencies.
-
-        In this example, I precomputed the fiducial power spectra (coming as a dict),
-        but you may want to produce them on the fly using a CAMB inifile, or whatever
-        you want.
-        """
-
         # Loading files
         cl_file = "path/to/cls.pkl"
         nl_file = "path/to/noise.pkl"
@@ -190,7 +174,7 @@ class exactYYYKKK(Likelihood):
 
             # For a field contained in the fiducial (here YY):
             field = "yy"
-            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Fiducial CLs for {field.upper} ---> {self.fiduCLS[field][0:5]}")
             print(f"Noise CLs for {field.upper} ---> {self.noiseCLS[field][0:5]}")
 
@@ -200,13 +184,13 @@ class exactYYYKKK(Likelihood):
             [
                 [self.fiduCLS["yy"], self.fiduCLS["yk"]],
                 [self.fiduCLS["yk"], self.fiduCLS["kk"]],
-            ]
+            ],
         )
         self.noiseCOV = np.array(
             [
                 [self.noiseCLS["yy"], self.noiseCLS["yk"]],
                 [self.noiseCLS["yk"], self.noiseCLS["kk"]],
-            ]
+            ],
         )
 
         self.data = (
@@ -215,10 +199,12 @@ class exactYYYKKK(Likelihood):
         )
 
     def get_requirements(self):
-        """
-        return dictionary specifying quantities calculated by a theory code are needed
+        """Define requirements of the likelihood, specifying quantities calculated by a theory code are needed.
 
-        e.g. here we need C_L^{xx} to lmax=300 assigned before
+        Returns
+        -------
+            dict: dict with requirements
+        return dictionary
         """
         req = {}
         req["Cl"] = {"yy": self.lmax, "kk": self.lmax, "yk": self.lmax}
@@ -229,13 +215,12 @@ class exactYYYKKK(Likelihood):
         return req
 
     def logp(self):
-        """
-        Here the likelihood is computed for each step of the chain.
-        Note that this function has to return log-likelihood.
+        """Compute the likelihood for each step of the chain. Note that this function has to return log-likelihood.
 
-        e.g. here you calculate chi^2 using cls['yy'], cls['yk'] and cls['kk'].
+        Returns
+        -------
+            float: log-likelihood
         """
-
         # You may want to check whether every parameter has been set as desided, thus you can print
         # the parameters set in CAMB. This also allows you to do some extra computation with the CAMB
         # results if needed.
@@ -255,14 +240,14 @@ class exactYYYKKK(Likelihood):
 
             # For a field contained in the fiducial (here YY):
             field = "yy"
-            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
 
         self.cobaCOV = np.array(
             [
                 [self.cobaCLS["yy"], self.cobaCLS["yk"]],
                 [self.cobaCLS["yk"], self.cobaCLS["kk"]],
-            ]
+            ],
         )
         self.coba = (
             self.cobaCOV[:, :, self.lmin : self.lmax + 1]
@@ -325,13 +310,7 @@ class exactYYYKKK(Likelihood):
 
 
 class LiLit(Likelihood):
-    """
-    This is a far more flexible likelihood than what presented above. LiLit encodes both
-    the one field and the two fields cases. In fact, this implementation is independent
-    from the number of fields (as soon as you are consistent with yourself in what you
-    provide as an input). I suggest to use this class, since the others are just quick
-    examples of how Cobaya works.
-    """
+    """Class to define LiLit. This is a far more flexible likelihood than what presented above. LiLit encodes both the one field and the two fields cases. In fact, this implementation is independent from the number of fields (as soon as you are consistent with yourself in what you provide as an input). Also, one can specify lmax and fsky as lists corresponding to the values for different fields. I suggest to use this class, since the others are just quick examples of how Cobaya works."""
 
     def __init__(
         self,
@@ -344,13 +323,9 @@ class LiLit(Likelihood):
         nl_file="noise.pkl",
         fsky=0.5,
         sep="",
-        debug=False,
+        debug=None,
     ):
-        """
-        With the initializations of LiLit, I store useful quantities for the rest of the computation. These can
-        be passed to the class at declaration. Note that the one required for a healthy
-        run are initialized to None, so that you must provide them to avoid an error.
-        """
+        """With the initializations of LiLit, I store useful quantities for the rest of the computation. These can be passed to the class at declaration. Note that the one required for a healthy run are initialized to None, so that you must provide them to avoid an error."""
         assert (
             name is not None
         ), "You must provide the name of the likelihood (e.g. 'BB' or 'TTTEEE')"
@@ -404,14 +379,13 @@ class LiLit(Likelihood):
         Likelihood.__init__(self, name=name)
 
     def cov_filling(self, dict):
-        """
-        This function takes self and a dictionary as input and returns the covariance matrix
-        of the considered fields, in a shape equal to (num_fields x num_fields x lmax).
+        """Compute the covariance matrix once given a dictionary. Returns the covariance matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax is specified, there will be null values in the matrices, making them singular.
 
         Args:
-            dict: input dictionary of spectra
+            dict (dict[array]): input dictionary of spectra
 
-        Returns:
+        Returns
+        -------
             ndarray: covariance matrix of the considered fields of shape (num_fields x num_fields x lmax)
         """
         res = np.zeros((self.n, self.n, self.lmax + 1))
@@ -420,7 +394,8 @@ class LiLit(Likelihood):
                 key = self.fields[i] + self.sep + self.fields[j]
                 if self.lmaxs is not None:
                     res[i, j, : self.lmaxs[key] + 1] = dict.get(
-                        key, np.zeros(self.lmaxs[key] + 1)
+                        key,
+                        np.zeros(self.lmaxs[key] + 1),
                     )[: self.lmaxs[key] + 1]
                 else:
                     res[i, j, : self.lmax + 1] = dict.get(key, np.zeros(self.lmax + 1))[
@@ -430,23 +405,29 @@ class LiLit(Likelihood):
         return res
 
     def get_keys(self):
+        """Extract the keys that has to be used as a function of the requested fields.
+
+        Returns
+        -------
+            dict[str]: dict of the keys
         """
-        This extract the keys that has to be used as a function of the requested fields
-        """
-        self.keys = []
+        res = []
         for i in range(self.n):
             for j in range(i, self.n):
                 key = self.fields[i] + self.sep + self.fields[j]
-                self.keys.append(key)
+                res.append(key)
+        return res
 
     def get_Gauss_keys(self):
-        """
-        In case of Gaussian likelihood, this function returns the keys of the covariance elements.
-        This is useful to automatize the sigma funciton.
+        """Get the proper combinations of fields in case of Gaussian likelihood. These will be used to build the covariance matrix in an automatic way.
+
+        Returns
+        -------
+            dict[str]: dict of the keys
         """
         res = np.zeros(
             (int(self.n * (self.n + 1) / 2), int(self.n * (self.n + 1) / 2), 4),
-            dtype=np.str,
+            dtype=str,
         )
         for i in range(int(self.n * (self.n + 1) / 2)):
             for j in range(i, int(self.n * (self.n + 1) / 2)):
@@ -459,8 +440,16 @@ class LiLit(Likelihood):
         return res
 
     def find_spectrum(self, dict, key):
-        """
-        Given a specific key, return the corresponding power sepctrum.
+        """Return the corresponding power sepctrum for a given key. In the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
+
+        Args
+        ----
+            dict (dict[array]): dictionary where you want to search for keys
+            key (str): key to search for
+
+        Returns
+        -------
+            array: (self.lmax+1) array containing the requested spectrum
         """
         res = np.zeros(self.lmax + 1)
         if self.lmaxs is not None:
@@ -468,7 +457,8 @@ class LiLit(Likelihood):
                 res[: self.lmaxs[key] + 1] = dict[key][: self.lmaxs[key] + 1]
             else:
                 res[: self.lmaxs[key] + 1] = dict.get(
-                    key[::-1], np.zeros(self.lmaxs[key] + 1)
+                    key[::-1],
+                    np.zeros(self.lmaxs[key] + 1),
                 )[: self.lmaxs[key] + 1]
         else:
             if key in dict:
@@ -480,15 +470,15 @@ class LiLit(Likelihood):
         return res
 
     def sigma(self, keys, fiduDICT, noiseDICT):
-        """In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2.
-        Note that the inversion is done in a separate funciton.
+        """In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
 
         Args:
-            keys: keys for the covariance elements
-            fiduDICT: dictionary with the fiducial spectra
-            noiseDICT: dictionary with the noise spectra
+            keys (dict[str]): keys for the covariance elements
+            fiduDICT (dict[array]): dictionary with the fiducial spectra
+            noiseDICT (dict[array]): dictionary with the noise spectra
 
-        Returns:
+        Returns
+        -------
             ndarray: (self.n x self.n x self.lmax+1) ndarray
         """
         res = np.zeros(
@@ -496,7 +486,7 @@ class LiLit(Likelihood):
                 int(self.n * (self.n + 1) / 2),
                 int(self.n * (self.n + 1) / 2),
                 self.lmax + 1,
-            )
+            ),
         )
         for i in range(int(self.n * (self.n + 1) / 2)):
             for j in range(i, int(self.n * (self.n + 1) / 2)):
@@ -531,9 +521,15 @@ class LiLit(Likelihood):
         return res
 
     def inv_sigma(self, sigma):
-        """This function inverts the previously calculated sigma ndarray.
-        Note that some elements may be null, thus the covariance may be singular.
-        In those cases, I reduce the dimension of the matrix by deleting the corresponding row and column.
+        """Invert the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. In those cases, I reduce the dimension of the matrix by deleting the corresponding row and column.
+
+        Args
+        ----
+            ndarray: (self.n x self.n x self.lmax+1) ndarray with the previously computed sigma (not inverted)
+
+        Returns
+        -------
+            array : array of objects, each being a square matrix representing the covariance at that multipole
         """
         res = np.zeros(self.lmax + 1, dtype=object)
 
@@ -551,32 +547,34 @@ class LiLit(Likelihood):
         return res[2:]
 
     def get_reduced_data(self, mat):
-        """
-        In case of different lmax for the fields, you will have singular marices.
-        Thus, this function cuts the row and column corresponding to a zero diagonal value.
-        """
+        """Cut the row and column corresponding to a zero diagonal value. Indeed, in case of different lmax for the fields, you will have singular marices.
 
+        Args
+        ----
+            ndarray: A ndarray containing the covariance matrices, with some singular ones.
+
+        Returns
+        -------
+            ndarray : ndarray of the reduced input matrix
+        """
         idx = np.where(np.diag(mat) == 0)[0]
         mat = np.delete(mat, idx, axis=0)
-        mat = np.delete(mat, idx, axis=1)
-        return mat
+        return np.delete(mat, idx, axis=1)
 
     def initialize(self):
-        """
-        This time, at this point all the useful quantities are already stored, thus I proceed to initialize the fiducial
-        spectra.
-        """
-
+        """Initialize and compute useful quantities."""
         with open(self.cl_file, "rb") as pickle_file:
             self.fiduCLS = pickle.load(pickle_file)
         with open(self.nl_file, "rb") as pickle_file:
             self.noiseCLS = pickle.load(pickle_file)
 
         assert isinstance(
-            self.fiduCLS, dict
+            self.fiduCLS,
+            dict,
         ), "fiduCLS must be a dictionary. You may want to add some line making it so."
         assert isinstance(
-            self.noiseCLS, dict
+            self.noiseCLS,
+            dict,
         ), "noiseCLS must be a dictionary. You may want to add some line making it so."
 
         self.keys = self.get_keys(self)
@@ -588,7 +586,7 @@ class LiLit(Likelihood):
             print(f"Keys of noise CLs ---> {self.noiseCLS.keys()}")
 
             field = "yy"
-            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Fiducial CLs for {field.upper()} ---> {self.fiduCLS[field][0:5]}")
             print(f"Noise CLs for {field.upper()} ---> {self.noiseCLS[field][0:5]}")
 
@@ -603,6 +601,13 @@ class LiLit(Likelihood):
             self.sigma2 = self.inv_sigma(sigma2)
 
     def get_requirements(self):
+        """Define requirements of the likelihood, specifying quantities calculated by a theory code are needed.
+
+        Returns
+        -------
+            dict: dict with requirements
+        return dictionary
+        """
         req = {}
         req["unlensed_Cl"] = {
             cl: self.lmax for cl in self.keys
@@ -610,20 +615,29 @@ class LiLit(Likelihood):
         if self.debug:
             req["CAMBdata"] = None
             print(
-                f"\nYou requested that Cobaya provides to the likelihood the following items: {req}"
+                f"\nYou requested that Cobaya provides to the likelihood the following items: {req}",
             )
         return req
 
     def data_vector(self, cov):
-        """
-        This function extract the data vector necessary for the Gaussian case. Note that this will cut the
-        null value since some may be null when the fields have different values for lmax
+        """Extract the data vector necessary for the Gaussian case. Note that this will cut the null value since some may be null when the fields have different values for lmax.
+
+        Args
+        ----
+            ndarray: A ndarray containing the covariance matrices, with some null ones.
+
+        Returns
+        -------
+            array: array containing the data vector. Typically, this will be something like [YY, YK, KK].
         """
         return cov[np.triu_indices(self.n)][cov[np.triu_indices(self.n)] != 0]
 
     def chi_part(self, i=0):
-        """
-        This function compute factor entering the chi-square expression in parenthesis.
+        """Compute factor entering the chi-square expression in parenthesis.
+
+        Returns
+        -------
+            array: array containing factor in parenthesis of the chi-square expression
         """
         if self.like == "exact":
             if self.n != 1:
@@ -634,12 +648,10 @@ class LiLit(Likelihood):
                     coba = self.get_reduced_data(coba)
                 M = data @ np.linalg.inv(coba)
                 norm = len(self.data[0, :, i][self.data[0, :, i] != 0])
-                print(norm)
-                res = np.trace(M) - np.linalg.slogdet(M)[1] - norm
+                return np.trace(M) - np.linalg.slogdet(M)[1] - norm
             else:
                 M = self.data / self.coba
-                res = M - np.log(np.abs(M)) - 1
-                return res
+                return M - np.log(np.abs(M)) - 1
         elif self.like == "gaussian":
             if self.n != 1:
                 coba = self.data_vector(self.coba[:, :, i])
@@ -652,6 +664,12 @@ class LiLit(Likelihood):
         return np.squeeze(res)
 
     def log_likelihood(self):
+        """Compute the log likelihood.
+
+        Returns
+        -------
+            float: value of the log likelihood already summed over multipoles
+        """
         ell = np.arange(self.lmin, self.lmax + 1, 1)
         if self.n != 1:
             logp_ℓ = np.zeros(ell.shape)
@@ -662,7 +680,13 @@ class LiLit(Likelihood):
         return np.sum(logp_ℓ)
 
     def logp(self, **params_values):
+        """Compute the log likelihood and pass it to Cobaya to carry on the MCMC process.
 
+        Returns
+        -------
+            float: value of the log likelihood
+            dict(Optional): dictionary of eventual deriver parameters computed by the likelihood function
+        """
         if self.debug:
             CAMBdata = self.provider.get_CAMBdata()
             pars = CAMBdata.Params
@@ -674,7 +698,7 @@ class LiLit(Likelihood):
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
 
             field = "yy"
-            print(f"\nPrinting the first few values to check that it starts from 0...")
+            print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
 
         self.cobaCOV = self.cov_filling(self, self.cobaCLs)

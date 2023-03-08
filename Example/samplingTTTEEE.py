@@ -1,4 +1,7 @@
 import time
+from mpi4py import MPI
+from cobaya.run import run
+from cobaya.log import LoggedError
 from likelihood import LiLit
 
 debug = False
@@ -22,7 +25,7 @@ info = {
         "H0": {"latex": "H_0", "max": 100, "min": 20},
         "cosmomc_theta": {
             "derived": False,
-            "value": "lambda theta_MC_100: " "1.e-2*theta_MC_100",
+            "value": "lambda theta_MC_100: 1.e-2*theta_MC_100",
         },
         "logA": {
             "drop": True,
@@ -94,13 +97,10 @@ info = {
     },
 }
 
-from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-from cobaya.run import run
-from cobaya.log import LoggedError
 
 start = time.time()
 
@@ -108,7 +108,7 @@ success = False
 try:
     upd_info, mcmc = run(info)
     success = True
-except LoggedError as err:
+except LoggedError:
     pass
 
 success = all(comm.allgather(success))
