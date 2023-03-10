@@ -6,10 +6,35 @@ from likelihood import LiLit
 
 debug = False
 name = "BB"
-lmax = 300
+lmax = 500
 
-exactBB = LiLit(name=name, fields="b", like="exact", debug=debug, lmax=lmax)
-gaussBB = LiLit(name=name, fields="b", like="gaussian", debug=debug, lmax=lmax)
+r = 0.02
+nt = 0.1
+
+exactBB = LiLit(
+    name=name,
+    fields="b",
+    like="exact",
+    r=r,
+    nt=nt,
+    experiment="PTEPLiteBIRD",
+    nside=128,
+    debug=debug,
+    lmax=lmax,
+    fsky=0.49,
+)
+gaussBB = LiLit(
+    name=name,
+    fields="b",
+    like="gaussian",
+    r=r,
+    nt=nt,
+    experiment="PTEPLiteBIRD",
+    nside=128,
+    debug=debug,
+    lmax=lmax,
+    fsky=0.49,
+)
 
 info = {
     "likelihood": {name: exactBB},
@@ -25,13 +50,13 @@ info = {
             "latex": "n_t",
             "prior": {"max": 5, "min": -5},
             "proposal": 0.1,
-            "ref": {"dist": "norm", "loc": 0.3, "scale": 0.001},
+            "ref": {"dist": "norm", "loc": nt, "scale": 0.001},
         },
         "r": {
             "latex": "r_{0.01}",
             "prior": {"max": 3, "min": 1e-5},
             "proposal": 0.0002,
-            "ref": {"dist": "norm", "loc": 0.02, "scale": 0.0005},
+            "ref": {"dist": "norm", "loc": r, "scale": 0.0005},
         },
         "r005": {
             "derived": "lambda r, nt, ns: r * (0.05/0.01)**(nt - ns + 1)",
@@ -57,6 +82,10 @@ info = {
                 "bbn_predictor": "PArthENoPE_880.2_standard.dat",
                 "halofit_version": "mead",
                 "lens_potential_accuracy": 1,
+                "NonLinear": "NonLinear_both",  # This is necessary to be concordant with Planck2018 fiducial spectra
+                "max_l": 2700,  # This is necessary to get accurate lensing B-modes
+                "WantTransfer": True,  # This is necessary to be concordant with Planck2018 fiducial spectra
+                "Transfer.high_precision": True,  # This is necessary to be concordant with Planck2018 fiducial spectra (this will impact negatively on the performance, so you might want to switch it off. However, remember to chanfe the fiducial accordingly.)
                 "parameterization": 2,
                 "num_nu_massless": 2.046,
                 "share_delta_neff": True,
@@ -64,6 +93,7 @@ info = {
                 "pivot_tensor": 0.01,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
+                # "Accuracy.AccuracyBoost": 2, # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
             }
         }
     },

@@ -8,6 +8,10 @@ theory:
       bbn_predictor: PArthENoPE_880.2_standard.dat
       halofit_version: mead
       lens_potential_accuracy: 1
+      NonLinear: NonLinear_both
+      max_l: 2700
+      WantTransfer: true
+      Transfer.high_precision: true
       parameterization: 2
       num_nu_massless: 2.046
       share_delta_neff: true
@@ -69,8 +73,8 @@ params:
     proposal: 0.001
     ref:
       dist: norm
-      loc: 3.05
-      scale: 0.001
+      loc: 3.044
+      scale: 0.0001
   mnu:
     value: 0.06
   ns:
@@ -81,8 +85,8 @@ params:
     proposal: 0.002
     ref:
       dist: norm
-      loc: 0.965
-      scale: 0.004
+      loc: 0.9660499
+      scale: 0.0004
   ombh2:
     latex: \Omega_\mathrm{b} h^2
     prior:
@@ -91,8 +95,8 @@ params:
     proposal: 0.0001
     ref:
       dist: norm
-      loc: 0.0224
-      scale: 0.0001
+      loc: 0.0223828
+      scale: 1.0e-05
     renames:
     - omegabh2
   omch2:
@@ -103,8 +107,8 @@ params:
     proposal: 0.0005
     ref:
       dist: norm
-      loc: 0.12
-      scale: 0.001
+      loc: 0.1201075
+      scale: 0.0001
     renames:
     - omegach2
   tau:
@@ -115,8 +119,8 @@ params:
     proposal: 0.003
     ref:
       dist: norm
-      loc: 0.055
-      scale: 0.006
+      loc: 0.05430842
+      scale: 0.0006
   theta_MC_100:
     drop: true
     latex: 100\theta_\mathrm{MC}
@@ -127,7 +131,7 @@ params:
     ref:
       dist: norm
       loc: 1.04109
-      scale: 0.0004
+      scale: 4.0e-05
     renames: theta
 sampler:
   mcmc:
@@ -157,7 +161,7 @@ sampler:
         - omch2
         - tau
         - theta_MC_100
-    - - 3
+    - - 1
       - - logA
         - ns
     callback_function: null
@@ -168,6 +172,6 @@ sampler:
     drag_limits: null
     fallback_covmat_scale: 4
     version: 3.2.1
-output: gaussTTTEEE_lmax600
+output: exactTTTEEE_lmax[1500, 1200]
 stop-at-error: true
 version: 3.2.1

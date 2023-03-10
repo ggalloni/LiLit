@@ -8,6 +8,10 @@ theory:
       bbn_predictor: PArthENoPE_880.2_standard.dat
       halofit_version: mead
       lens_potential_accuracy: 1
+      NonLinear: NonLinear_both
+      max_l: 2700
+      WantTransfer: true
+      Transfer.high_precision: true
       parameterization: 2
       num_nu_massless: 2.046
       share_delta_neff: true
@@ -75,7 +79,7 @@ params:
     proposal: 0.1
     ref:
       dist: norm
-      loc: 0.3
+      loc: 0.1
       scale: 0.001
   r:
     latex: r_{0.01}
@@ -126,6 +130,6 @@ sampler:
     drag_limits: null
     fallback_covmat_scale: 4
     version: 3.2.1
-output: exactBB_lmax300
+output: exactBB_lmax500
 stop-at-error: true
 version: 3.2.1
