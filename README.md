@@ -55,15 +55,11 @@ Example
 ---------------
 
 To show an actual example, I report two very simple MCMC analyses on BB and on TTTEEE in the "Example" folder. 
-There, you can find both the likelihood (LiLit) and the simple Python scripts to run the
-analyses. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist.
-The two analyses are carryed out by running samplingBB.py or samplingTTTEEE.py, and the inline output is stored
-in logBB.txt and logTTTEEE.txt. Usually I setup two extra scripts for the production of the fiducial power spectra 
-and the noise power spectra (here I give two simple examples). Also you will find the Planck 2018 ini file provided
-by CAMB.
+There, you can find both the likelihood (LiLit) and the simple Python scripts to run the analyses. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist.
+The two analyses are carryed out by running samplingBB.py or samplingTTTEEE.py, and the inline output is stored in logBB.txt and logTTTEEE.txt. Also you will find the Planck 2018 ini file provided by CAMB.
+As regards the noise considered in the examples, I used the built in function of LiLit to compute the inverse noise weigthed noise over all the channels of LiteBIRD. The sensitivities are publicly available in 2202.02773.
 
-Note that the BB run ihas converged in ~40 seconds, while the TTTEEE one has not converged yet (I interrupted it
-since it is not the scope of this repo to report actual results).
+Note that both the BB run and the TTTEEE run has been interrupted well before covergence. Indeed, it is not the scope of this repository to provide actual resutls, but rather it is to give you the means to obtain them.
 
 Developing the code
 -------------------

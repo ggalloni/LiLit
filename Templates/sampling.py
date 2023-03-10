@@ -1,7 +1,7 @@
 """
 Example usage of the likelihoods defined in likelihood.py and of a typical Cobaya dictionary.
 
-Refer to the Example folder for more detailed information about the dictionary.
+Refer also to the Example folder and the dictionaries therein.
 """
 from mpi4py import MPI
 from cobaya.run import run
@@ -14,11 +14,17 @@ info = {
         "XX": exactXX,
     },  # Here "XX" will be the name Cobaya will use to refer to this likelihood, but it is completely arbitrary
     "params": {
-        "A": {"derived": "lambda As: 1e9*As", "latex": "10^9 A_\\mathrm{s}"},
-        "As": {"latex": "A_\\mathrm{s}", "value": "lambda logA: 1e-10*np.exp(logA)"},
+        "A": {
+            "derived": "lambda As: 1e9*As",
+            "latex": "10^9 A_\\mathrm{s}",
+        },  # Here "A" is defined as a derived parameter
+        "As": {
+            "latex": "A_\\mathrm{s}",
+            "value": "lambda logA: 1e-10*np.exp(logA)",
+        },  # This instead will be passed to CAMB
         "DHBBN": {
             "derived": "lambda DH: 10**5*DH",
-            "latex": "10^5 \\mathrm{D}/\\mathrm{H}",
+            "latex": "10^5 \\mathrm{D}/\\mathrm{H}",  # This specifies how GetDist will label this quantity in the plots
         },
         "H0": {"latex": "H_0", "max": 100, "min": 20},
         "YHe": {"latex": "Y_\\mathrm{P}"},
@@ -33,13 +39,20 @@ info = {
             "value": "lambda theta_MC_100: 1.e-2*theta_MC_100",
         },
         "logA": {
-            "drop": True,
+            "drop": True,  # This key tells to Cobaya to drop this parameter to "As" without trying to pass it to the likelihood of the theory code (CAMB)
             "latex": "\\log(10^{10} A_\\mathrm{s})",
-            "prior": {"max": 3.91, "min": 1.61},
-            "proposal": 0.001,
-            "ref": {"dist": "norm", "loc": 3.05, "scale": 0.001},
+            "prior": {
+                "max": 3.91,
+                "min": 1.61,
+            },  # This translated to a uniform prior between those maximum and minimul values
+            "proposal": 0.001,  # This is the proposed side of the step. In case that the covariance of parameters is passed to Cobaya, this will be ignored
+            "ref": {
+                "dist": "norm",
+                "loc": 3.05,
+                "scale": 0.001,
+            },  # This is the reference distribution from which the initial point is drawn
         },
-        "mnu": 0.06,
+        "mnu": 0.06,  # This is one of the many ways to fix a parameter to a specific value
         "ns": {
             "latex": "n_\\mathrm{s}",
             "prior": {"max": 1.2, "min": 0.8},
@@ -58,7 +71,9 @@ info = {
             "proposal": 0.0005,
             "ref": {"dist": "norm", "loc": 0.12, "scale": 0.001},
         },
-        "omega_de": {"latex": "\\Omega_\\Lambda"},
+        "omega_de": {
+            "latex": "\\Omega_\\Lambda"
+        },  # When only the latex is specified, Cobaya expects that this parameter will be provided by the theory code (CAMB) as an output of the computation
         "omegam": {"latex": "\\Omega_\\mathrm{m}"},
         "omegamh2": {
             "derived": "lambda omegam, H0: omegam*(H0/100)**2",
@@ -105,17 +120,17 @@ info = {
     "resume": True,  # This checks if there is a chain with the same name and if so it checks the compatibility of the input params of this dict with the one used to produce the other chain. If the are compatible, Cobaya will try to resume the sampling from where it stopped
     "debug": True,  # This will produce a very verbose output that is very helpful when debugging. Tho, I would not suggest to keep this True if nothing is wrong, since this slows down the MCMC
     "sampler": {
-        "mcmc": {
-            "Rminus1_cl_stop": 0.2,
-            "Rminus1_stop": 0.01,
-            "covmat": "auto",
-            "drag": True,
-            "oversample_power": 0.4,
-            "proposal_scale": 1.9,
+        "mcmc": {  # mcmc essentially calls CosmoMC
+            "Rminus1_cl_stop": 0.2,  # This is the Gelman-Rubin test on the variance of the parameters
+            "Rminus1_stop": 0.01,  # This is the Gelman-Rubin test on the parameters
+            "covmat": "auto",  # This will try and find a suitable covariance matrix for the parameters among the Planck's ones. You can also pass a custom one specifying its path
+            "drag": True,  # This will take advantage of the slow-fast parameters distintion
+            "oversample_power": 0.4,  # This encodes the balance in how these parameters are computed (in terms of speed)
+            "proposal_scale": 1.9,  # This is the factor that will multiply the proposal sizes of the various parameters
         },
     },
     "theory": {
-        "camb": {
+        "camb": {  # This calls CAMB as your theory code. Use "classy" to call instead CLASS (extra care have to be made to rename parameters and check accordance with Planck2018 spectra)
             "extra_args": {
                 "bbn_predictor": "PArthENoPE_880.2_standard.dat",
                 "halofit_version": "mead",
@@ -128,7 +143,7 @@ info = {
         },
     },
 }
-
+"This part will take care of the mpirun you may want to use"
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
@@ -149,3 +164,5 @@ if not success and rank == 0:
 end = time.time()
 
 print(f"ALL DONE IN {round(end-start, 2)} SECONDS!")
+
+"To run the script, just do: 'python sampling.py > log.txt', thus dumping the output in a text. This helps when you have to search for information. Alternatively, you can run it parallely with something as 'mpirun -np 4 --cpus-per-pro 4 python sampling.py > log.txt'"

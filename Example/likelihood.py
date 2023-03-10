@@ -401,7 +401,6 @@ class LiLit(Likelihood):
                     coba = self.get_reduced_data(coba)
                 M = data @ np.linalg.inv(coba)
                 norm = len(self.data[0, :, i][self.data[0, :, i] != 0])
-                print(norm)
                 return np.trace(M) - np.linalg.slogdet(M)[1] - norm
             else:
                 M = self.data / self.coba
@@ -456,6 +455,12 @@ class LiLit(Likelihood):
                 ell[2 - self.lmin :],
                 self.cobaCOV[0, 0, 2 - self.lmin :],
                 label="Cobaya CLs",
+                ls="--",
+            )
+            plt.loglog(
+                ell[2 - self.lmin :],
+                self.noiseCOV[0, 0, 2 - self.lmin :],
+                label="Noise CLs",
             )
             plt.xlim(2, None)
             plt.legend()

@@ -883,6 +883,12 @@ class LiLit(Likelihood):
                 ell[2 - self.lmin :],
                 self.cobaCOV[0, 0, 2 - self.lmin :],
                 label="Cobaya CLs",
+                ls="--",
+            )
+            plt.loglog(
+                ell[2 - self.lmin :],
+                self.noiseCOV[0, 0, 2 - self.lmin :],
+                label="Noise CLs",
             )
             plt.xlim(2, None)
             plt.legend()
