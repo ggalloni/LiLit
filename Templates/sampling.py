@@ -1,4 +1,8 @@
-"""Example usage of the likelihoods defined in likelihood.py and of a typical Cobaya dictionary."""
+"""
+Example usage of the likelihoods defined in likelihood.py and of a typical Cobaya dictionary.
+
+Refer to the Example folder for more detailed information about the dictionary.
+"""
 from mpi4py import MPI
 from cobaya.run import run
 from cobaya.log import LoggedError

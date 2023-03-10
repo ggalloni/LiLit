@@ -8,8 +8,30 @@ debug = False
 name = "BB"
 lmax = 300
 
-exactBB = LiLit(name=name, fields="b", like="exact", debug=debug, lmax=lmax)
-gaussBB = LiLit(name=name, fields="b", like="gaussian", debug=debug, lmax=lmax)
+exactBB = LiLit(
+    name=name,
+    fields="b",
+    like="exact",
+    r=0.02,
+    nt=0.1,
+    experiment="PTEPLiteBIRD",
+    nside=128,
+    debug=debug,
+    lmax=lmax,
+    fsky=0.49,
+)
+gaussBB = LiLit(
+    name=name,
+    fields="b",
+    like="gaussian",
+    r=0.02,
+    nt=0.1,
+    experiment="PTEPLiteBIRD",
+    nside=128,
+    debug=debug,
+    lmax=lmax,
+    fsky=0.49,
+)
 
 info = {
     "likelihood": {name: exactBB},
@@ -57,6 +79,10 @@ info = {
                 "bbn_predictor": "PArthENoPE_880.2_standard.dat",
                 "halofit_version": "mead",
                 "lens_potential_accuracy": 1,
+                "NonLinear": "NonLinear_both",  # This is necessary to be concordant with Planck2018 fiducial spectra
+                "max_l": 2700,  # This is necessary to get accurate lensing B-modes
+                "WantTransfer": True,  # This is necessary to be concordant with Planck2018 fiducial spectra
+                "Transfer.high_precision": True,  # This is necessary to be concordant with Planck2018 fiducial spectra
                 "parameterization": 2,
                 "num_nu_massless": 2.046,
                 "share_delta_neff": True,
@@ -64,6 +90,7 @@ info = {
                 "pivot_tensor": 0.01,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
+                # "Accuracy.AccuracyBoost": 2, # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
             }
         }
     },

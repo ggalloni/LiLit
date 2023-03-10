@@ -12,10 +12,24 @@ lmax = [600, 500]
 fsky = [0.8, 0.5]
 
 exactTTTEEE = LiLit(
-    name=name, fields=["t", "e"], like="exact", lmax=lmax, fsky=fsky, debug=debug
+    name=name,
+    fields=["t", "e"],
+    like="exact",
+    experiment="PTEPLiteBIRD",
+    nside=256,
+    lmax=lmax,
+    fsky=fsky,
+    debug=debug,
 )
 gaussTTTEEE = LiLit(
-    name=name, fields=["t", "e"], like="gaussian", lmax=lmax, fsky=fsky, debug=debug
+    name=name,
+    fields=["t", "e"],
+    like="gaussian",
+    experiment="PTEPLiteBIRD",
+    nside=256,
+    lmax=lmax,
+    fsky=fsky,
+    debug=debug,
 )
 
 info = {
@@ -85,6 +99,10 @@ info = {
                 "bbn_predictor": "PArthENoPE_880.2_standard.dat",
                 "halofit_version": "mead",
                 "lens_potential_accuracy": 1,
+                "NonLinear": "NonLinear_both",  # This is necessary to be concordant with Planck2018 fiducial spectra
+                "max_l": 2700,  # This is necessary to get accurate lensing B-modes
+                "WantTransfer": True,  # This is necessary to be concordant with Planck2018 fiducial spectra
+                "Transfer.high_precision": True,  # This is necessary to be concordant with Planck2018 fiducial spectra
                 "parameterization": 2,
                 "num_nu_massless": 2.046,
                 "share_delta_neff": True,
@@ -92,6 +110,7 @@ info = {
                 "pivot_tensor": 0.01,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
+                # "Accuracy.AccuracyBoost": 2, # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
             }
         }
     },

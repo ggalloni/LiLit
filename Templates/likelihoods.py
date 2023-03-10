@@ -319,9 +319,14 @@ class LiLit(Likelihood):
         lmax=None,
         like="exact",
         lmin=2,
-        cl_file="CLs.pkl",
-        nl_file="noise.pkl",
-        fsky=0.5,
+        cl_file=None,
+        nl_file=None,
+        experiment=None,
+        nside=2048,
+        r=None,
+        nt=None,
+        pivot_t=0.01,
+        fsky=1,
         sep="",
         debug=None,
     ):
@@ -343,8 +348,17 @@ class LiLit(Likelihood):
         self.sep = sep
         self.cl_file = cl_file
         self.nl_file = nl_file
+        self.experiment = experiment
+        self.nside = nside
         self.debug = debug
         self.keys = self.get_keys()
+        if "bb" in self.keys:
+            assert (
+                r is not None
+            ), "You must provide the tensor-to-scalar ratio r for the fiducial production (defaul is at 0.01 Mpc^-1)"
+            self.r = r
+            self.nt = nt
+            self.pivot_t = pivot_t
 
         # This part is necesary to handle the case where the various fields have different lmax and fsky
         self.lmaxs = None
@@ -561,25 +575,180 @@ class LiLit(Likelihood):
         mat = np.delete(mat, idx, axis=0)
         return np.delete(mat, idx, axis=1)
 
+    def CAMBres2dict(self, camb_results):
+        """Take the CAMB result product from get_cmb_power_spectra and convert it to a dictionary.
+
+        Args:
+            camb_results (CAMBdata instance): CAMB result product from the method get_cmb_power_spectra.
+
+        Returns:
+            dictionary (dict): dictionary containing the results under the proper keys.
+        """
+        ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
+        mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
+        res = {"ell": ls}
+        for key, i in mapping.items():
+            res[key] = camb_results["total"][:, i]
+        if "pp" in self.keys:
+            cl_lens = camb_results.get("lens_potential")
+            if cl_lens is not None:
+                res["pp"] = cl_lens[:, 0].copy()
+                if "pt" in self.keys and "pe" in self.keys:
+                    for i, cross in enumerate(["pt", "pe"]):
+                        res[cross] = cl_lens[:, i + 1].copy()
+                        res[cross[::-1]] = res[cross]
+        return res
+
+    def txt2dict(self, txt, mapping=None, apply_ellfactor=None):
+        """Take a txt file and convert it to a dictionary. This requires a way to map the columns to the keys.
+
+        Args:
+            txt (txt file): txt file containing the spectra as columns
+            mapping (dict): dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column
+
+        Returns:
+            dictionary (dict): dictionary containing the results under the proper keys.
+        """
+        assert (
+            mapping is not None
+        ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
+        ls = np.arange(txt.shape[0], dtype=np.int64)
+        res = {"ell": ls}
+        for key, i in mapping.items():
+            if apply_ellfactor:
+                res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi
+            else:
+                res[key] = txt[:, i]
+        return res
+
+    def prod_fidu(self):
+        """Starting from the CAMB inifile for Planck2018, produce the fiducial power spectra. If instead you provide a custom file, stores that."""
+
+        if self.cl_file is not None:
+            if self.cl_file.endswith(".pkl"):
+                with open(self.cl_file, "rb") as pickle_file:
+                    res = pickle.load(pickle_file)
+            else:
+                txt = np.loadtxt(self.cl_file)
+                mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
+                res = self.txt2dict(txt, mapping)
+            return res
+
+        import os
+        import camb
+
+        pars = camb.read_ini(os.path.join("./", "planck_2018.ini"))
+        if "bb" in self.keys:
+            print(f"\nProducing fiducial spectra for r={self.r} and nt={self.nt}")
+            pars.InitPower.set_params(
+                As=2.100549e-9,
+                ns=0.9660499,
+                r=self.r,
+                nt=self.nt,
+                pivot_tensor=self.pivot_t,
+                pivot_scalar=0.05,
+                parameterization=2,
+            )
+            pars.WantTensors = True
+            pars.Accuracy.AccurateBB = True
+        pars.DoLensing = True
+        # pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
+
+        if self.debug:
+            print(pars)
+
+        results = camb.get_results(pars)
+        res = results.get_cmb_power_spectra(
+            CMB_unit="muK", lmax=self.lmax, raw_cl=False
+        )
+        return self.CAMBres2dict(res)
+
+    def prod_noise(self):
+        """Produce the noise power spectra for a given experiment with inverse noise weighting of white noise in each channel (TT, EE, BB). Otherwise, if you specify a custom file, store that."""
+
+        if self.nl_file is not None:
+            if self.nl_file.endswith(".pkl"):
+                with open(self.nl_file, "rb") as pickle_file:
+                    res = pickle.load(pickle_file)
+            else:
+                txt = np.loadtxt(self.nl_file)
+                mapping = {"bb": 0}
+                res = self.txt2dict(txt, mapping, apply_ellfactor=True)
+            return res
+
+        import os
+        import yaml
+        from yaml.loader import SafeLoader
+        import healpy as hp
+
+        assert (
+            self.experiment is not None
+        ), "You must specify the experiment you want to consider"
+        print(f"\nComputing noise for {self.experiment}")
+
+        # In my case I have stored the experiment characteristics inside the cmbdb package
+        import cmbdb
+
+        path = os.path.dirname(cmbdb.__file__)
+
+        with open(os.path.join(path, "experiments.yaml")) as f:
+            data = yaml.load(f, Loader=SafeLoader)
+
+        instrument = data[self.experiment]
+        fwhms = np.array(instrument["fwhm"])
+        freqs = np.array(instrument["frequency"])
+        depth_p = np.array(instrument["depth_p"])
+        depth_i = np.array(instrument["depth_i"])
+        depth_p /= hp.nside2resol(self.nside, arcmin=True)
+        depth_i /= hp.nside2resol(self.nside, arcmin=True)
+        depth_p = depth_p * np.sqrt(
+            hp.pixelfunc.nside2pixarea(self.nside, degrees=False)
+        )
+        depth_i = depth_i * np.sqrt(
+            hp.pixelfunc.nside2pixarea(self.nside, degrees=False)
+        )
+        n_freq = len(freqs)
+
+        ell = np.arange(0, self.lmax + 1, 1)
+
+        _keys = ["tt", "ee", "bb"]
+
+        sigma = np.radians(fwhms / 60.0) / np.sqrt(8.0 * np.log(2.0))
+        sigma2 = sigma**2
+
+        g = np.exp(ell * (ell + 1) * sigma2[:, np.newaxis])
+
+        pol_factor = np.array([np.zeros(sigma2.shape), 2 * sigma2, 2 * sigma2, sigma2])
+        pol_factor = np.exp(pol_factor)
+
+        G = []
+        for i, arr in enumerate(pol_factor):
+            G.append(g * arr[:, np.newaxis])
+        g = np.array(G)
+
+        res = {key: np.zeros((n_freq, self.lmax + 1)) for key in _keys}
+
+        res["tt"] = 1 / (g[0, :, :] * depth_i[:, np.newaxis] ** 2)
+        res["ee"] = 1 / (g[3, :, :] * depth_p[:, np.newaxis] ** 2)
+        res["bb"] = 1 / (g[3, :, :] * depth_p[:, np.newaxis] ** 2)
+
+        res["tt"] = ell * (ell + 1) / (np.sum(res["tt"], axis=0)) / 2 / np.pi
+        res["ee"] = ell * (ell + 1) / (np.sum(res["ee"], axis=0)) / 2 / np.pi
+        res["bb"] = ell * (ell + 1) / (np.sum(res["bb"], axis=0)) / 2 / np.pi
+
+        res["tt"][:2] = [0, 0]
+        res["ee"][:2] = [0, 0]
+        res["bb"][:2] = [0, 0]
+
+        return res
+
     def initialize(self):
-        """Initialize and compute useful quantities."""
-        with open(self.cl_file, "rb") as pickle_file:
-            self.fiduCLS = pickle.load(pickle_file)
-        with open(self.nl_file, "rb") as pickle_file:
-            self.noiseCLS = pickle.load(pickle_file)
+        """Initialize the fiducial spectra and the noise power spectra."""
+        self.fiduCLS = self.prod_fidu()
+        self.noiseCLS = self.prod_noise()
 
-        assert isinstance(
-            self.fiduCLS,
-            dict,
-        ), "fiduCLS must be a dictionary. You may want to add some line making it so."
-        assert isinstance(
-            self.noiseCLS,
-            dict,
-        ), "noiseCLS must be a dictionary. You may want to add some line making it so."
-
-        self.keys = self.get_keys(self)
-        self.fiduCOV = self.cov_filling(self, self.fiduCLS)
-        self.noiseCOV = self.cov_filling(self, self.noiseCLS)
+        self.fiduCOV = self.cov_filling(self.fiduCLS)
+        self.noiseCOV = self.cov_filling(self.noiseCLS)
 
         if self.debug:
             print(f"Keys of fiducial CLs ---> {self.fiduCLS.keys()}")
@@ -609,7 +778,7 @@ class LiLit(Likelihood):
         return dictionary
         """
         req = {}
-        req["unlensed_Cl"] = {
+        req["Cl"] = {
             cl: self.lmax for cl in self.keys
         }  # Note that the keyword can be set to "Cl" to get the lensed ones
         if self.debug:
@@ -692,7 +861,7 @@ class LiLit(Likelihood):
             pars = CAMBdata.Params
             print(pars)
 
-        self.cobaCLs = self.provider.get_unlensed_Cl(ell_factor=True)
+        self.cobaCLs = self.provider.get_Cl(ell_factor=True)
 
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
