@@ -355,7 +355,7 @@ class LiLit(Likelihood):
         cl_file=None,
         nl_file=None,
         experiment=None,
-        nside=2048,
+        nside=None,
         r=None,
         nt=None,
         pivot_t=0.01,
@@ -388,7 +388,9 @@ class LiLit(Likelihood):
         self.cl_file = cl_file
         self.nl_file = nl_file
         self.experiment = experiment
-        self.nside = nside
+        if self.experiment is not None:
+            assert nside is not None, "You must provide an nside to compute the noise"
+            self.nside = nside
         self.debug = debug
         self.keys = self.get_keys()
         if "bb" in self.keys:
