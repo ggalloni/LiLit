@@ -298,12 +298,7 @@ class LiLit(Likelihood):
         ), "You must specify the experiment you want to consider"
         print(f"\nComputing noise for {self.experiment}")
 
-        # In my case I have stored the experiment characteristics inside the cmbdb package
-        import cmbdb
-
-        _path = os.path.dirname(cmbdb.__file__)
-
-        with open(os.path.join(_path, "experiments.yaml")) as f:
+        with open(os.path.join("./", "experiments.yaml")) as f:
             _data = yaml.load(f, Loader=SafeLoader)
 
         _instrument = _data[self.experiment]
