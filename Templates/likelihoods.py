@@ -355,7 +355,7 @@ class LiLit(Likelihood):
         cl_file=None,
         nl_file=None,
         experiment=None,
-        nside=2048,
+        nside=None,
         r=None,
         nt=None,
         pivot_t=0.01,
@@ -381,14 +381,14 @@ class LiLit(Likelihood):
         self.fields = fields
         self.n = len(fields)
         self.lmin = lmin
-        self.lmax = lmax
         self.like = like
-        self.fsky = fsky
         self.sep = sep
         self.cl_file = cl_file
         self.nl_file = nl_file
         self.experiment = experiment
-        self.nside = nside
+        if self.experiment is not None:
+            assert nside is not None, "You must provide an nside to compute the noise"
+            self.nside = nside
         self.debug = debug
         self.keys = self.get_keys()
         if "bb" in self.keys:
@@ -401,34 +401,38 @@ class LiLit(Likelihood):
 
         # This part is necesary to handle the case where the various fields have different lmax and fsky
         self.lmaxs = None
-        if isinstance(self.lmax, list):
+        if isinstance(lmax, list):
             assert (
-                len(self.lmax) == self.n
+                len(lmax) == self.n
             ), "If you provide multiple lmax, they must match the number of requested fields with the same order"
             self.lmaxs = {}
             for i in range(self.n):
                 for j in range(i, self.n):
                     _key = self.fields[i] + self.sep + self.fields[j]
-                    self.lmaxs[_key] = min(self.lmax[i], self.lmax[j])
-                    self.lmaxs[_key[::-1]] = min(self.lmax[i], self.lmax[j])
+                    self.lmaxs[_key] = min(lmax[i], lmax[j])
+                    self.lmaxs[_key[::-1]] = min(lmax[i], lmax[j])
             if self.debug:
                 print(f"\nYou have requested the following lmax {self.lmaxs}")
-            self.lmax = max(self.lmax)
+            self.lmax = max(lmax)
+        else:
+            self.lmax = lmax
 
         self.fskies = None
-        if isinstance(self.fsky, list):
+        if isinstance(fsky, list):
             assert (
-                len(self.fsky) == self.n
+                len(fsky) == self.n
             ), "If you provide multiple fsky, they must match the number of requested fields with the same order"
             self.fskies = {}
             for i in range(self.n):
                 for j in range(i, self.n):
                     _key = self.fields[i] + self.sep + self.fields[j]
-                    self.fskies[_key] = min(self.fsky[i], self.fsky[j])
-                    self.fskies[_key[::-1]] = min(self.fsky[i], self.fsky[j])
+                    self.fskies[_key] = min(fsky[i], fsky[j])
+                    self.fskies[_key[::-1]] = min(fsky[i], fsky[j])
             if self.debug:
                 print(f"\nYou have requested the following fsky {self.fskies}")
             self.fsky = None
+        else:
+            self.fsky = fsky
         Likelihood.__init__(self, name=name)
 
     def cov_filling(self, input_dictionary: dict) -> np.ndarray:
