@@ -47,3 +47,31 @@ Computing noise for PTEPLiteBIRD
 [mcmc] Progress @ 2023-03-13 11:07:35 : 1561 steps taken, and 346 accepted.
 [mcmc] Progress @ 2023-03-13 11:08:35 : 1616 steps taken, and 363 accepted.
 [mcmc] Progress @ 2023-03-13 11:09:35 : 1688 steps taken, and 388 accepted.
+[mcmc] Progress @ 2023-03-13 11:10:36 : 1748 steps taken, and 414 accepted.
+[mcmc] Progress @ 2023-03-13 11:11:46 : 1808 steps taken, and 433 accepted.
+[mcmc] Progress @ 2023-03-13 11:12:47 : 1851 steps taken, and 444 accepted.
+[exception handler] ---------------------------------------
+
+Traceback (most recent call last):
+  File "samplingFULL.py", line 157, in <module>
+    upd_info, mcmc = run(info)
+  File "/home/jack/.local/lib/python3.8/site-packages/cobaya/run.py", line 168, in run
+    sampler.run()
+  File "/home/jack/.local/lib/python3.8/site-packages/cobaya/samplers/mcmc/mcmc.py", line 340, in run
+    self.get_new_sample()
+  File "/home/jack/.local/lib/python3.8/site-packages/cobaya/samplers/mcmc/mcmc.py", line 415, in get_new_sample_metropolis
+    trial_results = self.model.logposterior(trial)
+  File "/home/jack/.local/lib/python3.8/site-packages/cobaya/model.py", line 550, in logposterior
+    like = self._loglikes_input_params(input_params,
+  File "/home/jack/.local/lib/python3.8/site-packages/cobaya/model.py", line 368, in _loglikes_input_params
+    compute_success = component.check_cache_and_compute(
+  File "/home/jack/.local/lib/python3.8/site-packages/cobaya/theory.py", line 258, in check_cache_and_compute
+    if self.calculate(state, want_derived, **params_values_dict) is False:
+  File "/home/jack/.local/lib/python3.8/site-packages/cobaya/theories/camb/camb.py", line 603, in calculate
+    results.power_spectra_from_transfer(silent = True)
+  File "/home/jack/cobaya/code/CAMB/camb/results.py", line 361, in power_spectra_from_transfer
+    CAMBdata_transferstopowers(byref(self))
+KeyboardInterrupt
+-------------------------------------------------------------
+
+[exception handler] Interrupted by the user.
