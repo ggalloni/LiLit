@@ -37,6 +37,16 @@ Note that both the BB run and the TTTEEE run has been interrupted well before co
 
 Finally, I report a further example combining the two mentioned above. This shows how to include more than one likelihood in the MCMC dictionary.
 
+Once you have finished preparing your sampling.py file, you can run it simply by using: 
+
+`python sampling.py > log.txt`
+
+Sending the inline output to a text file might help in recovering information on how the run is going. If you want to run it parallely, you may want to use something like:
+
+`mpirun -np 4 --cpus-per-proc 4 python sampling.py > log.txt`
+
+The number of processess translates on the number of chains that will be runned simultaneously.
+
 [^2]: E. Allys, K. Arnold, J. Aumont, R. Aurlien, S. Azzoni, C. Baccigalupi, A. J. Banday, R. Banerji, R. B. Barreiro, N. Bartolo, et al. (LiteBIRD) (2022), eprint = 2202.02773
 
 Developing the code
