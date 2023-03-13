@@ -31,7 +31,7 @@ In the parameters block of the same dict, params with a prior will be interprete
 Example
 -------
 
-To show an actual example, I report two very simple MCMC analyses on BB and on TTTEEE in the "Example" folder. There, you can find both the likelihood (LiLit) and the simple Python scripts to run the analyses. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist. The two analyses are carryed out by running samplingBB.py or samplingTTTEEE.py, and the inline output is stored in logBB.txt and logTTTEEE.txt. Also you will find the _Planck_ 2018 ini file provided by CAMB. As regards the noise considered in the examples, I used the built in function of LiLit to compute the inverse noise weigthed noise over all the channels of LiteBIRD[^2].
+To show an actual example, I report two very simple MCMC analyses on BB and on TTTEEE in the "Example" folder. There, you can find both the likelihood (LiLit) and the simple Python scripts to run the analyses. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist. The two analyses are carryed out by running samplingBB.py or samplingTTTEEE.py, and the inline output is stored in logBB.txt and logTTTEEE.txt. Also you will find the _Planck_ 2018 ini file provided by CAMB. As regards the noise considered in the examples, I used the built in function of LiLit to compute the inverse noise weigthed noise over all the channels of LiteBIRD[^2], considering only white noise[^3].
 
 Note that both the BB run and the TTTEEE run has been interrupted well before covergence. Indeed, it is not the scope of this repository to provide actual resutls, but rather it is to give you the means to obtain them.
 
@@ -47,7 +47,9 @@ Sending the inline output to a text file might help in recovering information on
 
 The number of processess translates on the number of chains that will be runned simultaneously.
 
-[^2]: E. Allys, K. Arnold, J. Aumont, R. Aurlien, S. Azzoni, C. Baccigalupi, A. J. Banday, R. Banerji, R. B. Barreiro, N. Bartolo, et al. (LiteBIRD) (2022), eprint = 2202.02773
+[^2]: E. Allys, K. Arnold, J. Aumont, R. Aurlien, S. Azzoni, C. Baccigalupi, A. J. Banday, R. Banerji, R. B. Barreiro, N. Bartolo, et al. (LiteBIRD), Probing Cosmic Inflation with the LiteBIRD Cosmic Microwave Background Polarization Survey (2022), eprint = 2202.02773
+
+[^3]: As in Eq. 3.4 of P. Campeti, E. Komatsu, D. Poletti, and C. Baccigalupi, Measuring the spectrum of primordial gravitational waves with cmb, pta and laser interferometers (2020), eprint = 2007.04241
 
 Basic dependencies
 ------------------
