@@ -62,7 +62,7 @@ Basic dependencies
 Developing the code
 -------------------
 
-If you want to help developing the code, feel free to write me so that I can add you to the collaborators. Also, if you want to share the likelihood you are using, contact me or send a pull request so that we can add it to the LiteBIRD applications already available.
+If you want to help developing the code, feel free to send a pull request. Also, feel free to write me so that we can discuss on eventual major developments.
 
 Support
 -------
