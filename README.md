@@ -7,7 +7,9 @@ Contributors: Giulia Piccirilli ("Cross-Correlation Science" analysis)
 
 Overview
 --------
-In this repository I provide some basic examples of forecasting likelihoods for LiteBIRD. These are implemented to be used a Cobaya context, which encapsulates CosmoMC in a Python framework. The idea of this repository is to ease the creation of common framework among different  LiteBIRDers, trying to homogenize the post-PTEP works as we recently discussed among the collaboration. This should give to new Cobaya-users a good starting point to build upon. 
+In this repository I provide some basic examples of forecasting likelihoods for LiteBIRD. These are implemented to be used a Cobaya context, which encapsulates CosmoMC in a Python framework. The idea of this repository is to ease the creation of common framework among different  LiteBIRDers, trying to homogenize the post-PTEP works as we recently discussed among the collaboration. The most relevant study cases of LiteBIRD (T, E, B) are already tested and working. So, if you need to work with those, you should not need to look into the actual definition of the likelihood function, since you can proptly start running your MCMCs. As regards lensing, the likelihood function will need you to pass the reconstruction noise, since its computation is not coded.
+
+This repository should also give to new Cobaya-users a good starting point to build upon. 
 
 Templates
 ---------
