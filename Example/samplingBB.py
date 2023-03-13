@@ -1,3 +1,4 @@
+"""Sample on B-modes."""
 import time
 from mpi4py import MPI
 from cobaya.run import run
@@ -74,7 +75,7 @@ info = {
         "mcmc": {
             "Rminus1_cl_stop": 0.2,
             "Rminus1_stop": 0.01,
-        }
+        },
     },
     "theory": {
         "camb": {
@@ -94,8 +95,8 @@ info = {
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
                 # "Accuracy.AccuracyBoost": 2, # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
-            }
-        }
+            },
+        },
     },
 }
 
@@ -108,8 +109,8 @@ success = False
 try:
     upd_info, mcmc = run(info)
     success = True
-except LoggedError:
-    pass
+except LoggedError as err:
+    print(err)
 
 success = all(comm.allgather(success))
 

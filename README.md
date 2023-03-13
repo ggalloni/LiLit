@@ -1,5 +1,5 @@
 LiLit: Likelihood for LiteBIRD
-==============================================
+==============================
 
 Authors: Giacomo Galloni
 
@@ -52,7 +52,7 @@ you can pass A_s to the likelihood function and do something with it, but at the
 it will pass it also to CAMB to compute the spectra.
 
 Example
----------------
+-------
 
 To show an actual example, I report two very simple MCMC analyses on BB and on TTTEEE in the "Example" folder. 
 There, you can find both the likelihood (LiLit) and the simple Python scripts to run the analyses. Also, in the subfolder "chains" I store the results, which can be analyzed with GetDist.
