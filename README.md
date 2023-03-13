@@ -49,6 +49,16 @@ The number of processess translates on the number of chains that will be runned 
 
 [^2]: E. Allys, K. Arnold, J. Aumont, R. Aurlien, S. Azzoni, C. Baccigalupi, A. J. Banday, R. Banerji, R. B. Barreiro, N. Bartolo, et al. (LiteBIRD) (2022), eprint = 2202.02773
 
+Basic dependencies
+------------------
+* cobaya
+* numpy
+* healpy
+* pyyaml
+* pickle
+* matplotlib
+* camb, or classy
+
 Developing the code
 -------------------
 
