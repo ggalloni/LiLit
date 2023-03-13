@@ -1,0 +1,49 @@
+
+Computing noise for PTEPLiteBIRD
+
+Producing fiducial spectra for r=0.02 and nt=0.1
+
+Computing noise for PTEPLiteBIRD
+[output] Output to be read-from/written-into folder 'chains', with prefix 'exactTTTEEEBB_lmax[1500, 1200, 500]'
+[input] *WARNING* Support for input instances is experimental
+[input] *WARNING* Support for input instances is experimental
+[camb] `camb` module loaded successfully from /home/jack/cobaya/code/CAMB/camb
+[mcmc] Getting initial point... (this may take a few seconds)
+[model] Measuring speeds... (this may take a few seconds)
+[model] Setting measured speeds (per sec): {TTTEEE: 20.4, BB: 10700.0, camb.transfers: 1.87, camb: 3.54}
+[mcmc] Covariance matrix not present. We will start learning the covariance of the proposal earlier: R-1 = 30 (would be 2 if all params loaded).
+[mcmc] Initial point: logA:3.044179, ns:0.9663449, nt:0.1007326, r:0.02006371, ombh2:0.02236914, omch2:0.1200894, tau:0.05465436, theta_MC_100:1.041096
+[mcmc] Sampling!
+[mcmc] Progress @ 2023-03-13 10:41:18 : 1 steps taken, and 0 accepted.
+[mcmc] Progress @ 2023-03-13 10:42:19 : 75 steps taken, and 17 accepted.
+[mcmc] Progress @ 2023-03-13 10:43:19 : 138 steps taken, and 34 accepted.
+[mcmc] Progress @ 2023-03-13 10:44:19 : 192 steps taken, and 49 accepted.
+[mcmc] Progress @ 2023-03-13 10:45:19 : 244 steps taken, and 63 accepted.
+[mcmc] Progress @ 2023-03-13 10:46:20 : 300 steps taken, and 72 accepted.
+[mcmc] Progress @ 2023-03-13 10:47:20 : 368 steps taken, and 85 accepted.
+[mcmc] Progress @ 2023-03-13 10:48:24 : 428 steps taken, and 102 accepted.
+[mcmc] Progress @ 2023-03-13 10:49:24 : 486 steps taken, and 116 accepted.
+[mcmc] Progress @ 2023-03-13 10:50:24 : 538 steps taken, and 126 accepted.
+[mcmc] Progress @ 2023-03-13 10:51:24 : 593 steps taken, and 139 accepted.
+[mcmc] Progress @ 2023-03-13 10:52:24 : 658 steps taken, and 153 accepted.
+[mcmc] Progress @ 2023-03-13 10:53:25 : 713 steps taken, and 165 accepted.
+[mcmc] Progress @ 2023-03-13 10:54:26 : 781 steps taken, and 178 accepted.
+[mcmc] Progress @ 2023-03-13 10:55:27 : 854 steps taken, and 190 accepted.
+[mcmc] Progress @ 2023-03-13 10:56:27 : 926 steps taken, and 209 accepted.
+[mcmc] Progress @ 2023-03-13 10:57:27 : 993 steps taken, and 223 accepted.
+[mcmc] Progress @ 2023-03-13 10:58:29 : 1055 steps taken, and 233 accepted.
+[mcmc] Progress @ 2023-03-13 10:59:31 : 1111 steps taken, and 243 accepted.
+[mcmc] Progress @ 2023-03-13 11:00:32 : 1159 steps taken, and 253 accepted.
+[mcmc] Progress @ 2023-03-13 11:01:32 : 1226 steps taken, and 268 accepted.
+[mcmc] Progress @ 2023-03-13 11:02:33 : 1278 steps taken, and 281 accepted.
+[mcmc] Progress @ 2023-03-13 11:03:33 : 1340 steps taken, and 292 accepted.
+[mcmc] Progress @ 2023-03-13 11:04:33 : 1396 steps taken, and 300 accepted.
+[mcmc] Progress @ 2023-03-13 11:05:34 : 1457 steps taken, and 314 accepted.
+[mcmc] Learn + convergence test @ 320 samples accepted.
+[mcmc]  - Acceptance rate: 0.206
+[mcmc]  - Convergence of means: R-1 = 6.709459 after 256 accepted steps
+[mcmc]  - Updated covariance matrix of proposal pdf.
+[mcmc] Progress @ 2023-03-13 11:06:34 : 1509 steps taken, and 322 accepted.
+[mcmc] Progress @ 2023-03-13 11:07:35 : 1561 steps taken, and 346 accepted.
+[mcmc] Progress @ 2023-03-13 11:08:35 : 1616 steps taken, and 363 accepted.
+[mcmc] Progress @ 2023-03-13 11:09:35 : 1688 steps taken, and 388 accepted.

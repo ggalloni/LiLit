@@ -1,41 +1,50 @@
-"""Sample on CMB temperature and E-modes."""
+"""Sample all the primary observables."""
 import time
 from mpi4py import MPI
 from cobaya.run import run
 from cobaya.log import LoggedError
 from likelihood import LiLit
+import numpy as np
 
 debug = False
-name = "TTTEEE"
 
-# Note that the order of these list has to be the same of the fields keyword
-lmax = [1500, 1200]
-fsky = [0.8, 0.5]
-
+nameTTTEEE = "TTTEEE"
+lmaxTTTEEE = [1500, 1200]
+fsky = [0.9, 0.8]
 exactTTTEEE = LiLit(
-    name=name,
+    name=nameTTTEEE,
     fields=["t", "e"],
     like="exact",
     experiment="PTEPLiteBIRD",
-    nside=256,
-    lmax=lmax,
+    nside=512,
+    lmax=lmaxTTTEEE,
     fsky=fsky,
     debug=debug,
 )
 
-gaussTTTEEE = LiLit(
-    name=name,
-    fields=["t", "e"],
-    like="gaussian",
+nameBB = "BB"
+lmaxBB = 500
+fsky = 0.49
+r = 0.02
+nt = 0.1
+exactBB = LiLit(
+    name=nameBB,
+    fields="b",
+    like="exact",
+    r=r,
+    nt=nt,
     experiment="PTEPLiteBIRD",
-    nside=256,
-    lmax=lmax,
-    fsky=fsky,
+    nside=128,
     debug=debug,
+    lmax=lmaxBB,
+    fsky=0.49,
 )
+
+name = nameTTTEEE + nameBB
+lmax = list(np.concatenate([lmaxTTTEEE, [lmaxBB]]))
 
 info = {
-    "likelihood": {name: exactTTTEEE},
+    "likelihood": {nameTTTEEE: exactTTTEEE, nameBB: exactBB},
     "params": {
         "As": {"latex": "A_\\mathrm{s}", "value": "lambda logA: 1e-10*np.exp(logA)"},
         "H0": {"latex": "H_0", "max": 100, "min": 20},
@@ -56,6 +65,24 @@ info = {
             "prior": {"max": 1.2, "min": 0.8},
             "proposal": 0.002,
             "ref": {"dist": "norm", "loc": 0.9660499, "scale": 0.0004},
+        },
+        "nt": {
+            "latex": "n_t",
+            "prior": {"max": 5, "min": -5},
+            "proposal": 0.1,
+            "ref": {"dist": "norm", "loc": nt, "scale": 0.001},
+        },
+        "r": {
+            "latex": "r_{0.01}",
+            "prior": {"max": 3, "min": 1e-5},
+            "proposal": 0.0002,
+            "ref": {"dist": "norm", "loc": r, "scale": 0.0005},
+        },
+        "r005": {
+            "derived": "lambda r, nt, ns: r * (0.05/0.01)**(nt - ns + 1)",
+            "min": 0,
+            "max": 3,
+            "latex": "r_{0.05}",
         },
         "ombh2": {
             "latex": "\\Omega_\\mathrm{b} h^2",
