@@ -24,7 +24,7 @@ With LiLit, I tried to be as modular as possible so that you can plug whatever e
 
 The dictionary in sampling.py is taken from cobaya-cosmo-generator asking for the full analysis of Planck 2018 + tensors, thus it may not apply for the specific cases depicted as templates. However, this gives you a complete overview of what you can do with CAMB. Indeed, any parameters that CAMB undestands (even custom parameters you may have implemented) can be passed to the Cobaya framework in such a way. For the CLASS equivalent of this, refer again to cobaya-cosmo-generator, since some of the parameters are renamed.
 
-In the parameters block of the same dict, params with a prior will be interpreted as open parameters, while all the others are essentially derived ones. Cobaya will figure out by itself whether it has to ask for some of them to the theory code (CAMB) or to other parameters. Also, it will figure out what parts of the routines need certain parameters. For example, you can pass A_s to the likelihood function and do something with it, but at the same time it will pass it also to CAMB to compute the spectra.
+In the parameters block of the same dict, params with a prior will be interpreted as open parameters, while all the others are essentially derived ones. Cobaya will figure out by itself whether it has to ask for some of them to the theory code (CAMB) or to other parameters. Also, it will figure out what parts of the routines need certain parameters. For example, you can pass $A_s$ to the likelihood function and do something with it, but at the same time it will pass it also to CAMB to compute the spectra.
 
 [^1]: S. Hamimeche and A. Lewis, Physical Review D 77 (2008), ISSN 1550-2368, eprint = 0801.0554
 
