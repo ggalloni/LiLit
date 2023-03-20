@@ -53,7 +53,26 @@ class LiLit(Likelihood):
             self.nt = nt
             self.pivot_t = pivot_t
 
-        # This part is necesary to handle the case where the various fields have different lmax and fsky
+        self.set_lmin_lmax_fsky(lmin, lmax, fsky)
+
+        Likelihood.__init__(self, name=name)
+
+    def set_lmin_lmax_fsky(self, lmin, lmax, fsky):
+        self.lmins = None
+        if isinstance(lmin, list):
+            assert (
+                len(lmin) == self.n
+            ), "If you provide multiple lmin, they must match the number of requested fields with the same order"
+            self.lmins = {}
+            for i in range(self.n):
+                for j in range(i, self.n):
+                    _key = self.fields[i] + self.sep + self.fields[j]
+                    self.lmins[_key] = max(lmin[i], lmin[j])
+                    self.lmins[_key[::-1]] = max(lmin[i], lmin[j])
+            self.lmin = min(lmin)
+        else:
+            self.lmin = lmin
+
         self.lmaxs = None
         if isinstance(lmax, list):
             assert (
@@ -65,8 +84,6 @@ class LiLit(Likelihood):
                     _key = self.fields[i] + self.sep + self.fields[j]
                     self.lmaxs[_key] = min(lmax[i], lmax[j])
                     self.lmaxs[_key[::-1]] = min(lmax[i], lmax[j])
-            if self.debug:
-                print(f"\nYou have requested the following lmax {self.lmaxs}")
             self.lmax = max(lmax)
         else:
             self.lmax = lmax
@@ -82,12 +99,10 @@ class LiLit(Likelihood):
                     _key = self.fields[i] + self.sep + self.fields[j]
                     self.fskies[_key] = min(fsky[i], fsky[j])
                     self.fskies[_key[::-1]] = min(fsky[i], fsky[j])
-            if self.debug:
-                print(f"\nYou have requested the following fsky {self.fskies}")
             self.fsky = None
         else:
             self.fsky = fsky
-        Likelihood.__init__(self, name=name)
+        return
 
     def cov_filling(self, dict):
 
@@ -95,14 +110,22 @@ class LiLit(Likelihood):
         for i in range(self.n):
             for j in range(i, self.n):
                 _key = self.fields[i] + self.sep + self.fields[j]
-                if self.lmaxs is not None:
-                    res[i, j, : self.lmaxs[_key] + 1] = dict.get(
+                if self.lmaxs is not None and self.lmins is not None:
+                    res[i, j, self.lmins[_key] : self.lmaxs[_key] + 1] = dict.get(
                         _key, np.zeros(self.lmaxs[_key] + 1)
-                    )[: self.lmaxs[_key] + 1]
-                else:
-                    res[i, j, : self.lmax + 1] = dict.get(
+                    )[self.lmins[_key] : self.lmaxs[_key] + 1]
+                elif self.lmaxs is not None:
+                    res[i, j, self.lmin : self.lmaxs[_key] + 1] = dict.get(
+                        _key, np.zeros(self.lmaxs[_key] + 1 - self.lmin)
+                    )[self.lmin : self.lmaxs[_key] + 1]
+                elif self.lmins is not None:
+                    res[i, j, self.lmins[_key] : self.lmax + 1] = dict.get(
                         _key, np.zeros(self.lmax + 1)
-                    )[: self.lmax + 1]
+                    )[self.lmins[_key] : self.lmax + 1]
+                else:
+                    res[i, j, self.lmin : self.lmax + 1] = dict.get(
+                        _key, np.zeros(self.lmax + 1 - self.lmin)
+                    )[self.lmin : self.lmax + 1]
                 res[j, i] = res[i, j]
         return res
 
@@ -133,20 +156,40 @@ class LiLit(Likelihood):
 
     def find_spectrum(self, dict, key):
         res = np.zeros(self.lmax + 1)
-        if self.lmaxs is not None:
+        if self.lmaxs is not None and self.lmins is not None:
             if key in dict:
-                res[: self.lmaxs[key] + 1] = dict[key][: self.lmaxs[key] + 1]
+                res[self.lmins[key] : self.lmaxs[key] + 1] = dict[key][
+                    self.lmins[key] : self.lmaxs[key] + 1
+                ]
             else:
-                res[: self.lmaxs[key] + 1] = dict.get(
+                res[self.lmins[key] : self.lmaxs[key] + 1] = dict.get(
                     key[::-1], np.zeros(self.lmaxs[key] + 1)
-                )[: self.lmaxs[key] + 1]
+                )[self.lmins[key] : self.lmaxs[key] + 1]
+        elif self.lmaxs is not None:
+            if key in dict:
+                res[self.lmin : self.lmaxs[key] + 1] = dict[key][
+                    self.lmin : self.lmaxs[key] + 1
+                ]
+            else:
+                res[self.lmin : self.lmaxs[key] + 1] = dict.get(
+                    key[::-1], np.zeros(self.lmaxs[key] + 1)
+                )[self.lmin : self.lmaxs[key] + 1]
+        elif self.lmins is not None:
+            if key in dict:
+                res[self.lmins[key] : self.lmax + 1] = dict[key][
+                    self.lmins[key] : self.lmax + 1
+                ]
+            else:
+                res[self.lmins[key] : self.lmax + 1] = dict.get(
+                    key[::-1], np.zeros(self.lmax + 1)
+                )[self.lmins[key] : self.lmax + 1]
         else:
             if key in dict:
-                res[: self.lmax + 1] = dict[key][: self.lmax + 1]
+                res[self.lmin : self.lmax + 1] = dict[key][self.lmin : self.lmax + 1]
             else:
-                res[: self.lmax + 1] = dict.get(key[::-1], np.zeros(self.lmax + 1))[
-                    : self.lmax + 1
-                ]
+                res[self.lmin : self.lmax + 1] = dict.get(
+                    key[::-1], np.zeros(self.lmax + 1)
+                )[self.lmin : self.lmax + 1]
         return res
 
     def sigma(self, keys, fiduDICT, noiseDICT):
@@ -293,6 +336,10 @@ class LiLit(Likelihood):
                 res = self.txt2dict(_txt, _mapping, apply_ellfactor=True)
             return res
 
+        print(
+            "***WARNING***: the inverse noise weighting performed here severely underestimates the actual noise level of LiteBIRD. You should provide an input noise power spectrum with a more realistic noise."
+        )
+
         import os
         import yaml
         from yaml.loader import SafeLoader
@@ -389,7 +436,7 @@ class LiLit(Likelihood):
         if self.debug:
             requirements["CAMBdata"] = None
             print(
-                f"\nYou requested that Cobaya provides to the likelihood the following items: {req}"
+                f"\nYou requested that Cobaya provides to the likelihood the following items: {requirements}"
             )
         return requirements
 
@@ -405,7 +452,7 @@ class LiLit(Likelihood):
                     _data = self.get_reduced_data(_data)
                     _coba = self.get_reduced_data(_coba)
                 M = _data @ np.linalg.inv(_coba)
-                _norm = len(self.data[0, :, i][self.data[0, :, i] != 0])
+                _norm = _data.shape[0]
                 return np.trace(M) - np.linalg.slogdet(M)[1] - _norm
             else:
                 M = self.data / self.coba
@@ -453,18 +500,18 @@ class LiLit(Likelihood):
             _ell = np.arange(0, self.lmax + 1, 1)
             plt.loglog(
                 _ell[2 - self.lmin :],
-                self.fiduCOV[0, 0, 2 - self.lmin :],
+                self.fiduCOV[1, 1, 2 - self.lmin :],
                 label="Fiducial CLs",
             )
             plt.loglog(
                 _ell[2 - self.lmin :],
-                self.cobaCOV[0, 0, 2 - self.lmin :],
+                self.cobaCOV[1, 1, 2 - self.lmin :],
                 label="Cobaya CLs",
                 ls="--",
             )
             plt.loglog(
                 _ell[2 - self.lmin :],
-                self.noiseCOV[0, 0, 2 - self.lmin :],
+                self.noiseCOV[1, 1, 2 - self.lmin :],
                 label="Noise CLs",
             )
             plt.xlim(2, None)

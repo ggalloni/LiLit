@@ -9,6 +9,7 @@ debug = False
 name = "TTTEEE"
 
 # Note that the order of these list has to be the same of the fields keyword
+lmin = [20, 2]
 lmax = [1500, 1200]
 fsky = [0.8, 0.5]
 
@@ -18,6 +19,7 @@ exactTTTEEE = LiLit(
     like="exact",
     experiment="PTEPLiteBIRD",
     nside=256,
+    lmin=lmin,
     lmax=lmax,
     fsky=fsky,
     debug=debug,
@@ -29,6 +31,7 @@ gaussTTTEEE = LiLit(
     like="gaussian",
     experiment="PTEPLiteBIRD",
     nside=256,
+    lmin=lmin,
     lmax=lmax,
     fsky=fsky,
     debug=debug,
