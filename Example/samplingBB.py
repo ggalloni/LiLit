@@ -69,7 +69,7 @@ info = {
     "output": f"chains/exact{name}_lmax{lmax}",
     "force": True,
     "resume": False,
-    "debug": debug,
+    # "debug": debug,
     "stop-at-error": True,
     "sampler": {
         "mcmc": {

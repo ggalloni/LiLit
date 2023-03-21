@@ -58,12 +58,14 @@ class LiLit(Likelihood):
         Likelihood.__init__(self, name=name)
 
     def set_lmin_lmax_fsky(self, lmin, lmax, fsky):
-        self.lmins = None
+        self.lmins = {}
+        self.lmaxs = {}
+        self.fskies = {}
+
         if isinstance(lmin, list):
             assert (
                 len(lmin) == self.n
             ), "If you provide multiple lmin, they must match the number of requested fields with the same order"
-            self.lmins = {}
             for i in range(self.n):
                 for j in range(i, self.n):
                     _key = self.fields[i] + self.sep + self.fields[j]
@@ -73,12 +75,10 @@ class LiLit(Likelihood):
         else:
             self.lmin = lmin
 
-        self.lmaxs = None
         if isinstance(lmax, list):
             assert (
                 len(lmax) == self.n
             ), "If you provide multiple lmax, they must match the number of requested fields with the same order"
-            self.lmaxs = {}
             for i in range(self.n):
                 for j in range(i, self.n):
                     _key = self.fields[i] + self.sep + self.fields[j]
@@ -88,12 +88,10 @@ class LiLit(Likelihood):
         else:
             self.lmax = lmax
 
-        self.fskies = None
         if isinstance(fsky, list):
             assert (
                 len(fsky) == self.n
             ), "If you provide multiple fsky, they must match the number of requested fields with the same order"
-            self.fskies = {}
             for i in range(self.n):
                 for j in range(i, self.n):
                     _key = self.fields[i] + self.sep + self.fields[j]
@@ -104,48 +102,38 @@ class LiLit(Likelihood):
             self.fsky = fsky
         return
 
-    def cov_filling(self, dict):
-
+    def cov_filling(self, cov_dict):
         res = np.zeros((self.n, self.n, self.lmax + 1))
-        for i in range(self.n):
-            for j in range(i, self.n):
-                _key = self.fields[i] + self.sep + self.fields[j]
-                if self.lmaxs is not None and self.lmins is not None:
-                    res[i, j, self.lmins[_key] : self.lmaxs[_key] + 1] = dict.get(
-                        _key, np.zeros(self.lmaxs[_key] + 1)
-                    )[self.lmins[_key] : self.lmaxs[_key] + 1]
-                elif self.lmaxs is not None:
-                    res[i, j, self.lmin : self.lmaxs[_key] + 1] = dict.get(
-                        _key, np.zeros(self.lmaxs[_key] + 1 - self.lmin)
-                    )[self.lmin : self.lmaxs[_key] + 1]
-                elif self.lmins is not None:
-                    res[i, j, self.lmins[_key] : self.lmax + 1] = dict.get(
-                        _key, np.zeros(self.lmax + 1)
-                    )[self.lmins[_key] : self.lmax + 1]
-                else:
-                    res[i, j, self.lmin : self.lmax + 1] = dict.get(
-                        _key, np.zeros(self.lmax + 1 - self.lmin)
-                    )[self.lmin : self.lmax + 1]
+
+        for i, field1 in enumerate(self.fields):
+            for j, field2 in enumerate(self.fields[i:]):
+                j += i
+
+                key = field1 + self.sep + field2
+                lmin = self.lmins.get(key, self.lmin)
+                lmax = self.lmaxs.get(key, self.lmax)
+                cov = cov_dict.get(key, np.zeros(lmax + 1))
+
+                res[i, j, lmin : lmax + 1] = cov[lmin : lmax + 1]
                 res[j, i] = res[i, j]
+
         return res
 
     def get_keys(self):
-        res = []
-        for i in range(self.n):
-            for j in range(i, self.n):
-                _key = self.fields[i] + self.sep + self.fields[j]
-                res.append(_key)
+        res = [
+            self.fields[i] + self.sep + self.fields[j]
+            for i in range(self.n)
+            for j in range(i, self.n)
+        ]
         if self.debug:
             print(f"\nThe requested keys are {res}")
         return res
 
     def get_Gauss_keys(self):
-        res = np.zeros(
-            (int(self.n * (self.n + 1) / 2), int(self.n * (self.n + 1) / 2), 4),
-            dtype=str,
-        )
-        for i in range(int(self.n * (self.n + 1) / 2)):
-            for j in range(i, int(self.n * (self.n + 1) / 2)):
+        n = int(self.n * (self.n + 1) / 2)
+        res = np.zeros((n, n, 4), dtype=str)
+        for i in range(n):
+            for j in range(i, n):
                 elem = self.keys[i] + self.sep + self.keys[j]
                 for k in range(4):
                     res[i, j, k] = np.asarray(list(elem)[k])
@@ -154,74 +142,45 @@ class LiLit(Likelihood):
             print(f"\nThe requested keys are {res}")
         return res
 
-    def find_spectrum(self, dict, key):
+    def find_spectrum(self, input_dict, key):
+
         res = np.zeros(self.lmax + 1)
-        if self.lmaxs is not None and self.lmins is not None:
-            if key in dict:
-                res[self.lmins[key] : self.lmaxs[key] + 1] = dict[key][
-                    self.lmins[key] : self.lmaxs[key] + 1
-                ]
-            else:
-                res[self.lmins[key] : self.lmaxs[key] + 1] = dict.get(
-                    key[::-1], np.zeros(self.lmaxs[key] + 1)
-                )[self.lmins[key] : self.lmaxs[key] + 1]
-        elif self.lmaxs is not None:
-            if key in dict:
-                res[self.lmin : self.lmaxs[key] + 1] = dict[key][
-                    self.lmin : self.lmaxs[key] + 1
-                ]
-            else:
-                res[self.lmin : self.lmaxs[key] + 1] = dict.get(
-                    key[::-1], np.zeros(self.lmaxs[key] + 1)
-                )[self.lmin : self.lmaxs[key] + 1]
-        elif self.lmins is not None:
-            if key in dict:
-                res[self.lmins[key] : self.lmax + 1] = dict[key][
-                    self.lmins[key] : self.lmax + 1
-                ]
-            else:
-                res[self.lmins[key] : self.lmax + 1] = dict.get(
-                    key[::-1], np.zeros(self.lmax + 1)
-                )[self.lmins[key] : self.lmax + 1]
+
+        lmin = self.lmins.get(key, self.lmin)
+        lmax = self.lmaxs.get(key, self.lmax)
+        if key in input_dict:
+            cov = input_dict[key]
         else:
-            if key in dict:
-                res[self.lmin : self.lmax + 1] = dict[key][self.lmin : self.lmax + 1]
-            else:
-                res[self.lmin : self.lmax + 1] = dict.get(
-                    key[::-1], np.zeros(self.lmax + 1)
-                )[self.lmin : self.lmax + 1]
+            cov = input_dict.get(key[::-1], np.zeros(lmax + 1))
+        res[lmin : lmax + 1] = cov[lmin : lmax + 1]
+
         return res
 
     def sigma(self, keys, fiduDICT, noiseDICT):
-        res = np.zeros(
-            (
-                int(self.n * (self.n + 1) / 2),
-                int(self.n * (self.n + 1) / 2),
-                self.lmax + 1,
-            ),
-        )
-        for i in range(int(self.n * (self.n + 1) / 2)):
-            for j in range(i, int(self.n * (self.n + 1) / 2)):
-                _AB = keys[i, j, 0] + keys[i, j, 1]
-                _AC = keys[i, j, 0] + keys[i, j, 2]
-                _CD = keys[i, j, 2] + keys[i, j, 3]
-                _BD = keys[i, j, 1] + keys[i, j, 3]
-                _AD = keys[i, j, 0] + keys[i, j, 3]
-                _BC = keys[i, j, 1] + keys[i, j, 2]
-                _C_AC = self.find_spectrum(fiduDICT, _AC)
-                _C_BD = self.find_spectrum(fiduDICT, _BD)
-                _C_AD = self.find_spectrum(fiduDICT, _AD)
-                _C_BC = self.find_spectrum(fiduDICT, _BC)
-                _N_AC = self.find_spectrum(noiseDICT, _AC)
-                _N_BD = self.find_spectrum(noiseDICT, _BD)
-                _N_AD = self.find_spectrum(noiseDICT, _AD)
-                _N_BC = self.find_spectrum(noiseDICT, _BC)
+        n = int(self.n * (self.n + 1) / 2)
+        res = np.zeros((n, n, self.lmax + 1))
+        for i in range(n):
+            for j in range(i, n):
+                _C_AC = self.find_spectrum(fiduDICT, keys[i, j, 0] + keys[i, j, 2])
+                _C_BD = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 3])
+                _C_AD = self.find_spectrum(fiduDICT, keys[i, j, 0] + keys[i, j, 3])
+                _C_BC = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 2])
+                _N_AC = self.find_spectrum(noiseDICT, keys[i, j, 0] + keys[i, j, 2])
+                _N_BD = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 3])
+                _N_AD = self.find_spectrum(noiseDICT, keys[i, j, 0] + keys[i, j, 3])
+                _N_BC = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 2])
                 if self.fsky is not None:
                     res[i, j] = (
                         (_C_AC + _N_AC) * (_C_BD + _N_BD)
                         + (_C_AD + _N_AD) * (_C_BC + _N_BC)
                     ) / self.fsky
                 else:
+                    _AC = keys[i, j, 0] + keys[i, j, 2]
+                    _BD = keys[i, j, 1] + keys[i, j, 3]
+                    _AD = keys[i, j, 0] + keys[i, j, 3]
+                    _BC = keys[i, j, 1] + keys[i, j, 2]
+                    _AB = keys[i, j, 0] + keys[i, j, 1]
+                    _CD = keys[i, j, 2] + keys[i, j, 3]
                     res[i, j] = (
                         np.sqrt(self.fskies[_AC] * self.fskies[_BD])
                         * (_C_AC + _N_AC)
@@ -247,8 +206,7 @@ class LiLit(Likelihood):
 
     def get_reduced_data(self, mat):
         _idx = np.where(np.diag(mat) == 0)[0]
-        mat = np.delete(mat, _idx, axis=0)
-        return np.delete(mat, _idx, axis=1)
+        return np.delete(np.delete(mat, _idx, axis=0), _idx, axis=1)
 
     def CAMBres2dict(self, camb_results):
 
@@ -443,39 +401,48 @@ class LiLit(Likelihood):
     def data_vector(self, cov):
         return cov[np.triu_indices(self.n)][cov[np.triu_indices(self.n)] != 0]
 
-    def chi_part(self, i=0):
+    def chi_exact(self, i=0):
+        if self.n != 1:
+            _coba = self.coba[:, :, i]
+            _data = self.data[:, :, i]
+            _det = np.linalg.det(_coba)
+            if _det == 0:
+                _data = self.get_reduced_data(_data)
+                _coba = self.get_reduced_data(_coba)
+            M = np.linalg.solve(_coba, _data)
+            return np.trace(M) - np.linalg.slogdet(M)[1] - _data.shape[0]
+        else:
+            M = self.data / self.coba
+            return M - np.log(np.abs(M)) - 1
+
+    def chi_gaussian(self, i=0):
+        if self.n != 1:
+            _coba = self.data_vector(self.coba[:, :, i])
+            _data = self.data_vector(self.data[:, :, i])
+            return (_coba - _data) @ self.sigma2[i] @ (_coba - _data)
+        else:
+            _coba = self.coba[0, 0, :]
+            _data = self.data[0, 0, :]
+            res = (_coba - _data) * self.sigma2 * (_coba - _data)
+            return res
+
+    def compute_chi_part(self, i=0):
         if self.like == "exact":
-            if self.n != 1:
-                _coba = self.coba[:, :, i]
-                _data = self.data[:, :, i]
-                if np.linalg.det(_coba) == 0:
-                    _data = self.get_reduced_data(_data)
-                    _coba = self.get_reduced_data(_coba)
-                M = _data @ np.linalg.inv(_coba)
-                _norm = _data.shape[0]
-                return np.trace(M) - np.linalg.slogdet(M)[1] - _norm
-            else:
-                M = self.data / self.coba
-                return M - np.log(np.abs(M)) - 1
+            return self.chi_exact(i)
         elif self.like == "gaussian":
-            if self.n != 1:
-                _coba = self.data_vector(self.coba[:, :, i])
-                _data = self.data_vector(self.data[:, :, i])
-                res = (_coba - _data) @ self.sigma2[i] @ (_coba - _data)
-            else:
-                _coba = self.coba[0, 0, :]
-                _data = self.data[0, 0, :]
-                res = (_coba - _data) * self.sigma2 * (_coba - _data)
-        return np.squeeze(res)
+            return self.chi_gaussian(i)
+        else:
+            print("You requested something different from 'exact or 'gaussian'!")
+            return
 
     def log_likelihood(self):
         _ell = np.arange(self.lmin, self.lmax + 1, 1)
         if self.n != 1:
             logp_ℓ = np.zeros(_ell.shape)
             for i in range(0, self.lmax + 1 - self.lmin):
-                logp_ℓ[i] = -0.5 * (2 * _ell[i] + 1) * self.chi_part(i)
+                logp_ℓ[i] = -0.5 * (2 * _ell[i] + 1) * self.compute_chi_part(i)
         else:
-            logp_ℓ = -0.5 * (2 * _ell + 1) * self.chi_part()
+            logp_ℓ = -0.5 * (2 * _ell + 1) * self.compute_chi_part()
         return np.sum(logp_ℓ)
 
     def logp(self, **params_values):
@@ -498,22 +465,9 @@ class LiLit(Likelihood):
 
         if self.debug:
             _ell = np.arange(0, self.lmax + 1, 1)
-            plt.loglog(
-                _ell[2 - self.lmin :],
-                self.fiduCOV[1, 1, 2 - self.lmin :],
-                label="Fiducial CLs",
-            )
-            plt.loglog(
-                _ell[2 - self.lmin :],
-                self.cobaCOV[1, 1, 2 - self.lmin :],
-                label="Cobaya CLs",
-                ls="--",
-            )
-            plt.loglog(
-                _ell[2 - self.lmin :],
-                self.noiseCOV[1, 1, 2 - self.lmin :],
-                label="Noise CLs",
-            )
+            plt.loglog(_ell, self.fiduCOV[0, 0, :], label="Fiducial CLs")
+            plt.loglog(_ell, self.cobaCOV[0, 0, :], label="Cobaya CLs", ls="--")
+            plt.loglog(_ell, self.noiseCOV[0, 0, :], label="Noise CLs")
             plt.xlim(2, None)
             plt.legend()
             plt.show()
