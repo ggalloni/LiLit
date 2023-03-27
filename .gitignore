@@ -1,2 +1,4 @@
-Example/__pycache__
-Example/chains
+__pycache__/
+lilit/__pycache__/
+tests/__pycache__/
+tests/chains/

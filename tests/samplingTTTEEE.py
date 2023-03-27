@@ -3,7 +3,7 @@ import time
 from mpi4py import MPI
 from cobaya.run import run
 from cobaya.log import LoggedError
-from likelihood import LiLit
+from lilit import LiLit
 
 debug = False
 name = "TTTEEE"
@@ -90,7 +90,7 @@ info = {
     "output": f"chains/exact{name}_lmax{lmax}",
     "force": True,
     "resume": False,
-    "debug": False,
+    # "debug": True,
     "stop-at-error": True,
     "sampler": {
         "mcmc": {
