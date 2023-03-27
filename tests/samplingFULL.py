@@ -1,19 +1,34 @@
-"""Sample on B-modes."""
+"""Sample all the primary observables."""
 import time
 from mpi4py import MPI
 from cobaya.run import run
 from cobaya.log import LoggedError
-from likelihood import LiLit
+from lilit import LiLit
+import numpy as np
 
 debug = False
-name = "BB"
-lmax = 500
 
+nameTTTEEE = "TTTEEE"
+lmaxTTTEEE = [1500, 1200]
+fsky = [0.9, 0.8]
+exactTTTEEE = LiLit(
+    name=nameTTTEEE,
+    fields=["t", "e"],
+    like="exact",
+    experiment="PTEPLiteBIRD",
+    nside=512,
+    lmax=lmaxTTTEEE,
+    fsky=fsky,
+    debug=debug,
+)
+
+nameBB = "BB"
+lmaxBB = 500
+fsky = 0.49
 r = 0.02
 nt = 0.1
-
 exactBB = LiLit(
-    name=name,
+    name=nameBB,
     fields="b",
     like="exact",
     r=r,
@@ -21,32 +36,36 @@ exactBB = LiLit(
     experiment="PTEPLiteBIRD",
     nside=128,
     debug=debug,
-    lmax=lmax,
-    fsky=0.49,
-)
-gaussBB = LiLit(
-    name=name,
-    fields="b",
-    like="gaussian",
-    r=r,
-    nt=nt,
-    experiment="PTEPLiteBIRD",
-    nside=128,
-    debug=debug,
-    lmax=lmax,
+    lmax=lmaxBB,
     fsky=0.49,
 )
 
+name = nameTTTEEE + nameBB
+lmax = list(np.concatenate([lmaxTTTEEE, [lmaxBB]]))
+
 info = {
-    "likelihood": {name: exactBB},
+    "likelihood": {nameTTTEEE: exactTTTEEE, nameBB: exactBB},
     "params": {
-        "As": 2.100549e-9,
-        "ns": 0.9660499,
-        "ombh2": 0.0223828,
-        "omch2": 0.1201075,
-        "omnuh2": 0.6451439e-03,
-        "H0": 67.32117,
-        "tau": 0.05430842,
+        "As": {"latex": "A_\\mathrm{s}", "value": "lambda logA: 1e-10*np.exp(logA)"},
+        "H0": {"latex": "H_0", "max": 100, "min": 20},
+        "cosmomc_theta": {
+            "derived": False,
+            "value": "lambda theta_MC_100: 1.e-2*theta_MC_100",
+        },
+        "logA": {
+            "drop": True,
+            "latex": "\\log(10^{10} A_\\mathrm{s})",
+            "prior": {"max": 3.91, "min": 1.61},
+            "proposal": 0.001,
+            "ref": {"dist": "norm", "loc": 3.044, "scale": 0.0001},
+        },
+        "mnu": 0.06,
+        "ns": {
+            "latex": "n_\\mathrm{s}",
+            "prior": {"max": 1.2, "min": 0.8},
+            "proposal": 0.002,
+            "ref": {"dist": "norm", "loc": 0.9660499, "scale": 0.0004},
+        },
         "nt": {
             "latex": "n_t",
             "prior": {"max": 5, "min": -5},
@@ -65,16 +84,42 @@ info = {
             "max": 3,
             "latex": "r_{0.05}",
         },
+        "ombh2": {
+            "latex": "\\Omega_\\mathrm{b} h^2",
+            "prior": {"max": 0.1, "min": 0.005},
+            "proposal": 0.0001,
+            "ref": {"dist": "norm", "loc": 0.0223828, "scale": 0.00001},
+        },
+        "omch2": {
+            "latex": "\\Omega_\\mathrm{c} h^2",
+            "prior": {"max": 0.99, "min": 0.001},
+            "proposal": 0.0005,
+            "ref": {"dist": "norm", "loc": 0.1201075, "scale": 0.0001},
+        },
+        "tau": {
+            "latex": "\\tau_\\mathrm{reio}",
+            "prior": {"max": 0.8, "min": 0.01},
+            "proposal": 0.003,
+            "ref": {"dist": "norm", "loc": 0.05430842, "scale": 0.0006},
+        },
+        "theta_MC_100": {
+            "drop": True,
+            "latex": "100\\theta_\\mathrm{MC}",
+            "prior": {"max": 10, "min": 0.5},
+            "proposal": 0.0002,
+            "ref": {"dist": "norm", "loc": 1.04109, "scale": 0.00004},
+            "renames": "theta",
+        },
     },
     "output": f"chains/exact{name}_lmax{lmax}",
     "force": True,
     "resume": False,
-    # "debug": debug,
+    "debug": False,
     "stop-at-error": True,
     "sampler": {
         "mcmc": {
             "Rminus1_cl_stop": 0.2,
-            "Rminus1_stop": 0.01,
+            "Rminus1_stop": 0.1,
         },
     },
     "theory": {
@@ -100,8 +145,10 @@ info = {
     },
 }
 
+
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
+
 
 start = time.time()
 

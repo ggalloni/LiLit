@@ -3,7 +3,7 @@ import time
 from mpi4py import MPI
 from cobaya.run import run
 from cobaya.log import LoggedError
-from likelihood import LiLit
+from lilit import LiLit
 
 debug = False
 name = "TTTEEE"
