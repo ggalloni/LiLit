@@ -63,8 +63,8 @@ Other simple examples
 
 As regards the single-field likelihood, what you can find there is a very basic example of how to run Cobaya on a generic field X. Some parts of this may require additional attention before running, however this should give you an idea of how to work with this package. For instance, here I am considering a very simple case in which I do not need to pass anything to the likelihood class but the spectra, and in which the likelihood does not provide any derived parameters.
 
-Tests
------
+Examples
+--------
 
 I provide also few working examples of the usage of LiLit. Some particular attention should be given to the dictionaries defined in the sampling scripts. If you are not familiar with their structure, have a look at Cobaya's [documentation](https://cobaya.readthedocs.io/en/latest/). Then, I customized these to maximize accordance with the fiducial _Planck_ 2018 spectra. These also assume that you will be using CAMB; for the CLASS equivalent of this, refer again to documentiation, since some of the parameters are renamed. Note that Cobaya will understand whatever newly defined parameter you added to the Boltzmann code.
 
