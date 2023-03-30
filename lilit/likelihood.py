@@ -102,9 +102,11 @@ class LiLit(Likelihood):
             ), "If you provide multiple lmin, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    _key = self.fields[i] + self.sep + self.fields[j]
-                    self.lmins[_key] = max(lmin[i], lmin[j])
-                    self.lmins[_key[::-1]] = max(lmin[i], lmin[j])
+                    key = self.fields[i] + self.sep + self.fields[j]
+                    self.lmins[key] = np.sqrt(
+                        lmin[i] * lmin[j]
+                    )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
+                    self.lmins[key[::-1]] = np.sqrt(lmin[i] * lmin[j])
             self.lmin = min(lmin)
         else:
             self.lmin = lmin
@@ -116,9 +118,11 @@ class LiLit(Likelihood):
             ), "If you provide multiple lmax, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    _key = self.fields[i] + self.sep + self.fields[j]
-                    self.lmaxs[_key] = min(lmax[i], lmax[j])
-                    self.lmaxs[_key[::-1]] = min(lmax[i], lmax[j])
+                    key = self.fields[i] + self.sep + self.fields[j]
+                    self.lmaxs[key] = np.sqrt(
+                        lmax[i] * lmax[j]
+                    )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
+                    self.lmaxs[key[::-1]] = np.sqrt(lmax[i] * lmax[j])
             self.lmax = max(lmax)
         else:
             self.lmax = lmax
@@ -130,9 +134,11 @@ class LiLit(Likelihood):
             ), "If you provide multiple fsky, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    _key = self.fields[i] + self.sep + self.fields[j]
-                    self.fskies[_key] = min(fsky[i], fsky[j])
-                    self.fskies[_key[::-1]] = min(fsky[i], fsky[j])
+                    key = self.fields[i] + self.sep + self.fields[j]
+                    self.fskies[key] = np.sqrt(
+                        fsky[i] * fsky[j]
+                    )  # this approximation for the cross-correlation is not correct in the case of two very different masks (verified with simulations)
+                    self.fskies[key[::-1]] = np.sqrt(fsky[i] * fsky[j])
             self.fsky = None
         else:
             self.fsky = fsky
