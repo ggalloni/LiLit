@@ -1,11 +1,12 @@
-"""# Welcome to LiLit, a Python package encoding the likelihood for LiteBIRD.
+"""# Welcome to LiLit!
+
+A Python package encoding the likelihood for LiteBIRD.
 
 In this repository I provide some basic examples of forecasting likelihoods for LiteBIRD. These are implemented to be used a Cobaya context, which encapsulates CosmoMC in a Python framework. The idea of this repository is to ease the creation of common framework among different  LiteBIRDers, trying to homogenize the post-PTEP works as we recently discussed among the collaboration. The main product of this repository is the Likelihood for LiteBIRD (LiLit), which you can find [here](lilit/likelihood.py). Within LiLit, the most relevant study cases of LiteBIRD (T, E, B) are already tested and working. So, if you need to work with those, you should not need to look into the actual definition of the likelihood function, since you can proptly start running your MCMCs. Despite this, you should provide to the likelihood some file where to find the proper LiteBIRD noise power spectra, given that LiLit is implementing a simple inverse noise weighting just as a place-holder for something more realistic. As regards lensing, LiLit will need you to pass the reconstruction noise, since its computation is not coded, thus there is no place-holder for lensing.
 
 This repository should also give to new Cobaya-users a good starting point to build upon (see [this](lilit/other_examples.py)).
 
-Some further details on LiLit
------------------------------
+## Some further details on LiLit
 
 If you want to start using LiLit, here are some further details on what you can do with it. Firstly, LiLit is independent of the number of fields considered and can be dynamically modified at declaration. Thus, it makes no difference if you want to use B-modes alone, or if you want to use CMB temperature, E-modes, lensing, etc. The only constraint is that the Boltzmann code you are using to provide the spectra should understand the fields you are asking to LiLit. Each of these fields may have their own $\ell_{\rm min}$, $\ell_{\rm max}$ and $f_{\rm sky}$. So, I implemented the possibility to pass all these quantities as lists to LiLit, which will then take case of the proper multipoles cuts and so on. The only requirement is that you should pass these lists following the order in which you passes the requested fields. For example:
 
@@ -48,15 +49,13 @@ I tried to be as modular as possible so that you can plug whatever existing func
 
 [^3]: S. Hamimeche and A. Lewis, Physical Review D 77 (2008), ISSN 1550-2368, eprint = 0801.0554
 
-Other simple examples
----------------------
+## Other simple examples
 
 [Here](lilit/other_examples.py), you can find two very simple examples of the skeleton of a single-field likelihood and a two-field one. If you are new to Cobaya, you may want to have a look at these before jumping to LiLit. 
 
 As regards the single-field likelihood, what you can find there is a very basic example of how to run Cobaya on a generic field X. Some parts of this may require additional attention before running, however this should give you an idea of how to work with this package. For instance, here I am considering a very simple case in which I do not need to pass anything to the likelihood class but the spectra, and in which the likelihood does not provide any derived parameters.
 
-Tests
------
+## Examples
 
 I provide also few working examples of the usage of LiLit. Some particular attention should be given to the dictionaries defined in the sampling scripts. If you are not familiar with their structure, have a look at Cobaya's [documentation](https://cobaya.readthedocs.io/en/latest/). Then, I customized these to maximize accordance with the fiducial _Planck_ 2018 spectra. These also assume that you will be using CAMB; for the CLASS equivalent of this, refer again to documentiation, since some of the parameters are renamed. Note that Cobaya will understand whatever newly defined parameter you added to the Boltzmann code.
 
@@ -72,8 +71,7 @@ Sending the inline output to a text file might help in recovering information on
 
 The number of processess translates on the number of chains that will be runned simultaneously.
 
-Dependencies
-------------------
+## Dependencies
 * cobaya
 * numpy
 * healpy
@@ -82,13 +80,11 @@ Dependencies
 * matplotlib
 * camb, or classy
 
-Developing the code
--------------------
+## Developing the code
 
 If you want to help developing the code, feel free to send a pull request. Also, feel free to write me so that we can discuss on eventual major developments.
 
-Support
--------
+## Support
 
 For additional details on how Cobaya works, I suggest to see the [documentation](https://cobaya.readthedocs.io/en/latest/), which is very good to find whatever is not working in you case. If you cannot find the problem there, feel free to open an issue.
 
@@ -98,4 +94,4 @@ from .likelihood import LiLit
 
 __author__ = "Giacomo Galloni"
 __version__ = "1.0.0"
-__docformat__ = "numpy"
+__docformat__ = "google"
