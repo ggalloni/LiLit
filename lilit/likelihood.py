@@ -474,7 +474,7 @@ class LiLit(Likelihood):
         Parameters:
             txt (str):
                 Path to txt file containing the spectra as columns.
-            mapping : dict
+            mapping (dict):
                 Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
         """
         # Define the ell values from the length of the txt file
