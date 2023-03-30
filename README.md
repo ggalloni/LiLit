@@ -80,7 +80,7 @@ Sending the inline output to a text file might help in recovering information on
 
 The number of processess translates on the number of chains that will be runned simultaneously.
 
-Basic dependencies
+Dependencies
 ------------------
 * cobaya
 * numpy

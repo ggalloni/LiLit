@@ -1,4 +1,5 @@
 import pickle
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,10 +12,148 @@ class LiLit(Likelihood):
 
     This is a far more flexible likelihood than what presented above. LiLit encodes
     both the one field and the two fields cases. In fact, this implementation is
-    independent from the number of fields (as soon as you are consistent with yourself
+    independent from the number of fields (as long as you are consistent with yourself
     in what you provide as an input). Also, one can specify lmax and fsky as lists
     corresponding to the values for different fields. I suggest to use this class, since
     the others are just quick examples of how Cobaya works.
+
+    Parameters
+    ----------
+        name : str
+            The name for the likelihood, used in the output. It is necessary to pass it to LiLit. (default: None).
+        fields : list
+            List of fields in the data file (default: None).
+        lmax : int or list
+            Maximum multipole to consider (default: None).
+        like : str, optional
+            Type of likelihood to use (default: "exact"). Currently supports "exact" and "gaussian".
+        lmin : int or list
+            Minimum multipole to consider (default: 2).
+        cl_file : str, optional
+            Path to Cl file (default: None).
+        nl_file : str, optional
+            Path to noise file (default: None).
+        experiment : str, optional
+            Name of experiment (default: None).
+        nside : int, optional
+            Nside of the map (default: None).
+        r : float, optional
+            Tensor-to-scalar ratio (default: None).
+        nt : float, optional
+            Tensor spectral tilt (default: None).
+        pivot_t : float, optional
+            Pivot scale of the tensor primordial power spectrum (default: 0.01).
+        fsky : float or list
+            Sky fraction (default: 1).
+        sep : str, optional
+            Separator used in the data file (default: "").
+        debug : bool, optional
+            If True, produces more verbose output (default: None).
+
+
+    Attributes
+    ----------
+        fields : list
+            List of fields in the data file.
+        n_fields : int
+            Number of fields.
+        keys : list
+            List of keywords for the dictionaries.
+        gauss_keys : list
+            List of keywords for the Gaussian likelihood (4-points).
+        sigma2 : np.ndarray
+            Array of covariances for the Gaussian likelihood case.
+        lmax : int or list
+            List of lmax values.
+        lmaxes : dict
+            Dictionary of lmax values.
+        fsky : int or list
+            List of fsky values.
+        fskies : dict
+            Dictionary of fsky values.
+        lmin : int or list
+            Minimum multipole to consider.
+        lmins : dict
+            Dictionary of lmin values.
+        like : str
+            Type of likelihood to use.
+        cl_file : str
+            Path to Cl file.
+        fiduCLS : dict
+            Dictionary of fiducial Cls.
+        noiseCLS : dict
+            Dictionary of noise Cls.
+        fiduCOV : np.ndarray
+            Fiducial covariance matrix obtained from the corresponding dictionary.
+        noiseCOV : np.ndarray
+            Noise covariance matrix obtained from the corresponding dictionary.
+        data : np.ndarray
+            Data vector obtained by summing fiduCOV + noiseCOV.
+        cobaCLS : dict
+            Dictionary of Cobaya Cls.
+        cobaCOV : np.ndarray
+            Cobaya covariance matrix obtained from the corresponding dictionary.
+        coba : np.ndarray
+            Cobaya vector obtained by summing cobaCOV + noiseCOV.
+        nl_file : str
+            Path to noise file.
+        experiment : str
+            Name of experiment.
+        nside : int
+            Nside of the map.
+        r : float
+            Tensor-to-scalar ratio.
+        nt : float
+            Tensor spectral tilt.
+        pivot_t : float
+            Pivot scale of the tensor primordial power spectrum.
+        sep : str
+            Separator used in the data file.
+        debug : bool
+            If True, produces more output.
+
+    Methods
+    -------
+        set_lmin_lmax_fsky(lmin, lmax, fsky)
+            Sets the minimum multipole, the maximum multipole and the sky fraction. This handles automatically the case of a single value or a list of values. Note that the lmin, lmax and fsky for the cross-correlations are set to the geometrical mean of the lmin, lmax and fsky of the two fields. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped.
+        cov_filling(cov_dict)
+            Computes the covariance matrix once given a dictionary. Returns the covariance matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax, or lmin, is specified, there will be null values in the matrices, making them singular. This will be handled in another method.
+        get_keys()
+            Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc.
+        get_gauss_keys()
+            Extracts the keys that has to be used as a function of the requested fields for the Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.
+        find_spectrum(input_dict, key)
+            Returns the corresponding power sepctrum for a given key. If the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
+        sigma(keys, fiduDICT, noiseDICT)
+            In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
+        inv_sigma()
+            Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
+        get_reduced_data(mat)
+            Cuts the row and column corresponding to a zero diagonal value. Indeed, in case of different lmax, or lmin, for the fields, you will have singular marices.
+        CAMBres2dict(camb_results)
+            Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
+        txt2dict(txt, mapping, apply_ellfactor)
+            Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
+        prod_fidu()
+            If the user has not provided a Cl file, this function will produce the fiducial power spectra starting from the CAMB inifile for Planck2018. The extra keywords defined will maximize the accordance between the fiducial Cls and the ones obtained from Cobaya. If B-modes are requested, the tensor-to-scalar ratio and the spectral tilt will be set to the requested values. Note that if you do not provide a tilt, this will follow the standard single-field consistency relation. If instead you provide a custom file, stores that.
+        prod_noise()
+            If the user has not provided a noise file, this function will produce the noise power spectra for a given experiment with inverse noise weighting of white noise in each channel (TT, EE, BB). Note that you may want to have a look at the procedure since it is merely a place-holder. Indeed, you should provide a more realistic file from which to read the noise spectra, given that inverse noise weighting severely underestimates the amount of noise. If instead you provide the proper custom file, this method stores that.
+        initialize()
+            Initializes the fiducial spectra and the noise power spectra.
+        get_requirements()
+            Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing.
+        data_vector(cov)
+            Extracts the data vector necessary for the Gaussian case. Note that this will cut the null value since some may be null when the fields have different values for lmax.
+        chi_exact(i)
+            Computes proper chi-square term for the exact likelihood case.
+        chi_gaussian(i)
+            Computes proper chi-square term for the Gaussian likelihood case.
+        compute_chi_part(i)
+            Chooses which chi-square term to compute.
+        log_likelihood()
+            Computes the log likelihood.
+        logp(**params_values)
+            Gets the log likelihood and pass it to Cobaya to carry on the MCMC process.
     """
 
     def __init__(
@@ -83,12 +222,17 @@ class LiLit(Likelihood):
     def set_lmin_lmax_fsky(self, lmin, lmax, fsky):
         """Take lmin, lmax and fsky parameters and set the corresponding attributes.
 
-        This will take care of initializing properly lmin, lmax and fsky in the case they are passed as a list.
+        Sets the minimum multipole, the maximum multipole and the sky fraction. This handles automatically the case of a single value or a list of values. Note that the lmin, lmax and fsky for the cross-correlations are set to the geometrical mean of the lmin, lmax and fsky of the two fields. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped.
 
-        Args:
-            lmin (int or list[int]): value or list of values of lmin
-            lmax (int or list[int]): value or list of values of lmax
-            fsky (float or list[float]): value or list of values of fsky
+        Parameters
+        ----------
+            lmin : int or list
+                Value or list of values of lmin.
+            lmax : int or list
+                Value or list of values of lmax.
+            fsky : float or list
+                Value or list of values of fsky.
+
         """
 
         self.lmins = {}
@@ -147,16 +291,19 @@ class LiLit(Likelihood):
     def cov_filling(self, cov_dict):
         """Fill covariance matrix with appropriate spectra.
 
-        Compute the covariance matrix once given a dictionary. Returns the covariance
-        matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax is specified, there will be null values in the matrices, making them singular.
+        Computes the covariance matrix once given a dictionary. Returns the covariance matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax, or lmin, is specified, there will be null values in the matrices, making them singular. This will be handled in another method.
 
-        Args:
-        ----
-            cov_dict (dict[array]): input dictionary of spectra
+        Parameters
+        ----------
+            cov_dict : dict
+                Input dictionary of spectra.
 
-        Returns:
+
+        Returns
         -------
-            ndarray: covariance matrix of the considered fields of shape (num_fields x num_fields x lmax)
+            ndarray
+                Covariance matrix of the considered fields of shape (num_fields x num_fields x lmax).
+
         """
         # Initialize output array
         res = np.zeros((self.n, self.n, self.lmax + 1))
@@ -186,11 +333,12 @@ class LiLit(Likelihood):
         return res
 
     def get_keys(self):
-        """Extract the keys that has to be used as a function of the requested fields.
+        """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc.
 
         Returns
         -------
-            dict[str]: dict of the keys
+            dict
+                Dictionary of the keys
         """
         # List of all the possible combinations of the requested fields
         res = [
@@ -206,12 +354,12 @@ class LiLit(Likelihood):
     def get_Gauss_keys(self):
         """Find the proper dictionary keys for the requested fields.
 
-        Get the proper combinations of fields in case of Gaussian likelihood.
-        These will be used to build the covariance matrix in an automatic way.
+        Extracts the keys that has to be used as a function of the requested fields for the Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.
 
         Returns
         -------
-            dict[str]: dict of the keys
+            dict
+                Dictionary of the Gaussian keys
         """
         # Calculate the number of elements in the covariance matrix
         n = int(self.n * (self.n + 1) / 2)
@@ -237,17 +385,20 @@ class LiLit(Likelihood):
     def find_spectrum(self, input_dict, key):
         """Find a spectrum in a given dictionary.
 
-        Return the corresponding power sepctrum for a given key. If the key is not found,
-        it will try to find the reverse key. Otherwise it will fill the array with zeros.
+        Returns the corresponding power sepctrum for a given key. If the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
 
-        Args:
-        ----
-            dict (dict[array]): dictionary where you want to search for keys
-            key (str): key to search for
+        Parameters
+        ----------
+            input_dict : dict
+                Dictionary where you want to search for keys.
+            key : str
+                Key to search for.
 
-        Returns:
+        Returns
         -------
-            array: (self.lmax+1) array containing the requested spectrum
+            array
+                (self.lmax+1)-array containing the requested spectrum.
+
         """
         # create a zero array
         res = np.zeros(self.lmax + 1)
@@ -271,19 +422,22 @@ class LiLit(Likelihood):
     def sigma(self, keys, fiduDICT, noiseDICT):
         """Define the covariance matrix for the Gaussian case.
 
-        In case of Gaussian likelihood, this returns the covariance matrix needed
-        for the computation of the chi2. Note that the inversion is done in a
-        separate funciton.
+        In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
 
-        Args:
-        ----
-            keys (dict[str]): keys for the covariance elements
-            fiduDICT (dict[array]): dictionary with the fiducial spectra
-            noiseDICT (dict[array]): dictionary with the noise spectra
+        Parameters
+        ----------
+            keys : dict
+                Keys for the covariance elements.
+            fiduDICT : dict
+                Dictionary with the fiducial spectra.
+            noiseDICT : dict
+                Dictionary with the noise spectra.
 
-        Returns:
+        Returns
         -------
-            ndarray: (self.n x self.n x self.lmax+1) ndarray
+            ndarray
+                (self.n x self.n x self.lmax+1) ndarray.
+
         """
         # The covariance matrix has to be symmetric.
         # The number of parameters in the likelihood is self.n.
@@ -331,18 +485,18 @@ class LiLit(Likelihood):
     def inv_sigma(self, sigma):
         """Invert the covariance matrix of the Gaussian case.
 
-        Invert the previously calculated sigma ndarray. Note that some elements
-        may be null, thus the covariance may be singular. In those cases, I
-        reduce the dimension of the matrix by deleting the corresponding row and
-        column.
+        Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
 
-        Args:
-        ----
-            ndarray: (self.n x self.n x self.lmax+1) ndarray with the previously computed sigma (not inverted)
+        Parameters
+        ----------
+            ndarray : ndarray
+                (self.n x self.n x self.lmax+1) ndarray with the previously computed sigma (not inverted).
 
-        Returns:
+        Returns
         -------
-            array : array of objects, each being a square matrix representing the covariance at that multipole
+            array
+                Array of objects, each being a square matrix representing the covariance at that multipole.
+
         """
         # Initialize array to store the inverted covariance matrices
         res = np.zeros(self.lmax + 1, dtype=object)
@@ -364,17 +518,18 @@ class LiLit(Likelihood):
     def get_reduced_data(self, mat):
         """Find the reduced data eliminating the singularity of the matrix.
 
-        Cut the row and column corresponding to a zero diagonal value.
-        Indeed, in case of different lmax for the fields, you will
-        have singular marices.
+        Cuts the row and column corresponding to a zero diagonal value. Indeed, in case of different lmax, or lmin, for the fields, you will have singular marices.
 
-        Args:
-        ----
-            ndarray: A ndarray containing the covariance matrices, with some singular ones.
+        Parameters
+        ----------
+            ndarray : ndarray
+                A ndarray containing the covariance matrices, with some singular ones.
 
-        Returns:
+        Returns
         -------
-            ndarray : ndarray of the reduced input matrix
+            ndarray
+                Ndarray of the reduced input matrix.
+
         """
         # Select the indices corresponding to the zero diagonal
         idx = np.where(np.diag(mat) == 0)[0]
@@ -382,15 +537,18 @@ class LiLit(Likelihood):
         return np.delete(np.delete(mat, idx, axis=0), idx, axis=1)
 
     def CAMBres2dict(self, camb_results):
-        """Take the CAMB result product from get_cmb_power_spectra and convert it to a dictionary.
+        """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
 
-        Args:
-        ----
-            camb_results (CAMBdata instance): CAMB result product from the method get_cmb_power_spectra.
+        Parameters
+        ----------
+            camb_results : CAMBdata instance
+                CAMB result product from the method get_cmb_power_spectra.
 
-        Returns:
+        Returns
         -------
-            dictionary (dict): dictionary containing the results under the proper keys.
+            dictionary
+                Dictionary containing the results under the proper keys.
+
         """
         # Get the number of multipoles
         ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
@@ -421,17 +579,20 @@ class LiLit(Likelihood):
         return res
 
     def txt2dict(self, txt, mapping=None, apply_ellfactor=None):
-        """Take a txt file and convert it to a dictionary. This requires a way to map the columns to the keys.
+        """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
 
-        Args:
-        ----
-            txt (txt file): txt file containing the spectra as columns
-            mapping (dict): dictionary containing the mapping. Keywords will
-            become the new keywords and values represent the index of the corresponding column
+        Parameters
+        ----------
+            txt : txt file
+                Txt file containing the spectra as columns.
+            mapping : dict
+                Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
 
-        Returns:
+        Returns
         -------
-            dictionary (dict): dictionary containing the results under the proper keys.
+            dictionary
+                Dictionary containing the results under the proper keys.
+
         """
         # Define the ell values from the length of the txt file
         assert (
@@ -451,8 +612,12 @@ class LiLit(Likelihood):
     def prod_fidu(self):
         """Produce fiducial spectra or read the input ones.
 
-        Produce the fiducial power spectra starting from the CAMB inifile
-        for Planck2018. If instead you provide a custom file, stores that.
+        If the user has not provided a Cl file, this function will produce the fiducial power spectra starting from the CAMB inifile for Planck2018. The extra keywords defined will maximize the accordance between the fiducial Cls and the ones obtained from Cobaya. If B-modes are requested, the tensor-to-scalar ratio and the spectral tilt will be set to the requested values. Note that if you do not provide a tilt, this will follow the standard single-field consistency relation. If instead you provide a custom file, stores that.
+
+        Returns
+        -------
+            dict
+                Dictionary containing the fiducial power spectra.
         """
         # If a custom file is provided, use that
         if self.cl_file is not None:
@@ -467,8 +632,10 @@ class LiLit(Likelihood):
                 res = self.txt2dict(txt, mapping)
             return res
 
-        import os
-        import camb
+        try:
+            import camb
+        except ImportError:
+            print("CAMB seems to be not installed. Check the requirements.")
 
         pars = camb.read_ini(
             os.path.join("./", "planck_2018.ini")
@@ -503,9 +670,12 @@ class LiLit(Likelihood):
     def prod_noise(self):
         """Produce noise power spectra or read the input ones.
 
-        Produce the noise power spectra for a given experiment with
-        inverse noise weighting of white noise in each channel (TT, EE, BB).
-        Otherwise, if you specify a custom file, store that.
+        If the user has not provided a noise file, this function will produce the noise power spectra for a given experiment with inverse noise weighting of white noise in each channel (TT, EE, BB). Note that you may want to have a look at the procedure since it is merely a place-holder. Indeed, you should provide a more realistic file from which to read the noise spectra, given that inverse noise weighting severely underestimates the amount of noise. If instead you provide the proper custom file, this method stores that.
+
+        Returns
+        -------
+            dict
+                Dictionary containing the noise power spectra.
         """
         # If the input noise file is a pickle file, load it.
         if self.nl_file is not None:
@@ -526,10 +696,12 @@ class LiLit(Likelihood):
             noise power spectrum with a more realistic noise."
         )
 
-        import os
-        import yaml
-        from yaml.loader import SafeLoader
-        import healpy as hp
+        try:
+            import yaml
+            from yaml.loader import SafeLoader
+            import healpy as hp
+        except ImportError:
+            print("YAML or Healpy seems to be not installed. Check the requirements.")
 
         assert (
             self.experiment is not None
@@ -611,7 +783,7 @@ class LiLit(Likelihood):
         return res
 
     def initialize(self):
-        """Initialize the fiducial spectra and the noise power spectra."""
+        """Initializes the fiducial spectra and the noise power spectra."""
         # Compute the fiducial and noise power spectra
         self.fiduCLS = self.prod_fidu()
         self.noiseCLS = self.prod_noise()
@@ -643,12 +815,12 @@ class LiLit(Likelihood):
             self.sigma2 = self.inv_sigma(sigma2)
 
     def get_requirements(self):
-        """Define requirements of the likelihood, specifying quantities calculated by a theory code are needed.
+        """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing.
 
         Returns
         -------
-            dict: dict with requirements
-        return dictionary
+            dict
+                Dictionary with requirements.
         """
         # The likelihood needs the lensed CMB angular power spectra. The keyword can be set to "unlensed_Cl" to get the unlensed ones
         requitements = {}
@@ -664,28 +836,33 @@ class LiLit(Likelihood):
     def data_vector(self, cov):
         """Get data vector from the covariance matrix.
 
-        Extract the data vector necessary for the Gaussian case.
-        Note that this will cut the null value since some may be null
-        when the fields have different values for lmax.
+        Extracts the data vector necessary for the Gaussian case. Note that this will cut the null value since some may be null when the fields have different values for lmax.
 
-        Args:
-        ----
-            cov (ndarray): A ndarray containing the covariance matrices, with some null ones.
+        Parameters
+        ----------
+            cov : ndarray
+                A ndarray containing the covariance matrices, with some null ones.
 
-        Returns:
+        Returns
         -------
-            array: array containing the data vector. Typically, this will be something like [YY, YK, KK].
+            array
+                Array containing the data vector. Typically, this will be something like [YY, YK, KK].
+
         """
         return cov[np.triu_indices(self.n)][cov[np.triu_indices(self.n)] != 0]
 
     def chi_exact(self, i=0):
-        """Compute proper chi-square term for the exact likelihood case.
+        """Computes proper chi-square term for the exact likelihood case.
 
-        Args:
-            i (int, optional): ell index if needed. Defaults to 0.
+        Parameters
+        ----------
+        i : int, optional
+            ell index if needed. Defaults to 0.
 
-        Returns:
-            float or array: value or values of the chi-square term
+        Returns
+        -------
+        float or array
+            value or values of the chi-square term
         """
         # If the number of datasets is not equal to 1, then we have a
         # multi-dataset case, in which case we need to compute the
@@ -719,13 +896,17 @@ class LiLit(Likelihood):
             return M - np.log(np.abs(M)) - 1
 
     def chi_gaussian(self, i=0):
-        """Compute proper chi-square term for the Gaussian likelihood case.
+        """Computes proper chi-square term for the Gaussian likelihood case.
 
-        Args:
-            i (int, optional): ell index if needed. Defaults to 0.
+        Parameters
+        ----------
+        i : int, optional
+            ell index if needed. Defaults to 0.
 
-        Returns:
-            float or array: value or values of the chi-square term
+        Returns
+        -------
+        float or array
+            value or values of the chi-square term
         """
         # If we have more than one data vector
         if self.n != 1:
@@ -740,13 +921,17 @@ class LiLit(Likelihood):
             return res
 
     def compute_chi_part(self, i=0):
-        """Choose which chi-square term to compute.
+        """Chooses which chi-square term to compute.
 
-        Args:
-            i (int, optional): ell index if needed. Defaults to 0.
+        Parameters
+        ----------
+        i : int, optional
+            ell index if needed. Defaults to 0.
 
-        Returns:
-            float or array: value or values of the chi-square term
+        Returns
+        -------
+        float or array
+            value or values of the chi-square term
         """
         # check if the likelihood is "exact"
         if self.like == "exact":
@@ -762,11 +947,12 @@ class LiLit(Likelihood):
             return
 
     def log_likelihood(self):
-        """Compute the log likelihood.
+        """Computes the log likelihood.
 
         Returns
         -------
-            float: value of the log likelihood already summed over multipoles
+            float
+                Value of the log likelihood already summed over multipoles
         """
         # Get the array of multipoles
         ell = np.arange(self.lmin, self.lmax + 1, 1)
@@ -781,12 +967,14 @@ class LiLit(Likelihood):
         return np.sum(logp_ℓ)
 
     def logp(self, **params_values):
-        """Compute the log likelihood and pass it to Cobaya to carry on the MCMC process.
+        """Gets the log likelihood and pass it to Cobaya to carry on the MCMC process.
 
         Returns
         -------
-            float: value of the log likelihood
-            dict(Optional): dictionary of eventual deriver parameters computed by the likelihood function
+        log_likelihood : float
+            Value of the log likelihood.
+        derived_parameters : dict, optional
+            Dictionary of eventual derived parameters computed by the likelihood function.
         """
         if self.debug:
             CAMBdata = self.provider.get_CAMBdata()
@@ -829,3 +1017,8 @@ class LiLit(Likelihood):
             exit()
 
         return logp
+
+
+__all__ = ["LiLit"]
+
+__docformat__ = "numpy"
