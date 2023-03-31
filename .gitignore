@@ -2,3 +2,6 @@ __pycache__/
 lilit/__pycache__/
 examples/__pycache__/
 examples/chains/
+dist/
+lilit.egg-info/
+build/
