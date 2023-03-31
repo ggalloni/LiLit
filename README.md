@@ -12,6 +12,20 @@ This repository should also give to new Cobaya-users a good starting point to bu
 
 The repository can be found at [https://github.com/ggalloni/LiLit](https://github.com/ggalloni/LiLit).
 
+## Installation
+
+To install the LiLit package it is sufficient to do:
+
+```
+pip install lilit
+```
+
+Then, to access the LiLit class, it is sufficient to import it as:
+
+```
+from lilit import LiLit
+```
+
 ## Some further details on LiLit
 
 If you want to start using LiLit, here are some further details on what you can do with it. Firstly, LiLit is independent of the number of fields considered and can be dynamically modified at declaration. Thus, it makes no difference if you want to use B-modes alone, or if you want to use CMB temperature, E-modes, lensing, etc. The only constraint is that the Boltzmann code you are using to provide the spectra should understand the fields you are asking to LiLit. Each of these fields may have their own $\ell_{\rm min}$, $\ell_{\rm max}$ and $f_{\rm sky}$. So, I implemented the possibility to pass all these quantities as lists to LiLit, which will then take case of the proper multipoles cuts and so on. The only requirement is that you should pass these lists following the order in which you passes the requested fields. For example:
