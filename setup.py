@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from lilit import __version__
 
 
@@ -12,6 +12,7 @@ setup(
     author_email="giacomo.galloni@roma2.infn.it",
     packages=["lilit"],
     package_dir={"lilit": "lilit"},
+    package_data={"lilit": ["experiments.yaml", "planck_2018.ini"]},
     url="https://github.com/ggalloni/LiLit",
     keywords="bayesian-statistics, markov-chain-mote-carlo, cosmic-microwave-background, cobaya",
     install_requires=[
@@ -19,7 +20,14 @@ setup(
         "numpy",
         "healpy",
         "pyyaml",
-        "pickle-mixin",
+        "matplotlib",
+        "camb",
+    ],
+    setup_requires=[
+        "cobaya",
+        "numpy",
+        "healpy",
+        "pyyaml",
         "matplotlib",
         "camb",
     ],

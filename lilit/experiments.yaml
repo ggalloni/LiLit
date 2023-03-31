@@ -1,0 +1,155 @@
+# This file is a custom version of the one found in the cmbdb package
+
+# Collection of experiments
+#
+# Possible information and units
+#
+# date: year (expected or achieved)
+# frequency: GHz
+# fwhm: arcmin
+# bandwidth: delta_nu_over_nu
+# pixel_size: mm
+# detectors: number
+# net_det: uK_sqrt_s
+# net_arr_i: uK_sqrt_s
+# net_arr_p:  uK_sqrt_s
+# depth_p: uK_arcmin
+# f_sky: fraction
+# status: forecast or achieved
+# type: satellite, ground, baloon
+#
+# They are either lists with one entry per channel
+# or signle entry in the "meta" argument
+
+LiteBIRD:
+  frequency:  [40.0,    50.0,   60.0,   68.0,   78.0,   89.0,   100.0,  119.0,  140.0,  166.0,  195.0,  235.0,  280.0,  337.0,  402.0]
+  depth_p:    [37.5,    24,     19.9,   16.2,   13.5,   11.7,   9.2,    7.6,    5.9,    6.5,    5.8,    7.7,    13.2,   19.5,   37.5]
+  depth_i:    [26.5,    17.0,   14.1,   11.5,   9.5,    8.3,    6.5,    5.4,    4.2,    4.6,    4.1,    5.4,    9.3,    13.8,   26.5]  # See note
+  fwhm:       [69.0,    56.0,   48.0,   43.0,   39.0,   35.0,   29.0,   25.0,   23.0,   21.0,   20.0,   19.0,   24.0,   20.0,   17.0]
+  bandwidth:  [0.3,     0.3,    0.23,   0.23,   0.23,   0.23,   0.23,   0.3,    0.3,    0.3,    0.3,    0.3,    0.3,    0.3,    0.23]
+  pixel_size: [18,      18,     18,     18,     18,     18,     12,     12,     12,     12,     12,     12,     5.4,    4.5,    4]
+  detectors:  [114,     114,    114,    114,    114,    114,    296,    222,    296,    222,    296,    222,    128,    128,    128]
+  net_det:    [172,     96,     79,     64,     54,     47,     59,     42,     38,     36,     37,     43,     55,     81,     156]
+  net_arr_i:  [18,      11.5,   9.5,    7.8,    6.5,    5.6,    4.4,    3.7,    2.8,    3.1,    2.8,    3.7,    6.3,    9.4,    18]
+  net_arr_p:  [25.5,    16.3,   13.5,   11.0,   9.2,    8.0,    6.2,    5.2,    4.0,    4.4,    3.9,    5.2,    8.9,    13.2,   25.5]
+  meta:
+    f_sky: 1.0
+    status: forecast
+    reference: "Journal of Low Temperature Physics, Volume 194, Issue 5-6, pp. 443-452"
+    type: satellite
+    note: "Warning: depth_i is not the official one but simply depth_p / sqrt(2)"
+
+PTEPLiteBIRD:
+  frequency:  [40,      50,     60,     68,     68,     78,     78,     89,     89,     100,    100,    119,    119,    140,    140,    166,    195,    195,    235,    280,    337,    402]
+  depth_p:    [37.42,   33.46,  21.31,  19.91,  31.77,  15.55,  19.13,  12.28,  28.77,  10.34,  8.48,   7.69,   5.7,    7.25,   6.38,   5.57,   7.05,   10.5,   10.79,  13.8,   21.95,  47.45]
+  depth_i:    [26.46,   23.66,  15.07,  14.08,  22.46,  11.00,  13.53,  8.68,   20.34,  7.31,   6.00,   5.44,   4.03,   5.13,   4.51,   3.94,   4.99,   7.42,   7.63,   9.76,   15.52,  33.55]  # See note
+  fwhm:       [70.5,    58.5,   51.1,   41.6,   47.1,   36.9,   43.8,   33,     41.5,   30.2,   37.8,   26.3,   33.6,   23.7,   30.8,   28.9,   28,     28.6,   24.7,   22.5,   20.9,   17.9]
+  bandwidth:  [0.3,      0.3,     0.23,     0.23,     0.23,     0.23,     0.23,     0.23,     0.23,     0.23,    0.23,    0.3,    0.3,    0.3,    0.3,    0.3,    0.3,    0.3,    0.3,    0.3,    0.3,    0.23]
+  pixel_size: [32,     32,    32,    16,    32,    16,    32,    16,    32,    16,    11.6,    16,    11.6,    16,    11.6,    11.6,    11.6,    6.6,    6.6,    6.6,    6.6,    5.7]
+  detectors:  [48,     24,    48,    144,    24,    144,    48,    144,    24,    144,    366,    144,    488,    144,    366,    488,    366,    254,    254,    254,    254,    338]
+  net_det:    [114.63,     72.48,    65.28,    105.64,    68.81,    82.51,    58.61,    65.18,    62.33,    54.88,    71.70,    40.78,    55.65,    38.44,    54.00,    54.37,    59.61,    73.96,    76.06,    97.26,    154.64,    385.69]
+  net_arr_i:  [18.50,     16.54,    10.54,    9.84,    15.70,    7.69,    9.46,    6.07,    14.22,    5.11,    4.19,    3.80,    2.82,    3.58,    3.16,    2.75,    3.48,    5.19,    5.34,    6.82,    10.85,    23.45]
+  net_arr_p:  [26.16,     23.39,    14.91,    13.92,    22.20,    10.88,    13.38,      8.58,     20.11,    7.23,     5.93,   5.37,   3.99,    5.06,   4.47,    3.89,    4.92,    7.34,   7.55,   9.64,   15.34,  33.16]
+  meta:
+    f_sky: 1.0
+    status: forecast
+    reference: "E. Allys, K. Arnold, J. Aumont, R. Aurlien, S. Azzoni, C. Baccigalupi, A. J. Banday, R. Banerji, R. B. Barreiro, N. Bartolo, et al. (LiteBIRD) (2022), eprint = 2202.02773"
+    type: satellite
+    note: "Warning: depth_i is not the official one but simply depth_p / sqrt(2)"
+
+SO_SAT:
+  frequency:  [27.0,    39.0,   93.0,   145.0,  225.0,  280]
+  depth_p:    [35.0,    21.0,   2.6,    3.3,    6.3,    16.0]  # Baseline
+  depth_i:    [24.7,    14.8,   1.8,    2.3,    4.5,    11.3]  # See note
+  fwhm:       [91.0,    63.0,   30.0,   17.0,   11.0,   9.0]
+  meta:
+    f_sky: 0.1
+    status: forecast
+    reference: "Journal of Cosmology and Astroparticle Physics, Issue 02, article id. 056 (2019)"
+    type: ground
+    note: "Warning: depth_i is not the official one but simply depth_p / sqrt(2)"
+
+SO_SAT_goal:
+  frequency:  [27.0,    39.0,   93.0,   145.0,  225.0,  280]
+  depth_p:    [25.0,    17.0,   1.9,    2.1,    4.2,    10.0]  # Baseline
+  depth_i:    [17.68,   12.02,    1.34,   1.48,    2.97,   7.07]  # See note
+  fwhm:       [91.0,    63.0,   30.0,   17.0,   11.0,   9.0]
+  meta:
+    f_sky: 0.1
+    status: forecast
+    reference: "Journal of Cosmology and Astroparticle Physics, Issue 02, article id. 056 (2019)"
+    type: ground
+    note: "Warning: depth_i is not the official one but simply depth_p / sqrt(2)"
+
+SO_LAT:
+  frequency:  [27.0,    39.0,   93.0,   145.0,  225.0,  280.0]
+  depth_p:    [71.0,    36.0,   8.0,    10.0,   22.0,   54.0]  # Baseline
+  depth_i:    [50.2,    25.5,   5.7,    7.1,    15.6,   38.2]  # See note
+  fwhm:       [7.4,     5.1,    2.2,    1.4,    1.0,    0.9]
+  meta:
+    f_sky: 0.4
+    status: forecast
+    reference: "Journal of Cosmology and Astroparticle Physics, Issue 02, article id. 056 (2019)"
+    type: ground
+    note: "Warning: depth_i is not the official one but simply depth_p / sqrt(2)"
+
+SO_LAT_goal:
+  frequency:  [27.0,    39.0,   93.0,   145.0,  225.0,  280.0]
+  depth_p:    [52.0,    27.0,   5.8,    6.3,   15.0,   37.0]  # Baseline
+  depth_i:    [36.77,    19.09,   4.10,    4.45,    10.61,   26.16]  # See note
+  fwhm:       [7.4,     5.1,    2.2,    1.4,    1.0,    0.9]
+  meta:
+    f_sky: 0.4
+    status: forecast
+    reference: "Journal of Cosmology and Astroparticle Physics, Issue 02, article id. 056 (2019)"
+    type: ground
+    note: "Warning: depth_i is not the official one but simply depth_p / sqrt(2)"
+
+Planck:
+  frequency:  [28.4,  44.1,  70.4,  100,  143,  217,  353,  545,  857]
+  depth_i:    [150.,  162.,  210.,  77.4, 33.,  46.8, 154,  42.,  5016.]
+  depth_p:    [210.,  240.,  300.,  118,  70.2, 105., 439,  .NAN, .NAN]
+  fwhm:       [32.29, 27.94, 13.08, 9.66, 7.22, 4.90, 4.92, 4.67, 4.22]
+  instrument: [lfi,   lfi,   lfi,   hfi,  hfi,  hfi,  hfi,  hfi,  hfi]
+  # Original quantities
+  # depth_t:  [2.5,   2.7,   3.5,   1.29, 0.55, 0.78, 2.56,] uK deg
+  # depth_t:  [,,,,,,,                                      0.04, 0.12]  kJy deg / sr
+  # depth_p:  [3.5,   4.0,   5.0,   1.96, 1.17, 1.75, 7.31] uK deg
+  meta:
+    date: 2018
+    f_sky: 1
+    status: achieved
+    reference: "arXiv:1807.06205"
+    type: satellite
+    note: "Warning: 545 and 857 depth_t are simple unit conversions from deg kJy / sr at nominal frequencies"
+
+PICO:
+  frequency:  [21.0,    25.0,   30.0,   36.0,   43.0,   52.0,   62.0,   75.0,   90.0,   108.0,  129.0,  155.0,  186.0,  223.0,  268.0,  321.0,  385.0,  462.0,  555.0,  666.0,  799.0]
+  depth_p:    [23.9,    18.4,   12.4,   7.9,    7.9,    5.7,    5.4,    4.2,    2.8,    2.3,    2.1,    1.8,    4.0,    4.5,    3.1,    4.2,    4.5,    9.1,    45.8,   177.0,  1050.0]
+  depth_i:    [16.9,    13.0,   8.8,    5.6,    5.6,    4.0,    3.8,    3.0,    2.0,    1.6,    1.5,    1.3,    2.8,    3.2,    2.2,    3.0,    3.2,    6.4,    32.4,   125.2,  742.5]
+  fwhm:       [38.4,    32.0,   28.3,   23.6,   22.2,   18.4,   12.8,   10.7,   9.5,    7.9,    7.4,    6.2,    4.3,    3.6,    3.2,    2.6,    2.5,    2.1,    1.5,    1.3,    1.1]
+  bandwidth:  [0.25,    0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25]
+  detectors:  [120,     200,    120,    200,    120,    200,    732,    1020,   732,    1020,   732,    1020,   960,    900,    960,    900,    960,    900,    440,    400,    360]
+  net_arr_i:  [17.0,    11.9,   8.0,    5.7,    5.6,    4.0,    3.8,    3.0,    2.0,    1.6,    1.5,    1.3,    2.8,    3.3,    2.2,    3.0,    3.2,    6.4,    32.5,   126.0,  744.0]
+  meta:
+    f_sky: 1.0
+    status: forecast
+    reference: "PICO: Probe of Inflation and Cosmic Origins, Report from a Probe-Scale Mission Study, March, 2019. S. Hanany et al. (1902.10541)"
+    type: satellite
+    note: "Warning: depth_i is assumed to be depth_p / sqrt(2)"
+
+PICO_CBE:
+  frequency:  [21.0,    25.0,   30.0,   36.0,   43.0,   52.0,   62.0,   75.0,   90.0,   108.0,  129.0,  155.0,  186.0,  223.0,  268.0,  321.0,  385.0,  462.0,  555.0,  666.0,  799.0]
+  depth_p:    [16.9,    13.0,   8.8,    5.6,    5.6,    4.0,    3.8,    3.0,    2.0,    1.6,    1.5,    1.3,    2.8,    3.2,    2.2,    3.0,    3.2,    6.4,    32.4,   125.0,  740.0]
+  depth_i:    [11.95,   9.19,   6.22,   3.96,   3.96,   2.83,   2.69,   2.12,   1.41,   1.13,   1.06,   0.92,   1.98,   2.26,   1.56,   2.12,   2.26,   4.53,   22.91,  88.53,  525.03]
+  fwhm:       [38.4,    32.0,   28.3,   23.6,   22.2,   18.4,   12.8,   10.7,   9.5,    7.9,    7.4,    6.2,    4.3,    3.6,    3.2,    2.6,    2.5,    2.1,    1.5,    1.3,    1.1]
+  bandwidth:  [0.25,    0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25,   0.25]
+  detectors:  [120,     200,    120,    200,    120,    200,    732,    1020,   732,    1020,   732,    1020,   960,    900,    960,    900,    960,    900,    440,    400,    360]
+  net_arr_i:  [17.0,    11.9,   8.0,    5.7,    5.6,    4.0,    3.8,    3.0,    2.0,    1.6,    1.5,    1.3,    2.8,    3.3,    2.2,    3.0,    3.2,    6.4,    32.5,   126.0,  744.0]
+  meta:
+    f_sky: 1.0
+    status: forecast
+    reference: "PICO: Probe of Inflation and Cosmic Origins, Report from a Probe-Scale Mission Study, March, 2019. S. Hanany et al. (1902.10541)"
+    type: satellite
+    note: "Warning: depth_i is assumed to be depth_p / sqrt(2)"
+

@@ -188,10 +188,10 @@ class LiLit(Likelihood):
             for i in range(self.n):
                 for j in range(i, self.n):
                     key = self.fields[i] + self.sep + self.fields[j]
-                    self.lmins[key] = np.sqrt(
-                        lmin[i] * lmin[j]
+                    self.lmins[key] = int(
+                        np.ceil(np.sqrt(lmin[i] * lmin[j]))
                     )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
-                    self.lmins[key[::-1]] = np.sqrt(lmin[i] * lmin[j])
+                    self.lmins[key[::-1]] = int(np.ceil(np.sqrt(lmin[i] * lmin[j])))
             self.lmin = min(lmin)
         else:
             self.lmin = lmin
@@ -204,10 +204,10 @@ class LiLit(Likelihood):
             for i in range(self.n):
                 for j in range(i, self.n):
                     key = self.fields[i] + self.sep + self.fields[j]
-                    self.lmaxs[key] = np.sqrt(
-                        lmax[i] * lmax[j]
+                    self.lmaxs[key] = int(
+                        np.floor(np.sqrt(lmax[i] * lmax[j]))
                     )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
-                    self.lmaxs[key[::-1]] = np.sqrt(lmax[i] * lmax[j])
+                    self.lmaxs[key[::-1]] = int(np.floor(np.sqrt(lmax[i] * lmax[j])))
             self.lmax = max(lmax)
         else:
             self.lmax = lmax
@@ -515,9 +515,11 @@ class LiLit(Likelihood):
         except ImportError:
             print("CAMB seems to be not installed. Check the requirements.")
 
-        pars = camb.read_ini(
-            os.path.join("./", "planck_2018.ini")
-        )  # Read the ini file containing the parameters for CAMB
+        # Read the ini file containing the parameters for CAMB
+        path = os.path.dirname(os.path.abspath(__file__))
+        planck_path = os.path.join(path, "planck_2018.ini")
+        pars = camb.read_ini(planck_path)
+
         if "bb" in self.keys:  # If we want to include the tensor mode
             print(f"\nProducing fiducial spectra for r={self.r} and nt={self.nt}")
             pars.InitPower.set_params(
@@ -581,7 +583,9 @@ class LiLit(Likelihood):
         ), "You must specify the experiment you want to consider"
         print(f"\nComputing noise for {self.experiment}")
 
-        with open(os.path.join("./", "experiments.yaml")) as f:
+        path = os.path.dirname(os.path.abspath(__file__))
+        experiments_path = os.path.join(path, "experiments.yaml")
+        with open(experiments_path) as f:
             data = yaml.load(f, Loader=SafeLoader)
 
         # Get the instrument data from the saved data
