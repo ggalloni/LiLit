@@ -675,9 +675,9 @@ class LiLit(Likelihood):
             print(f"Keys of noise CLs ---> {self.noiseCLS.keys()}")
 
             print("\nPrinting the first few values to check that it starts from 0...")
-            field = self.fiduCLS.keys()[0]
+            field = list(self.fiduCLS.keys())[0]
             print(f"Fiducial CLs for {field.upper()} ---> {self.fiduCLS[field][0:5]}")
-            field = self.noiseCLS.keys()[0]
+            field = list(self.noiseCLS.keys())[0]
             print(f"Noise CLs for {field.upper()} ---> {self.noiseCLS[field][0:5]}")
 
         # Compute the total covariance matrix
@@ -820,7 +820,7 @@ class LiLit(Likelihood):
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
 
-            field = self.cobaCLs.keys()[0]
+            field = list(self.cobaCLs.keys())[0]
             print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
 
