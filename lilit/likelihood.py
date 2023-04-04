@@ -825,7 +825,7 @@ class LiLit(Likelihood):
             print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
 
         # Fill the covariance matrix with the Cls from Cobaya
-        self.cobaCOV = self.cov_filling(self, self.cobaCLs)
+        self.cobaCOV = self.cov_filling(self.cobaCLs)
 
         if self.debug:
             ell = np.arange(0, self.lmax + 1, 1)

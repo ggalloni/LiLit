@@ -31,4 +31,5 @@ setup(
         "matplotlib",
         "camb",
     ],
+    long_description=open("README.md").read(),
 )
