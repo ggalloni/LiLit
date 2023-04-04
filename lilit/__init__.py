@@ -92,5 +92,5 @@ For additional details on how Cobaya works, I suggest to see the [documentation]
 from .likelihood import LiLit
 
 __author__ = "Giacomo Galloni"
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 __docformat__ = "numpy"

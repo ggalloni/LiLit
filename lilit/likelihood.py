@@ -27,6 +27,8 @@ class LiLit(Likelihood):
             Path to Cl file (default: None).
         nl_file (str, optional):
             Path to noise file (default: None).
+        mapping (dict, optional):
+            Dictionary of mapping between the fields in the noise file and the fields in the likelihood, used only if nl_file has .txt extension (default: None).
         experiment (str, optional):
             Name of experiment (default: None).
         nside (int, optional):
@@ -90,6 +92,8 @@ class LiLit(Likelihood):
             Cobaya vector obtained by summing cobaCOV + noiseCOV.
         nl_file (str):
             Path to noise file.
+        mapping (dict):
+            Dictionary of mapping between the fields in the noise file and the fields in the likelihood, used only if nl_file has .txt extension.
         experiment (str):
             Name of experiment.
         nside (int):
@@ -115,6 +119,7 @@ class LiLit(Likelihood):
         lmin=2,
         cl_file=None,
         nl_file=None,
+        mapping=None,
         experiment=None,
         nside=None,
         r=None,
@@ -142,6 +147,8 @@ class LiLit(Likelihood):
         self.sep = sep
         self.cl_file = cl_file
         self.nl_file = nl_file
+        if self.nl_file.endswith(".txt"):
+            self.mapping = mapping
         self.experiment = experiment
         if self.experiment is not None:
             # Check that the user has provided the nside if an experiment is used
@@ -560,9 +567,8 @@ class LiLit(Likelihood):
             # If not, load the file as a text file
             else:
                 _txt = np.loadtxt(self.nl_file)
-                _mapping = {"bb": 0}
                 # Convert the text file to a dictionary
-                res = self.txt2dict(_txt, _mapping, apply_ellfactor=True)
+                res = self.txt2dict(_txt, self.mapping, apply_ellfactor=True)
             return res
 
         print(
