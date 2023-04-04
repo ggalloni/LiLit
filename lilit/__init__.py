@@ -86,9 +86,8 @@ The number of processess translates on the number of chains that will be runned 
 * numpy
 * healpy
 * pyyaml
-* pickle
 * matplotlib
-* camb, or classy
+* camb
 
 ## Documentation
 
