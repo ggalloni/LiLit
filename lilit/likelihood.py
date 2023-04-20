@@ -552,7 +552,15 @@ class LiLit(Likelihood):
             lmax=self.lmax,
             raw_cl=False,
         )
-        return self.CAMBres2dict(res)
+        res_dict = self.CAMBres2dict(res)
+
+        if "1" in self.fields:
+            source_res = results.get_source_cls_dict(raw_cl=False)
+            for key, value in source_res.items():
+                key = key.replace("W", "").replace("x", "")
+                res_dict[key] = value
+
+        return res_dict
 
     def prod_noise(self):
         """Produce noise power spectra or read the input ones.
@@ -701,15 +709,17 @@ class LiLit(Likelihood):
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
         # The likelihood needs the lensed CMB angular power spectra. The keyword can be set to "unlensed_Cl" to get the unlensed ones
-        requitements = {}
-        requitements["Cl"] = {cl: self.lmax for cl in self.keys}
+        requirements = {}
+        requirements["Cl"] = {cl: self.lmax for cl in self.keys}
         # If debug is set to True, the likelihood will print the list of items required by the likelihood
+        if "1" in self.fields:
+            requirements["source_Cl"] = self.lmax
         if self.debug:
-            requitements["CAMBdata"] = None
+            requirements["CAMBdata"] = None
             print(
-                f"\nYou requested that Cobaya provides to the likelihood the following items: {requitements}",
+                f"\nYou requested that Cobaya provides to the likelihood the following items: {requirements}",
             )
-        return requitements
+        return requirements
 
     def data_vector(self, cov):
         """Get data vector from the covariance matrix.
