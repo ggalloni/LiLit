@@ -45,6 +45,8 @@ class LiLit(Likelihood):
             Separator used in the data file (default: "").
         debug (bool, optional):
             If True, produces more verbose output (default: None).
+        survey (str, optional):
+            Name of the survey (default: "Euclid").
 
 
     Attributes:
@@ -108,6 +110,12 @@ class LiLit(Likelihood):
             Separator used in the data file.
         debug (bool):
             If True, produces more output.
+        survey (str):
+            Name of the survey.
+        zz (np.ndarray):
+            Redshift array for the considered survey.
+        dNdz (np.ndarray):
+            dNdz array for the considered survey.
     """
 
     def __init__(
@@ -128,6 +136,7 @@ class LiLit(Likelihood):
         fsky=1,
         sep="",
         debug=None,
+        survey="Euclid",
     ):
         # Check that the user has provided the name of the likelihood
         assert (
@@ -164,6 +173,7 @@ class LiLit(Likelihood):
             self.r = r
             self.nt = nt
             self.pivot_t = pivot_t
+        self.survey = survey
 
         self.set_lmin_lmax_fsky(lmin, lmax, fsky)
 
@@ -543,6 +553,20 @@ class LiLit(Likelihood):
         pars.DoLensing = True
         # _pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
 
+        if "1" in self.fields:
+            from camb.sources import SplinedSourceWindow
+
+            self.compute_dndz()
+
+            pars.SourceWindows = []
+
+            for i in range(self.dNdz.shape[0]):
+                pars.SourceWindows.append(
+                    SplinedSourceWindow(
+                        bias_z=self.bz_step[i], z=self.zz, W=self.dNdz[i]
+                    )
+                )
+
         if self.debug:
             print(pars)
 
@@ -689,9 +713,9 @@ class LiLit(Likelihood):
             print(f"Keys of noise CLs ---> {self.noiseCLS.keys()}")
 
             print("\nPrinting the first few values to check that it starts from 0...")
-            field = list(self.fiduCLS.keys())[0]
+            field = list(self.fiduCLS.keys())[1]
             print(f"Fiducial CLs for {field.upper()} ---> {self.fiduCLS[field][0:5]}")
-            field = list(self.noiseCLS.keys())[0]
+            field = list(self.noiseCLS.keys())[1]
             print(f"Noise CLs for {field.upper()} ---> {self.noiseCLS[field][0:5]}")
 
         # Compute the total covariance matrix
@@ -706,6 +730,95 @@ class LiLit(Likelihood):
             sigma2 = self.sigma(self.gauss_keys, self.fiduCLS, self.noiseCLS)
             self.sigma2 = self.inv_sigma(sigma2)
 
+    def dndz_Euclid(self):
+        from scipy.special import erf
+
+        self.zz = np.arange(0.001, 2.501, 0.001)
+        z_med = 0.9
+        z0 = z_med / (np.sqrt(2))
+        c_b = 1.0
+        z_b = 0.0
+        sigma_b = 0.05
+        c_0 = 1.0
+        z_0 = 0.1
+        sigma_0 = 0.05
+        f_out = 0.1
+
+        ## NZ ##
+        def dndz(z, zm):
+            return ((z / zm) ** 2) * np.exp(-((z / zm) ** (3.0 / 2.0)))
+
+        z_bin_m = [
+            0.001,
+            0.418,
+            0.560,
+            0.678,
+            0.789,
+            0.900,
+            1.019,
+            1.155,
+            1.324,
+            1.576,
+            2.500,
+        ]
+        self.z_med = [
+            (z_bin_m[i + 1] + z_bin_m[i]) / 2 for i in range(len(z_bin_m) - 1)
+        ]
+
+        ## N(z) no tomography ##
+        dndz_tot = dndz(self.zz, z0)
+
+        ## N(z)_i ##
+        def dndz_bin(z, z_bin_m, z_bin_p, c_b, z_b, sigma_b, c_0, z_0, sigma_0, f_out):
+            return dndz_tot * ((1 - f_out) / (2 * c_b)) * (
+                erf((z - c_b * z_bin_m - z_b) / (np.sqrt(2) * sigma_b * (1 + z)))
+                - erf((z - c_b * z_bin_p - z_b) / (np.sqrt(2) * sigma_b * (1 + z)))
+            ) + dndz_tot * (f_out / (2 * c_0)) * (
+                erf((z - c_0 * z_bin_m - z_0) / (np.sqrt(2) * sigma_0 * (1 + z)))
+                - erf((z - c_0 * z_bin_p - z_0) / (np.sqrt(2) * sigma_0 * (1 + z)))
+            )
+
+        ## Computing power spectrum ##
+        self.dNdz = [
+            dndz_bin(
+                self.zz,
+                z_bin_m[i],
+                z_bin_m[i + 1],
+                c_b,
+                z_b,
+                sigma_b,
+                c_0,
+                z_0,
+                sigma_0,
+                f_out,
+            )
+            for i in range(len(z_bin_m) - 1)
+        ]
+
+        z_med = [(z_bin_m[i + 1] + z_bin_m[i]) / 2 for i in range(len(z_bin_m) - 1)]
+
+        bz_step = np.zeros(len(self.zz))
+        for i, z in enumerate(self.zz):
+            for j in range(len(z_med)):
+                if z >= z_med[j] and z <= z_med[j + 1]:
+                    bz_step[i] = np.sqrt(1 + z_med[j])
+                else:
+                    bz_step[i] = 0
+
+        self.bz_step = [bz_step for i in range(len(z_bin_m) - 1)]
+
+        return
+
+    def compute_dndz(self):
+        if self.survey == "Euclid":
+            self.dndz_Euclid()
+        elif self.survey == "LSST":
+            self.dndz_LSST()
+        else:
+            print("Survey not implemented yet (only Euclid and LSST)")
+            return
+        return
+
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
         # The likelihood needs the lensed CMB angular power spectra. The keyword can be set to "unlensed_Cl" to get the unlensed ones
@@ -713,7 +826,21 @@ class LiLit(Likelihood):
         requirements["Cl"] = {cl: self.lmax for cl in self.keys}
         # If debug is set to True, the likelihood will print the list of items required by the likelihood
         if "1" in self.fields:
-            requirements["source_Cl"] = self.lmax
+            self.compute_dndz()
+            sources = {}
+            for field in self.fields:
+                try:
+                    sources[field] = {
+                        "function": "spline",
+                        "z": self.zz,
+                        "bias_z": np.ones(len(self.zz)),
+                        "W": self.dNdz[int(field)],
+                    }
+                except ValueError:
+                    pass
+            requirements["source_Cl"] = {"non_linear": True, "limber": True}
+            requirements["source_Cl"]["sources"] = sources
+
         if self.debug:
             requirements["CAMBdata"] = None
             print(
@@ -833,10 +960,16 @@ class LiLit(Likelihood):
         # Get the Cls from Cobaya
         self.cobaCLs = self.provider.get_Cl(ell_factor=True)
 
+        if "1" in self.fields:
+            cobasourceCLs = self.provider.get_source_Cl(ell_factor=True)
+            for value, key in cobasourceCLs.items():
+                key = key.replace("W", "").replace("x", "")
+                self.cobaCLs[key] = value
+
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
 
-            field = list(self.cobaCLs.keys())[0]
+            field = list(self.cobaCLs.keys())[1]
             print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
 
