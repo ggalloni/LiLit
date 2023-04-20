@@ -345,6 +345,7 @@ class LiLit(Likelihood):
             res["ell"] = ls
             if apply_ellfactor:
                 res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi  # TODO check this
+                res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi  # TODO check this
             else:
                 res[key] = txt[:, i]
         return res
@@ -483,7 +484,6 @@ class LiLit(Likelihood):
         # _pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
 
         if "1" in self.fields:
-            ## general. rel effects for source terms ##
             pars.SourceTerms.counts_redshift = False
             pars.SourceTerms.counts_lensing = False
             pars.SourceTerms.limber_windows = True
@@ -501,9 +501,8 @@ class LiLit(Likelihood):
             pars.SourceTerms.line_extra = False
             pars.SourceTerms.line_reionization = False
             pars.SourceTerms.use_21cm_mK = False
-            pars.set_for_lmax(self.lmax, lens_potential_accuracy=1)
             pars.Want_CMB = True
-            pars.NonLinear = model.NonLinear_both
+            pars.NonLinear = camb.model.NonLinear_both
 
             from camb.sources import SplinedSourceWindow
 
@@ -789,6 +788,19 @@ class LiLit(Likelihood):
         def dndz(z, zm, alpha):
             return (z**2) * np.exp(-((z / zm) ** (alpha)))
 
+        bi = [
+            1.08509147,
+            1.14382284,
+            1.2047005,
+            1.26740743,
+            1.3317134,
+            1.3974141,
+            1.46429394,
+            1.53212972,
+            1.60078307,
+            1.67017681,
+        ]
+
         z_bin_p = np.arange(0.2, 1.3, 0.1)
 
         dndz_tot = dndz(self.zz, z0, alpha)
@@ -819,6 +831,8 @@ class LiLit(Likelihood):
             )
             for i in range(len(z_bin_p) - 1)
         ]
+
+        self.bz_step = [np.ones(len(self.zz)) * bi(i) for i in range(len(z_bin_p) - 1)]
 
         return
 
