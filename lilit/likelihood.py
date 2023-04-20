@@ -554,6 +554,28 @@ class LiLit(Likelihood):
         # _pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
 
         if "1" in self.fields:
+             ## general. rel effects for source terms ##
+            pars.SourceTerms.counts_redshift = False
+            pars.SourceTerms.counts_lensing = False
+            pars.SourceTerms.limber_windows = True
+            pars.SourceTerms.limber_phi_lmin = 100
+            pars.SourceTerms.counts_velocity = False
+            pars.SourceTerms.counts_radial = False
+            pars.SourceTerms.counts_timedelay = False
+            pars.SourceTerms.counts_ISW = True
+            pars.SourceTerms.counts_potential = False
+            pars.SourceTerms.counts_evolve = True
+            pars.SourceTerms.line_phot_dipole = False
+            pars.SourceTerms.line_phot_quadrupole = False
+            pars.SourceTerms.line_basic = True
+            pars.SourceTerms.line_distortions = False
+            pars.SourceTerms.line_extra = False
+            pars.SourceTerms.line_reionization = False
+            pars.SourceTerms.use_21cm_mK = False
+            pars.set_for_lmax(self.lmax, lens_potential_accuracy=1)
+            pars.Want_CMB = True
+            pars.NonLinear = model.NonLinear_both
+            
             from camb.sources import SplinedSourceWindow
 
             self.compute_dndz()
