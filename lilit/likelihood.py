@@ -1027,43 +1027,6 @@ class LiLit(Likelihood):
             plt.xlim(2, self.lmax)
             plt.show(block=True)
 
-        # if self.debug:
-        #     ell = np.arange(0, self.lmax + 1, 1)
-        #     print(logp)
-        #     import matplotlib.ticker as tck
-
-        #     fig, ax = plt.subplots()
-        #     ax.tick_params(direction="in", which="both", labelsize=13, width=1.0)
-        #     ax.yaxis.set_ticks_position("both")
-        #     ax.xaxis.set_ticks_position("both")
-        #     ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
-        #     ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
-        #     bin = 0
-
-        #     # plt.plot(ell, self.noiseCOV[bin, bin, :], label="noisegg")
-        #     plt.plot(ell, self.fiduCOV[bin, bin, :] ** 2, label="fidugg")
-        #     plt.plot(ell, self.cobaCOV[bin, bin, :] ** 2, label="cobagg", ls="--")
-
-        #     plt.plot(
-        #         ell[2:],
-        #         (2 * self.data[bin, bin, :] ** 2 / (2 * ell[2:] + 1) / 0.8),
-        #         # / np.sqrt(ell[2:] + 1)
-        #         # / np.sqrt(ell[2:])
-        #         # / 2 * np.pi,
-        #         label="sigma computation",
-        #     )
-
-        #     plt.plot(
-        #         ell[2:],
-        #         self.sigma2[0, 0, :] ** -1,
-        #         label="sigma",
-        #     )
-
-        #     plt.legend()
-        #     plt.loglog()
-        #     plt.xlim(2, self.lmax)
-        #     plt.show(block=True)
-
         if self.debug:
             print(f"Log-posterior -->  {logp}")
             exit()
