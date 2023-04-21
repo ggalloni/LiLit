@@ -598,8 +598,8 @@ class LiLit(Likelihood):
         )
         res_dict = self.CAMBres2dict(res)
 
-        if "1" in fields:
-            source_res = results.get_source_cls_dict(raw_cl=False, lmax = lmax)
+        if "1" in self.fields:
+            source_res = results.get_source_cls_dict(raw_cl=False, lmax = self.lmax)
             for key, value in source_res.items():
                 key = key.replace("W", "").replace("x", "")
                 if "P" in key:
