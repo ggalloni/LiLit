@@ -580,7 +580,7 @@ class LiLit(Likelihood):
 
             pars.SourceWindows = []
 
-            for i in range(self.dNdz.shape[0]):
+            for i in range(np.array(self.dNdz).shape[0]):
                 pars.SourceWindows.append(
                     SplinedSourceWindow(
                         bias_z=self.bz_step[i], z=self.zz, W=self.dNdz[i]
