@@ -1055,9 +1055,17 @@ class LiLit(Likelihood):
 
         if "1" in self.fields:
             cobasourceCLs = self.provider.get_source_Cl(ell_factor=True)
+            self.ell = np.arange(0, sel.lmax+1, 1)
             for value, key in cobasourceCLs.items():
                 key = key.replace("W", "").replace("x", "")
-                self.cobaCLs[key] = value
+                #self.cobaCLs[key] = value
+                if "P" in key:
+                    if "PP" in key:
+                        self.cobaCLs[key] = value/((self.ell*(self.ell+1)))
+                    else:
+                        self.cobaCLs[key] = value/(np.sqrt(self.ell*(self.ell+1)))
+                else:
+                    self.cobaCLs[key] = value
 
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
