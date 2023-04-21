@@ -311,9 +311,7 @@ class LiLit(Likelihood):
             # Check if it exists
             if cl_lens is not None:
                 # Save it with the normalization to obtain phiphi
-                array = cl_lens[:, 0].copy()
-                array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
-                res["pp"] = array
+                res["pp"] = cl_lens[:, 0].copy()  # /(res['ell']*(res['ell']+1))
                 # Check if we want the cross terms
                 if "pt" in self.keys and "pe" in self.keys:
                     # Loop over the cross terms
@@ -509,6 +507,10 @@ class LiLit(Likelihood):
 
             from camb.sources import SplinedSourceWindow
 
+            self.compute_dndz()
+
+            from camb.sources import SplinedSourceWindow
+
         start = time.time()
         results = camb.get_results(pars)
         end = time.time()
@@ -524,8 +526,21 @@ class LiLit(Likelihood):
         )
         res_dict = self.CAMBres2dict(res)
 
-        if self.has_sources:
-            self.store_sources_results(results, res_dict)
+        if "1" in fields:
+            source_res = results.get_source_cls_dict(raw_cl=False, lmax=lmax)
+            for key, value in source_res.items():
+                key = key.replace("W", "").replace("x", "")
+                if "P" in key:
+                    if "PP" in key:
+                        res_dict[key] = value / (
+                            (res_dict["ell"] * (res_dict["ell"] + 1))
+                        )
+                    else:
+                        res_dict[key] = value / (
+                            np.sqrt(res_dict["ell"] * (res_dict["ell"] + 1))
+                        )
+                else:
+                    res_dict[key] = value
 
         return res_dict
 
