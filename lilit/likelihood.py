@@ -823,13 +823,11 @@ class LiLit(Likelihood):
 
         z_med = [(z_bin_m[i + 1] + z_bin_m[i]) / 2 for i in range(len(z_bin_m) - 1)]
 
-        bz_step = np.zeros(len(self.zz))
-        for i, z in enumerate(self.zz):
+        bz_step = np.zeros(len(zz))
+        for i, z in enumerate(zz):
             for j in range(len(z_med)):
-                if z >= z_med[j] and z <= z_med[j + 1]:
+                if z >= z_bin_m[j] and z <= z_bin_m[j + 1]:
                     bz_step[i] = np.sqrt(1 + z_med[j])
-                else:
-                    bz_step[i] = 0
 
         self.bz_step = [bz_step for i in range(len(z_bin_m) - 1)]
 
