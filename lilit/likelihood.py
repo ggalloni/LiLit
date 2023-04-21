@@ -504,7 +504,7 @@ class LiLit(Likelihood):
         # and store it in the dictionary under the corresponding keyword
         for key, i in mapping.items():
             if apply_ellfactor:
-                res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi
+                res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi  # TODO check this
             else:
                 res[key] = txt[:, i]
         return res
@@ -554,7 +554,6 @@ class LiLit(Likelihood):
         # _pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
 
         if "1" in self.fields:
-             ## general. rel effects for source terms ##
             pars.SourceTerms.counts_redshift = False
             pars.SourceTerms.counts_lensing = False
             pars.SourceTerms.limber_windows = True
@@ -572,9 +571,8 @@ class LiLit(Likelihood):
             pars.SourceTerms.line_extra = False
             pars.SourceTerms.line_reionization = False
             pars.SourceTerms.use_21cm_mK = False
-            pars.set_for_lmax(self.lmax, lens_potential_accuracy=1)
             pars.Want_CMB = True
-            pars.NonLinear = model.NonLinear_both
+            pars.NonLinear = camb.model.NonLinear_both
 
             from camb.sources import SplinedSourceWindow
 
@@ -834,6 +832,73 @@ class LiLit(Likelihood):
                     bz_step[i] = 0
 
         self.bz_step = [bz_step for i in range(len(z_bin_m) - 1)]
+
+        return
+
+    def dndz_LSST(self):
+        from scipy.special import erf
+
+        self.zz = np.arange(0.0, 1.601, 0.001)
+
+        z0 = 0.24
+        alpha = 0.90
+        c_b = 1.0
+        z_b = 0.0
+        sigma_b = 0.03
+        c_0 = 1.0
+        z_0 = 0.1
+        sigma_0 = 0.03
+        f_out = 0
+
+        ## NZ ##
+        def dndz(z, zm, alpha):
+            return (z**2) * np.exp(-((z / zm) ** (alpha)))
+
+        bi = [
+            1.08509147,
+            1.14382284,
+            1.2047005,
+            1.26740743,
+            1.3317134,
+            1.3974141,
+            1.46429394,
+            1.53212972,
+            1.60078307,
+            1.67017681,
+        ]
+
+        z_bin_p = np.arange(0.2, 1.3, 0.1)
+
+        dndz_tot = dndz(self.zz, z0, alpha)
+
+        ## N(z)_i ##
+        def dndz_bin(z, z_bin_m, z_bin_p, c_b, z_b, sigma_b, c_0, z_0, sigma_0, f_out):
+            return dndz_tot * ((1 - f_out) / (2 * c_b)) * (
+                erf((z - c_b * z_bin_m - z_b) / (np.sqrt(2) * sigma_b * (1 + z)))
+                - erf((z - c_b * z_bin_p - z_b) / (np.sqrt(2) * sigma_b * (1 + z)))
+            ) + dndz_tot * (f_out / (2 * c_0)) * (
+                erf((z - c_0 * z_bin_m - z_0) / (np.sqrt(2) * sigma_0 * (1 + z)))
+                - erf((z - c_0 * z_bin_p - z_0) / (np.sqrt(2) * sigma_0 * (1 + z)))
+            )
+
+        ### Computing power spectrum ##
+        self.dNdz = [
+            dndz_bin(
+                self.zz,
+                z_bin_p[i],
+                z_bin_p[i + 1],
+                c_b,
+                z_b,
+                sigma_b,
+                c_0,
+                z_0,
+                sigma_0,
+                f_out,
+            )
+            for i in range(len(z_bin_p) - 1)
+        ]
+
+        self.bz_step = [np.ones(len(self.zz)) * bi(i) for i in range(len(z_bin_p) - 1)]
 
         return
 
