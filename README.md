@@ -1,8 +1,6 @@
 # LiLit: Likelihood for LiteBIRD
 
-Authors: Giacomo Galloni
-
-Contributors: Giulia Piccirilli ("Cross-Correlation Science" analysis)
+Authors: Giacomo Galloni, Giulia Piccirilli
 
 ## Overview
 
