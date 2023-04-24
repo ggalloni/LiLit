@@ -577,15 +577,27 @@ class LiLit(Likelihood):
             from camb.sources import SplinedSourceWindow
 
             self.compute_dndz()
+            pars.b1 = 1.0997727037892875
+            pars.b2 = 1.220245876862528
+            pars.b3 = 1.2723993083933989
+            pars.b4 = 1.316624471897739
+            pars.b5 = 1.35812370570578
+            pars.b6 = 1.3998214171814918
+            pars.b7 = 1.4446452851824907
+            pars.b8 = 1.4964959071110084
+            pars.b9 = 1.5652475842498528
+            pars.b10 = 1.7429859437184225
+            pars.want_euclid = True
 
-            pars.SourceWindows = []
-
+            test = []
             for i in range(np.array(self.dNdz).shape[0]):
-                pars.SourceWindows.append(
+                test.append(
                     SplinedSourceWindow(
-                        bias_z=self.bz_step[i], z=self.zz, W=self.dNdz[i]
+                        bias_z = np.ones(len(self.zz)), z=self.zz, W=self.dNdz[i]
+                        #bias_z = self.bz_step[0], z=self.zz, W=self.dNdz[i]
                     )
                 )
+            pars.SourceWindows = test
 
         if self.debug:
             print(pars)
@@ -599,11 +611,15 @@ class LiLit(Likelihood):
         res_dict = self.CAMBres2dict(res)
 
         if "1" in self.fields:
+            print("iyyivviyvyiviyyvvyiiyv")
             source_res = results.get_source_cls_dict(raw_cl=False, lmax = self.lmax)
+            print(source_res.keys())
             for key, value in source_res.items():
-                key = key.replace("W", "").replace("x", "")
-                if "P" in key:
-                    if "PP" in key:
+                print(key)
+                key = key.lower().replace("w", "").replace("x", "")
+                print(key)
+                if "p" in key:
+                    if "pp" in key:
                         res_dict[key] = value/((res_dict['ell']*(res_dict['ell']+1)))
                     else:
                         res_dict[key] = value/(np.sqrt(res_dict['ell']*(res_dict['ell']+1)))
@@ -1052,18 +1068,22 @@ class LiLit(Likelihood):
         self.cobaCLs = self.provider.get_Cl(ell_factor=True)
 
         if "1" in self.fields:
-            cobasourceCLs = self.provider.get_source_Cl(ell_factor=True)
-            self.ell = np.arange(0, sel.lmax+1, 1)
-            for value, key in cobasourceCLs.items():
+            cobasourceCLs = self.provider.get_source_Cl()
+            self.ell = np.arange(0, self.lmax+1, 1)
+            #print([np.concatenate(list(cobasourceCLs.keys())[i]) for i in range(len(cobasourceCLs.keys()))])
+            for key, value in cobasourceCLs.items():
+                print(key)
+                key = key[0]+key[1]
+                print(key)
                 key = key.replace("W", "").replace("x", "")
                 #self.cobaCLs[key] = value
                 if "P" in key:
                     if "PP" in key:
-                        self.cobaCLs[key] = value/((self.ell*(self.ell+1)))
+                        self.cobaCLs[key] = value[:self.lmax+1]/((self.ell*(self.ell+1)))
                     else:
-                        self.cobaCLs[key] = value/(np.sqrt(self.ell*(self.ell+1)))
+                        self.cobaCLs[key] = value[:self.lmax+1]/(np.sqrt(self.ell*(self.ell+1)))
                 else:
-                    self.cobaCLs[key] = value
+                    self.cobaCLs[key] = value[:self.lmax+1]
 
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
@@ -1077,9 +1097,9 @@ class LiLit(Likelihood):
 
         if self.debug:
             ell = np.arange(0, self.lmax + 1, 1)
-            plt.loglog(ell, self.fiduCOV[0, 0, :], label="Fiducial CLs")
-            plt.loglog(ell, self.cobaCOV[0, 0, :], label="Cobaya CLs", ls="--")
-            plt.loglog(ell, self.noiseCOV[0, 0, :], label="Noise CLs")
+            plt.loglog(ell, self.fiduCOV[1, 1, :], label="Fiducial CLs")
+            plt.loglog(ell, self.cobaCOV[1, 1, :], label="Cobaya CLs", ls="--")
+            plt.loglog(ell, self.noiseCOV[1, 1, :], label="Noise CLs")
             plt.xlim(2, None)
             plt.legend()
             plt.show()
