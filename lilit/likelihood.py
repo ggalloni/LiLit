@@ -340,18 +340,18 @@ class LiLit(Likelihood):
         res = np.zeros(self.lmax + 1)
 
         # get lmin and lmax
-        lmin = self.lmins.get(key, self.lmin)
-        lmax = self.lmaxs.get(key, self.lmax)
+        # lmin = self.lmins.get(key, self.lmin)
+        # lmax = self.lmaxs.get(key, self.lmax)
 
         # try to find the key in the dictionary
         if key in input_dict:
             cov = input_dict[key]
         # if the key is not found, try the reverse key
         else:
-            cov = input_dict.get(key[::-1], np.zeros(lmax + 1))
+            cov = input_dict.get(key[::-1], np.zeros(self.lmax + 1))
 
         # fill the array with the requested spectrum
-        res[lmin : lmax + 1] = cov[lmin : lmax + 1]
+        res[self.lmin : self.lmax + 1] = cov[self.lmin : self.lmax + 1]
 
         return res
 
@@ -379,23 +379,22 @@ class LiLit(Likelihood):
         res = np.zeros((n, n, self.lmax + 1))
         for i in range(n):  # Loop over all combinations of pairs of spectra
             for j in range(i, n):
-                C_AC = self.find_spectrum(
-                    fiduDICT, keys[i, j, 0] + keys[i, j, 2]
-                )  # Find the fiducial spectra for each pair
+                C_AC = self.find_spectrum(fiduDICT, keys[i, j, 0] + keys[i, j, 2])
                 C_BD = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 3])
                 C_AD = self.find_spectrum(fiduDICT, keys[i, j, 0] + keys[i, j, 3])
                 C_BC = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 2])
-                N_AC = self.find_spectrum(
-                    noiseDICT, keys[i, j, 0] + keys[i, j, 2]
-                )  # Find the noise spectra for each pair
+                N_AC = self.find_spectrum(noiseDICT, keys[i, j, 0] + keys[i, j, 2])
                 N_BD = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 3])
                 N_AD = self.find_spectrum(noiseDICT, keys[i, j, 0] + keys[i, j, 3])
                 N_BC = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 2])
-                if self.fsky is not None:  # If self.fsky is defined, use the fsky value
+                ell = np.arange(len(C_AC))
+                if self.fsky is not None:
                     res[i, j] = (
-                        (C_AC + N_AC) * (C_BD + N_BD) + (C_AD + N_AD) * (C_BC + N_BC)
-                    ) / self.fsky
-                else:  # Otherwise, use the fsky values from the input spectra
+                        ((C_AC + N_AC) * (C_BD + N_BD) + (C_AD + N_AD) * (C_BC + N_BC))
+                        / self.fsky
+                        / (2 * ell + 1)
+                    )
+                else:
                     AC = keys[i, j, 0] + keys[i, j, 2]
                     BD = keys[i, j, 1] + keys[i, j, 3]
                     AD = keys[i, j, 0] + keys[i, j, 3]
@@ -403,13 +402,17 @@ class LiLit(Likelihood):
                     AB = keys[i, j, 0] + keys[i, j, 1]
                     CD = keys[i, j, 2] + keys[i, j, 3]
                     res[i, j] = (
-                        np.sqrt(self.fskies[AC] * self.fskies[BD])
-                        * (C_AC + N_AC)
-                        * (C_BD + N_BD)
-                        + np.sqrt(self.fskies[AD] * self.fskies[BC])
-                        * (C_AD + N_AD)
-                        * (C_BC + N_BC)
-                    ) / (self.fskies[AB] * self.fskies[CD])
+                        (
+                            np.sqrt(self.fskies[AC] * self.fskies[BD])
+                            * (C_AC + N_AC)
+                            * (C_BD + N_BD)
+                            + np.sqrt(self.fskies[AD] * self.fskies[BC])
+                            * (C_AD + N_AD)
+                            * (C_BC + N_BC)
+                        )
+                        / (self.fskies[AB] * self.fskies[CD])
+                        / (2 * ell + 1)
+                    )
                 res[j, i] = res[i, j]
         return res
 
@@ -423,10 +426,10 @@ class LiLit(Likelihood):
                 (self.n x self.n x self.lmax+1) ndarray with the previously computed sigma (not inverted).
         """
         # Initialize array to store the inverted covariance matrices
-        res = np.zeros(self.lmax + 1, dtype=object)
+        res = np.zeros(sigma.shape)
 
         # Loop over multipoles
-        for i in range(self.lmax + 1):
+        for i in range(self.lmin, self.lmax + 1):
             # Check if matrix is singular
             COV = sigma[:, :, i]
             if np.linalg.det(COV) == 0:
@@ -436,8 +439,9 @@ class LiLit(Likelihood):
                 COV = np.delete(COV, idx, axis=0)
                 COV = np.delete(COV, idx, axis=1)
             # Invert matrix
-            res[i] = np.linalg.inv(COV)
-        return res[2:]
+            res[:, :, i] = np.linalg.inv(COV)
+            # res[i] = COV
+        return res
 
     def get_reduced_data(self, mat):
         """Find the reduced data eliminating the singularity of the matrix.
@@ -578,13 +582,9 @@ class LiLit(Likelihood):
         return
 
     def store_sources_results(self, camb_results, results_dict):
-        print("iyyivviyvyiviyyvvyiiyv")
         source_res = camb_results.get_source_cls_dict(raw_cl=False, lmax=self.lmax)
-        print(source_res.keys())
         for key, value in source_res.items():
-            print(key)
             key = key.lower().replace("w", "").split("x")
-            print(key)
             first_field = key[0]
             second_field = key[1]
             try:
@@ -596,18 +596,16 @@ class LiLit(Likelihood):
             except ValueError:
                 pass
             key = first_field + second_field
-            print(key)
             if "p" in key:
                 if "pp" in key:
-                    results_dict[key] = value / (
-                        results_dict["ell"] * (results_dict["ell"] + 1)
-                    )
+                    value = value / (results_dict["ell"] * (results_dict["ell"] + 1))
+                    value[np.isnan(value)] = 0
                 else:
-                    results_dict[key] = value / (
+                    value = value / (
                         np.sqrt(results_dict["ell"] * (results_dict["ell"] + 1))
                     )
-            else:
-                results_dict[key] = value
+                    value[np.isnan(value)] = 0
+            results_dict[key] = value
 
     def prod_fidu(self):
         """Produce fiducial spectra or read the input ones.
@@ -951,9 +949,11 @@ class LiLit(Likelihood):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
         # The likelihood needs the lensed CMB angular power spectra. The keyword can be set to "unlensed_Cl" to get the unlensed ones
         requirements = {}
-        requirements["Cl"] = {cl: self.lmax for cl in self.keys}
+        if not self.sources:
+            requirements["Cl"] = {cl: self.lmax for cl in self.keys}
         # If debug is set to True, the likelihood will print the list of items required by the likelihood
         if self.sources:
+            requirements["Cl"] = {"pp": self.lmax}
             self.compute_dndz()
             sources = {}
             for field in self.fields:
@@ -985,7 +985,14 @@ class LiLit(Likelihood):
             cov (np.ndarray):
                 A ndarray containing the covariance matrices, with some null ones.
         """
-        return cov[np.triu_indices(self.n)][cov[np.triu_indices(self.n)] != 0]
+
+        upper_triang = cov[np.triu_indices(self.n)]
+        # Get indices of null diagonal elements
+        idx = np.where(upper_triang == 0)[0]
+        # Remove corresponding rows and columns
+        upper_triang = np.delete(upper_triang, idx, axis=0)
+
+        return upper_triang, idx
 
     def chi_exact(self, i=0):
         """Computes proper chi-square term for the exact likelihood case.
@@ -997,6 +1004,7 @@ class LiLit(Likelihood):
         # If the number of datasets is not equal to 1, then we have a
         # multi-dataset case, in which case we need to compute the
         # covariance matrix for each dataset.
+        ell = np.arange(0, self.lmax + 1, 1)
         if self.n != 1:
             # We extract the covariance matrix and data for the ith
             # dataset.
@@ -1013,7 +1021,9 @@ class LiLit(Likelihood):
             M = np.linalg.solve(coba, data)
             # We compute the chi-square term using the trace of M, the
             # log determinant of M, and the number of fields.
-            return np.trace(M) - np.linalg.slogdet(M)[1] - data.shape[0]
+            return (2 * ell[i] + 1) * (
+                np.trace(M) - np.linalg.slogdet(M)[1] - data.shape[0]
+            )
         # If the number of datasets is equal to 1, then we have a single
         # dataset case, in which case we do not need to loop over the
         # datasets.
@@ -1023,7 +1033,7 @@ class LiLit(Likelihood):
             M = self.data / self.coba
             # We compute the chi-square term using M, the log of M, and
             # a constant value.
-            return M - np.log(np.abs(M)) - 1
+            return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
 
     def chi_gaussian(self, i=0):
         """Computes proper chi-square term for the Gaussian likelihood case.
@@ -1034,9 +1044,18 @@ class LiLit(Likelihood):
         """
         # If we have more than one data vector
         if self.n != 1:
-            coba = self.data_vector(self.coba[:, :, i])
-            data = self.data_vector(self.data[:, :, i])
-            return (coba - data) @ self.sigma2[i] @ (coba - data)
+            coba, idx = self.data_vector(self.coba[:, :, i])
+            data, _ = self.data_vector(self.data[:, :, i])
+            # print(coba.shape, data.shape, self.sigma2[i].shape)
+            # if coba.shape[0] == 1:
+            #     print((coba - data) / self.sigma2[i])
+            #     return (coba - data) / self.sigma2[i] * (coba - data)
+            # print(
+            #     f"CHI2 elem at ell = {i+2} is {(coba - data) @ np.linalg.inv(self.sigma2[i]) @ (coba - data) }"
+            # )
+            COV = np.delete(self.sigma2[:, :, i], idx, axis=0)
+            COV = np.delete(COV, idx, axis=1)
+            return (coba - data) @ COV @ (coba - data)
         # If we have only one data vector
         else:
             coba = self.coba[0, 0, :]
@@ -1072,9 +1091,9 @@ class LiLit(Likelihood):
         if self.n != 1:
             logp_ℓ = np.zeros(ell.shape)
             for i in range(0, self.lmax + 1 - self.lmin):
-                logp_ℓ[i] = -0.5 * (2 * ell[i] + 1) * self.compute_chi_part(i)
+                logp_ℓ[i] = -0.5 * self.compute_chi_part(i)
         else:
-            logp_ℓ = -0.5 * (2 * ell + 1) * self.compute_chi_part()
+            logp_ℓ = -0.5 * self.compute_chi_part()
         # Sum the log likelihood over multipoles
         return np.sum(logp_ℓ)
 
@@ -1090,44 +1109,62 @@ class LiLit(Likelihood):
 
         if self.sources:
             cobasourceCLs = self.provider.get_source_Cl()
-            self.ell = np.arange(0, self.lmax + 1, 1)
-            # print([np.concatenate(list(cobasourceCLs.keys())[i]) for i in range(len(cobasourceCLs.keys()))])
+            ell = np.arange(0, self.lmax + 1, 1)
             for key, value in cobasourceCLs.items():
-                print(key)
                 key = key[0] + key[1]
-                print(key)
-                key = key.replace("W", "").replace("x", "")
-                # self.cobaCLs[key] = value
-                if "P" in key:
-                    if "PP" in key:
-                        self.cobaCLs[key] = value[: self.lmax + 1] / (
-                            (self.ell * (self.ell + 1))
-                        )
+                key = key.lower().replace("w", "").replace("x", "")
+                if "p" in key:
+                    if "pp" in key:
+                        self.cobaCLs[key] = value[: self.lmax + 1] / (ell * (ell + 1))
                     else:
                         self.cobaCLs[key] = value[: self.lmax + 1] / (
-                            np.sqrt(self.ell * (self.ell + 1))
+                            np.sqrt(ell * (ell + 1))
                         )
                 else:
                     self.cobaCLs[key] = value[: self.lmax + 1]
 
-        if self.debug:
-            print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
+        # if self.debug:
+        #     print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
 
-            field = list(self.cobaCLs.keys())[1]
-            print("\nPrinting the first few values to check that it starts from 0...")
-            print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
+        #     field = list(self.cobaCLs.keys())[1]
+        #     print("\nPrinting the first few values to check that it starts from 0...")
+        #     print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
 
         # Fill the covariance matrix with the Cls from Cobaya
         self.cobaCOV = self.cov_filling(self.cobaCLs)
 
-        if self.debug:
-            ell = np.arange(0, self.lmax + 1, 1)
-            plt.loglog(ell, self.fiduCOV[1, 1, :], label="Fiducial CLs")
-            plt.loglog(ell, self.cobaCOV[1, 1, :], label="Cobaya CLs", ls="--")
-            plt.loglog(ell, self.noiseCOV[1, 1, :], label="Noise CLs")
-            plt.xlim(2, None)
-            plt.legend()
-            plt.show()
+        # if self.debug:
+        #     obs1 = 0
+        #     obs2 = 20
+        #     ell = np.arange(0, self.lmax + 1, 1)
+        #     # print(self.sigma2[50].shape)
+        #     # exit()
+        #     plt.loglog(ell, self.fiduCOV[obs1, obs2, :], label="Fiducial CLs")
+        #     plt.loglog(ell, self.cobaCOV[obs1, obs2, :], label="Cobaya CLs", ls="--")
+
+        #     plt.plot(
+        #         ell,
+        #         np.sqrt(
+        #             (
+        #                 self.fiduCOV[obs1, obs2, :] ** 2
+        #                 + (self.fiduCOV[obs1, obs1, :] + self.noiseCOV[obs1, obs1, :])
+        #                 * (self.fiduCOV[obs2, obs2, :] + self.noiseCOV[obs2, obs2, :])
+        #             )
+        #             / (2 * ell + 1)
+        #             / self.fskies["p9"]
+        #         ),
+        #     )
+
+        #     plt.loglog(
+        #         ell[10 : 999 + 2],
+        #         [np.sqrt(self.sigma2[i][obs2, obs2]) for i in range(8, 999)],
+        #         label="Noise CLs",
+        #     )
+        #     # plt.loglog(ell, self.noiseCOV[obs1, obs2, :], label="Noise CLs")
+        #     plt.xlim(2, None)
+        #     plt.legend()
+        #     plt.show()
+        # exit()
 
         # Add the noise covariance to the covariance matrix filled with the Cls from Cobaya
         self.coba = (
