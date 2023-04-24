@@ -150,6 +150,9 @@ class LiLit(Likelihood):
         assert lmax is not None, "You must provide the lmax (e.g. 300)"
 
         self.fields = fields
+        self.sources = False
+        if "0" in self.fields:
+            self.sources = True
         self.n = len(fields)
         self.lmin = lmin
         self.like = like
@@ -474,7 +477,7 @@ class LiLit(Likelihood):
             # Check if it exists
             if cl_lens is not None:
                 # Save it with the normalization to obtain phiphi
-                res["pp"] = (cl_lens[:, 0].copy())#/(res['ell']*(res['ell']+1))
+                res["pp"] = cl_lens[:, 0].copy()  # /(res['ell']*(res['ell']+1))
                 # Check if we want the cross terms
                 if "pt" in self.keys and "pe" in self.keys:
                     # Loop over the cross terms
@@ -498,16 +501,113 @@ class LiLit(Likelihood):
         assert (
             mapping is not None
         ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
-        ls = np.arange(txt.shape[0], dtype=np.int64)
-        res = {"ell": ls}
+        res = {}
         # Loop over the mapping and extract the corresponding column from the txt file
         # and store it in the dictionary under the corresponding keyword
         for key, i in mapping.items():
+            ls = np.arange(len(txt[:, i]), dtype=np.int64)
+            res["ell"] = ls
             if apply_ellfactor:
                 res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi  # TODO check this
             else:
                 res[key] = txt[:, i]
         return res
+
+    def add_sources_params(self, pars):
+        from camb.model import NonLinear_both
+        from camb.sources import SplinedSourceWindow
+
+        pars.SourceTerms.counts_redshift = False
+        pars.SourceTerms.counts_lensing = False
+        pars.SourceTerms.limber_windows = True
+        pars.SourceTerms.limber_phi_lmin = 100
+        pars.SourceTerms.counts_velocity = False
+        pars.SourceTerms.counts_radial = False
+        pars.SourceTerms.counts_timedelay = False
+        pars.SourceTerms.counts_ISW = True
+        pars.SourceTerms.counts_potential = False
+        pars.SourceTerms.counts_evolve = True
+        pars.SourceTerms.line_phot_dipole = False
+        pars.SourceTerms.line_phot_quadrupole = False
+        pars.SourceTerms.line_basic = True
+        pars.SourceTerms.line_distortions = False
+        pars.SourceTerms.line_extra = False
+        pars.SourceTerms.line_reionization = False
+        pars.SourceTerms.use_21cm_mK = False
+        pars.Want_CMB = True
+        pars.NonLinear = NonLinear_both
+
+        self.compute_dndz()
+
+        if self.survey == "Euclid":
+            pars.b1 = 1.0997727037892875
+            pars.b2 = 1.220245876862528
+            pars.b3 = 1.2723993083933989
+            pars.b4 = 1.316624471897739
+            pars.b5 = 1.35812370570578
+            pars.b6 = 1.3998214171814918
+            pars.b7 = 1.4446452851824907
+            pars.b8 = 1.4964959071110084
+            pars.b9 = 1.5652475842498528
+            pars.b10 = 1.7429859437184225
+            pars.want_euclid = True
+        elif self.survey == "LSST":
+            pars.b1 = 1.08509147
+            pars.b2 = 1.14382284
+            pars.b3 = 1.2047005
+            pars.b4 = 1.26740743
+            pars.b5 = 1.3317134
+            pars.b6 = 1.3974141
+            pars.b7 = 1.46429394
+            pars.b8 = 1.53212972
+            pars.b9 = 1.60078307
+            pars.b10 = 1.67017681
+            pars.want_lsst = True
+        else:
+            err = "Survey not supported"
+            raise ValueError(err)
+
+        sources_collection = []
+        for i in range(np.array(self.dNdz).shape[0]):
+            sources_collection.append(
+                SplinedSourceWindow(
+                    bias_z=np.ones(len(self.zz)), z=self.zz, W=self.dNdz[i]
+                )
+            )
+        pars.SourceWindows = sources_collection
+        return
+
+    def store_sources_results(self, camb_results, results_dict):
+        print("iyyivviyvyiviyyvvyiiyv")
+        source_res = camb_results.get_source_cls_dict(raw_cl=False, lmax=self.lmax)
+        print(source_res.keys())
+        for key, value in source_res.items():
+            print(key)
+            key = key.lower().replace("w", "").split("x")
+            print(key)
+            first_field = key[0]
+            second_field = key[1]
+            try:
+                first_field = str(int(key[0]) - 1)
+            except ValueError:
+                pass
+            try:
+                second_field = str(int(key[1]) - 1)
+            except ValueError:
+                pass
+            key = first_field + second_field
+            print(key)
+            if "p" in key:
+                if "pp" in key:
+                    results_dict[key] = value / (
+                        results_dict["ell"] * (results_dict["ell"] + 1)
+                    )
+                else:
+                    results_dict[key] = value / (
+                        np.sqrt(results_dict["ell"] * (results_dict["ell"] + 1))
+                    )
+            else:
+                results_dict[key] = value
 
     def prod_fidu(self):
         """Produce fiducial spectra or read the input ones.
@@ -553,51 +653,8 @@ class LiLit(Likelihood):
         pars.DoLensing = True
         # _pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
 
-        if "1" in self.fields:
-            pars.SourceTerms.counts_redshift = False
-            pars.SourceTerms.counts_lensing = False
-            pars.SourceTerms.limber_windows = True
-            pars.SourceTerms.limber_phi_lmin = 100
-            pars.SourceTerms.counts_velocity = False
-            pars.SourceTerms.counts_radial = False
-            pars.SourceTerms.counts_timedelay = False
-            pars.SourceTerms.counts_ISW = True
-            pars.SourceTerms.counts_potential = False
-            pars.SourceTerms.counts_evolve = True
-            pars.SourceTerms.line_phot_dipole = False
-            pars.SourceTerms.line_phot_quadrupole = False
-            pars.SourceTerms.line_basic = True
-            pars.SourceTerms.line_distortions = False
-            pars.SourceTerms.line_extra = False
-            pars.SourceTerms.line_reionization = False
-            pars.SourceTerms.use_21cm_mK = False
-            pars.Want_CMB = True
-            pars.NonLinear = camb.model.NonLinear_both
-
-            from camb.sources import SplinedSourceWindow
-
-            self.compute_dndz()
-            pars.b1 = 1.0997727037892875
-            pars.b2 = 1.220245876862528
-            pars.b3 = 1.2723993083933989
-            pars.b4 = 1.316624471897739
-            pars.b5 = 1.35812370570578
-            pars.b6 = 1.3998214171814918
-            pars.b7 = 1.4446452851824907
-            pars.b8 = 1.4964959071110084
-            pars.b9 = 1.5652475842498528
-            pars.b10 = 1.7429859437184225
-            pars.want_euclid = True
-
-            test = []
-            for i in range(np.array(self.dNdz).shape[0]):
-                test.append(
-                    SplinedSourceWindow(
-                        bias_z = np.ones(len(self.zz)), z=self.zz, W=self.dNdz[i]
-                        #bias_z = self.bz_step[0], z=self.zz, W=self.dNdz[i]
-                    )
-                )
-            pars.SourceWindows = test
+        if self.sources:
+            self.add_sources_params(pars)
 
         if self.debug:
             print(pars)
@@ -610,21 +667,8 @@ class LiLit(Likelihood):
         )
         res_dict = self.CAMBres2dict(res)
 
-        if "1" in self.fields:
-            print("iyyivviyvyiviyyvvyiiyv")
-            source_res = results.get_source_cls_dict(raw_cl=False, lmax = self.lmax)
-            print(source_res.keys())
-            for key, value in source_res.items():
-                print(key)
-                key = key.lower().replace("w", "").replace("x", "")
-                print(key)
-                if "p" in key:
-                    if "pp" in key:
-                        res_dict[key] = value/((res_dict['ell']*(res_dict['ell']+1)))
-                    else:
-                        res_dict[key] = value/(np.sqrt(res_dict['ell']*(res_dict['ell']+1)))
-                else:
-                    res_dict[key] = value
+        if self.sources:
+            self.store_sources_results(results, res_dict)
 
         return res_dict
 
@@ -839,14 +883,6 @@ class LiLit(Likelihood):
 
         z_med = [(z_bin_m[i + 1] + z_bin_m[i]) / 2 for i in range(len(z_bin_m) - 1)]
 
-        bz_step = np.zeros(len(self.zz))
-        for i, z in enumerate(self.zz):
-            for j in range(len(z_med)):
-                if z >= z_bin_m[j] and z <= z_bin_m[j + 1]:
-                    bz_step[i] = np.sqrt(1 + z_med[j])
-
-        self.bz_step = [bz_step for i in range(len(z_bin_m) - 1)]
-
         return
 
     def dndz_LSST(self):
@@ -867,19 +903,6 @@ class LiLit(Likelihood):
         ## NZ ##
         def dndz(z, zm, alpha):
             return (z**2) * np.exp(-((z / zm) ** (alpha)))
-
-        bi = [
-            1.08509147,
-            1.14382284,
-            1.2047005,
-            1.26740743,
-            1.3317134,
-            1.3974141,
-            1.46429394,
-            1.53212972,
-            1.60078307,
-            1.67017681,
-        ]
 
         z_bin_p = np.arange(0.2, 1.3, 0.1)
 
@@ -912,8 +935,6 @@ class LiLit(Likelihood):
             for i in range(len(z_bin_p) - 1)
         ]
 
-        self.bz_step = [np.ones(len(self.zz)) * bi(i) for i in range(len(z_bin_p) - 1)]
-
         return
 
     def compute_dndz(self):
@@ -932,7 +953,7 @@ class LiLit(Likelihood):
         requirements = {}
         requirements["Cl"] = {cl: self.lmax for cl in self.keys}
         # If debug is set to True, the likelihood will print the list of items required by the likelihood
-        if "1" in self.fields:
+        if self.sources:
             self.compute_dndz()
             sources = {}
             for field in self.fields:
@@ -1067,23 +1088,27 @@ class LiLit(Likelihood):
         # Get the Cls from Cobaya
         self.cobaCLs = self.provider.get_Cl(ell_factor=True)
 
-        if "1" in self.fields:
+        if self.sources:
             cobasourceCLs = self.provider.get_source_Cl()
-            self.ell = np.arange(0, self.lmax+1, 1)
-            #print([np.concatenate(list(cobasourceCLs.keys())[i]) for i in range(len(cobasourceCLs.keys()))])
+            self.ell = np.arange(0, self.lmax + 1, 1)
+            # print([np.concatenate(list(cobasourceCLs.keys())[i]) for i in range(len(cobasourceCLs.keys()))])
             for key, value in cobasourceCLs.items():
                 print(key)
-                key = key[0]+key[1]
+                key = key[0] + key[1]
                 print(key)
                 key = key.replace("W", "").replace("x", "")
-                #self.cobaCLs[key] = value
+                # self.cobaCLs[key] = value
                 if "P" in key:
                     if "PP" in key:
-                        self.cobaCLs[key] = value[:self.lmax+1]/((self.ell*(self.ell+1)))
+                        self.cobaCLs[key] = value[: self.lmax + 1] / (
+                            (self.ell * (self.ell + 1))
+                        )
                     else:
-                        self.cobaCLs[key] = value[:self.lmax+1]/(np.sqrt(self.ell*(self.ell+1)))
+                        self.cobaCLs[key] = value[: self.lmax + 1] / (
+                            np.sqrt(self.ell * (self.ell + 1))
+                        )
                 else:
-                    self.cobaCLs[key] = value[:self.lmax+1]
+                    self.cobaCLs[key] = value[: self.lmax + 1]
 
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
