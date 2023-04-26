@@ -598,13 +598,15 @@ class LiLit(Likelihood):
             key = first_field + second_field
             if "p" in key:
                 if "pp" in key:
-                    value = value / (results_dict["ell"] * (results_dict["ell"] + 1))
-                    value[np.isnan(value)] = 0
-                else:
-                    value = value / (
-                        np.sqrt(results_dict["ell"] * (results_dict["ell"] + 1))
+                    value[2:] = (
+                        value[2:]
+                        / (results_dict["ell"] * (results_dict["ell"] + 1))[2:]
                     )
-                    value[np.isnan(value)] = 0
+                else:
+                    value[2:] = (
+                        value[2:]
+                        / (np.sqrt(results_dict["ell"] * (results_dict["ell"] + 1)))[2:]
+                    )
             results_dict[key] = value
 
     def prod_fidu(self):
@@ -1115,13 +1117,14 @@ class LiLit(Likelihood):
                 key = key.lower().replace("w", "").replace("x", "")
                 if "p" in key:
                     if "pp" in key:
-                        self.cobaCLs[key] = value[: self.lmax + 1] / (ell * (ell + 1))
-                    else:
-                        self.cobaCLs[key] = value[: self.lmax + 1] / (
-                            np.sqrt(ell * (ell + 1))
+                        value[2 : self.lmax + 1] = (
+                            value[2 : self.lmax + 1] / (ell * (ell + 1))[2:]
                         )
-                else:
-                    self.cobaCLs[key] = value[: self.lmax + 1]
+                    else:
+                        value[2 : self.lmax + 1] = (
+                            value[2 : self.lmax + 1] / np.sqrt(ell * (ell + 1))[2:]
+                        )
+                self.cobaCLs[key] = value[: self.lmax + 1]
 
         # if self.debug:
         #     print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
