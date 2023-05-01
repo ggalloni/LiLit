@@ -1,5 +1,6 @@
-import pickle
 import os
+import pickle
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -633,6 +634,8 @@ class LiLit(Likelihood):
             print("CAMB seems to be not installed. Check the requirements.")
 
         # Read the ini file containing the parameters for CAMB
+
+        print("\nProducing fiducial spectra from Planck 2018 best-fit values!")
         path = os.path.dirname(os.path.abspath(__file__))
         planck_path = os.path.join(path, "planck_2018.ini")
         pars = camb.read_ini(planck_path)
@@ -656,10 +659,14 @@ class LiLit(Likelihood):
         if self.sources:
             self.add_sources_params(pars)
 
+        start = time.time()
+        results = camb.get_results(pars)
+        end = time.time()
+
         if self.debug:
             print(pars)
+            print(f"\nCAMB took {end-start:.2f} seconds to run.")
 
-        results = camb.get_results(pars)
         res = results.get_cmb_power_spectra(
             CMB_unit="muK",
             lmax=self.lmax,
@@ -696,9 +703,9 @@ class LiLit(Likelihood):
         )
 
         try:
+            import healpy as hp
             import yaml
             from yaml.loader import SafeLoader
-            import healpy as hp
         except ImportError:
             print("YAML or Healpy seems to be not installed. Check the requirements.")
 
