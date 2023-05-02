@@ -604,9 +604,12 @@ class LiLit(Likelihood):
                         / (results_dict["ell"] * (results_dict["ell"] + 1))[2:]
                     )
                 else:
+                    ell = np.arange(0, self.lmax+1, 1)
+                    print(f'cross keys = {key}')
+                    fact = np.power(ell[2:] * (ell[2:] + 1), 1/4)/np.sqrt((ell[2:]*(ell[2:]+1)))
                     value[2:] = (
-                        value[2:]
-                        / (np.sqrt(results_dict["ell"] * (results_dict["ell"] + 1)))[2:]
+                        value[2:]*fact
+                        #/ (np.sqrt(results_dict["ell"] * (results_dict["ell"] + 1)))[2:]
                     )
             results_dict[key] = value
 
@@ -1115,10 +1118,16 @@ class LiLit(Likelihood):
 
         # Get the Cls from Cobaya
         self.cobaCLs = self.provider.get_Cl(ell_factor=True)
-
+        ell = np.arange(0, self.lmax + 1, 1)
+        for key, value in self.cobaCLs.items():
+            if "pp" in key:
+                print('key')
+                value[2 : self.lmax + 1] = (
+                                value[2 : self.lmax + 1] / (ell * (ell + 1))[2:]
+                            )
         if self.sources:
             cobasourceCLs = self.provider.get_source_Cl()
-            ell = np.arange(0, self.lmax + 1, 1)
+            
             for key, value in cobasourceCLs.items():
                 key = key[0] + key[1]
                 key = key.lower().replace("w", "").replace("x", "")
@@ -1128,8 +1137,10 @@ class LiLit(Likelihood):
                             value[2 : self.lmax + 1] / (ell * (ell + 1))[2:]
                         )
                     else:
+                        print('Cross spectrum keys = ', key)
+                        fact = np.power(ell[2:] * (ell[2:] + 1), 1/4)/np.sqrt((ell[2:]*(ell[2:]+1)))
                         value[2 : self.lmax + 1] = (
-                            value[2 : self.lmax + 1] / np.sqrt(ell * (ell + 1))[2:]
+                            value[2 : self.lmax + 1]*fact #/ np.sqrt(ell * (ell + 1))[2:]
                         )
                 self.cobaCLs[key] = value[: self.lmax + 1]
 
@@ -1186,7 +1197,28 @@ class LiLit(Likelihood):
         logp = self.log_likelihood()
 
         if self.debug:
+            print(pars)
+
+            ell = np.arange(0, self.lmax + 1, 1)
             print(logp)
+            import matplotlib.ticker as tck
+            fig, ax = plt.subplots()
+            ax.tick_params(direction='in', which='both', labelsize = 13, width = 1.0)
+            ax.yaxis.set_ticks_position('both')
+            ax.xaxis.set_ticks_position('both')
+            ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
+            ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
+            plt.plot(ell, self.noiseCOV[0,0,:], label ='noisepp')
+            plt.loglog(ell, self.fiduCOV[0,0,:], label = 'fidupp')
+            plt.plot(ell, self.cobaCOV[0,0,:], label = 'cobapp', ls = '--')
+            plt.loglog(ell, self.noiseCOV[1,1,:], label = 'noisegg')
+            plt.loglog(ell, self.fiduCOV[1,1,:], label = 'fidugg')
+            plt.loglog(ell, self.cobaCOV[1,1,:], label = 'cobagg', ls = '--')
+            plt.plot(ell, self.fiduCOV[0,1,:], label = 'fidupg')
+            plt.plot(ell, self.cobaCOV[1,0, :], label = 'cobapg', ls = '--')
+            plt.legend()
+            plt.xlim(5, self.lmax)
+            plt.show(block = True)
             exit()
 
         return logp
