@@ -6,6 +6,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cobaya.likelihood import Likelihood
 
+from functions import (
+    get_keys,
+    get_Gauss_keys,
+    find_spectrum,
+    cov_filling,
+    sigma,
+    inv_sigma,
+)
+
 
 class LiLit(Likelihood):
 
@@ -42,8 +51,6 @@ class LiLit(Likelihood):
             Pivot scale of the tensor primordial power spectrum (default: 0.01).
         fsky (float or list):
             Sky fraction (default: 1).
-        sep (str, optional):
-            Separator used in the data file (default: "").
         debug (bool, optional):
             If True, produces more verbose output (default: None).
         survey (str, optional):
@@ -107,8 +114,6 @@ class LiLit(Likelihood):
             Tensor spectral tilt.
         pivot_t (float):
             Pivot scale of the tensor primordial power spectrum.
-        sep (str):
-            Separator used in the data file.
         debug (bool):
             If True, produces more output.
         survey (str):
@@ -135,7 +140,6 @@ class LiLit(Likelihood):
         nt=None,
         pivot_t=0.01,
         fsky=1,
-        sep="",
         debug=None,
         survey="Euclid",
     ):
@@ -151,13 +155,16 @@ class LiLit(Likelihood):
         assert lmax is not None, "You must provide the lmax (e.g. 300)"
 
         self.fields = fields
-        self.sources = False
-        if "0" in self.fields:
-            self.sources = True
         self.n = len(fields)
+        self.has_sources = False
+        self.source_fields = []
+        if "0" in self.fields:
+            self.has_sources = True
+            self.survey = survey
+            self.set_source_fields()
+        self.all_fields = self.fields + self.source_fields
         self.lmin = lmin
         self.like = like
-        self.sep = sep
         self.cl_file = cl_file
         self.nl_file = nl_file
         if self.nl_file.endswith(".txt"):
@@ -168,7 +175,7 @@ class LiLit(Likelihood):
             assert nside is not None, "You must provide an nside to compute the noise"
             self.nside = nside
         self.debug = debug
-        self.keys = self.get_keys()
+        self.keys = get_keys(fields=self.all_fields, debug=self.debug)
         if "bb" in self.keys:
             # Check that the user has provided the tensor-to-scalar ratio if a BB likelihood is used
             assert (
@@ -177,11 +184,27 @@ class LiLit(Likelihood):
             self.r = r
             self.nt = nt
             self.pivot_t = pivot_t
-        self.survey = survey
 
         self.set_lmin_lmax_fsky(lmin, lmax, fsky)
 
         Likelihood.__init__(self, name=name)
+
+    def set_source_fields(self):
+        """Set the source fields.
+
+        This method is used to set the source fields, i.e. the fields that are not considered in the likelihood but are used to compute the noise.
+
+        Args:
+            source_fields (list):
+                List of source fields.
+        """
+        if self.has_sources:
+            for field in self.fields.copy():
+                try:
+                    self.source_fields.append(str(int(field)))
+                    self.fields.remove(field)
+                except ValueError:
+                    continue
 
     def set_lmin_lmax_fsky(self, lmin, lmax, fsky):
         """Take lmin, lmax and fsky parameters and set the corresponding attributes.
@@ -208,7 +231,7 @@ class LiLit(Likelihood):
             ), "If you provide multiple lmin, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    key = self.fields[i] + self.sep + self.fields[j]
+                    key = self.all_fields[i] + self.all_fields[j]
                     self.lmins[key] = int(
                         np.ceil(np.sqrt(lmin[i] * lmin[j]))
                     )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
@@ -224,7 +247,7 @@ class LiLit(Likelihood):
             ), "If you provide multiple lmax, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    key = self.fields[i] + self.sep + self.fields[j]
+                    key = self.all_fields[i] + self.all_fields[j]
                     self.lmaxs[key] = int(
                         np.floor(np.sqrt(lmax[i] * lmax[j]))
                     )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
@@ -240,7 +263,7 @@ class LiLit(Likelihood):
             ), "If you provide multiple fsky, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    key = self.fields[i] + self.sep + self.fields[j]
+                    key = self.all_fields[i] + self.all_fields[j]
                     self.fskies[key] = np.sqrt(
                         fsky[i] * fsky[j]
                     )  # this approximation for the cross-correlation is not correct in the case of two very different masks (verified with simulations)
@@ -249,200 +272,6 @@ class LiLit(Likelihood):
         else:
             self.fsky = fsky
         return
-
-    def cov_filling(self, cov_dict):
-        """Fill covariance matrix with appropriate spectra.
-
-        Computes the covariance matrix once given a dictionary. Returns the covariance matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax, or lmin, is specified, there will be null values in the matrices, making them singular. This will be handled in another method.
-
-        Parameters:
-            cov_dict (dict):
-                The input dictionary of spectra.
-        """
-        # Initialize output array
-        res = np.zeros((self.n, self.n, self.lmax + 1))
-
-        # Loop over field1
-        for i, field1 in enumerate(self.fields):
-            # Loop over field2
-            for j, field2 in enumerate(self.fields[i:]):
-                # Get the index of field2
-                j += i
-
-                # Get the key of the covariance matrix
-                key = field1 + self.sep + field2
-
-                # Get lmin and lmax for this field pair
-                lmin = self.lmins.get(key, self.lmin)
-                lmax = self.lmaxs.get(key, self.lmax)
-
-                # Get the covariance for this field pair
-                cov = cov_dict.get(key, np.zeros(lmax + 1))
-
-                # Set the appropriate values in the covariance matrix
-                res[i, j, lmin : lmax + 1] = cov[lmin : lmax + 1]
-                # Fill the covariance matrix symmetrically
-                res[j, i] = res[i, j]
-
-        return res
-
-    def get_keys(self):
-        """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc."""
-        # List of all the possible combinations of the requested fields
-        res = [
-            self.fields[i] + self.sep + self.fields[j]
-            for i in range(self.n)
-            for j in range(i, self.n)
-        ]
-        # Print the requested keys
-        if self.debug:
-            print(f"\nThe requested keys are {res}")
-        return res
-
-    def get_Gauss_keys(self):
-        """Find the proper dictionary keys for the requested fields.
-
-        Extracts the keys that has to be used as a function of the requested fields for the Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.
-        """
-        # Calculate the number of elements in the covariance matrix
-        n = int(self.n * (self.n + 1) / 2)
-        # Initialize a 3-d array to store the keys
-        res = np.zeros((n, n, 4), dtype=str)
-        # Loop over all the elements in the covariance matrix
-        for i in range(n):
-            for j in range(i, n):
-                # Generate a key for the i-th and j-th element
-                elem = self.keys[i] + self.sep + self.keys[j]
-                # Loop over all the characters in the key
-                for k in range(4):
-                    # Add the k-th character to the i-th, j-th, and k-th
-                    # indices of the array
-                    res[i, j, k] = np.asarray(list(elem)[k])
-                    res[j, i, k] = res[i, j, k]
-        # Print the keys if the debug flag is set
-        if self.debug:
-            print(f"\nThe requested keys are {res}")
-        # Return the keys
-        return res
-
-    def find_spectrum(self, input_dict, key):
-        """Find a spectrum in a given dictionary.
-
-        Returns the corresponding power sepctrum for a given key. If the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
-
-        Parameters:
-            input_dict (dict):
-                Dictionary where you want to search for keys.
-
-            key (str):
-                Key to search for.
-        """
-        # create a zero array
-        res = np.zeros(self.lmax + 1)
-
-        # get lmin and lmax
-        # lmin = self.lmins.get(key, self.lmin)
-        # lmax = self.lmaxs.get(key, self.lmax)
-
-        # try to find the key in the dictionary
-        if key in input_dict:
-            cov = input_dict[key]
-        # if the key is not found, try the reverse key
-        else:
-            cov = input_dict.get(key[::-1], np.zeros(self.lmax + 1))
-
-        # fill the array with the requested spectrum
-        res[self.lmin : self.lmax + 1] = cov[self.lmin : self.lmax + 1]
-
-        return res
-
-    def sigma(self, keys, fiduDICT, noiseDICT):
-        """Define the covariance matrix for the Gaussian case.
-
-        In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
-
-        Parameters:
-            keys (dict):
-                Keys for the covariance elements.
-
-            fiduDICT (dict):
-                Dictionary with the fiducial spectra.
-
-            noiseDICT (dict):
-                Dictionary with the noise spectra.
-        """
-        # The covariance matrix has to be symmetric.
-        # The number of parameters in the likelihood is self.n.
-        # The covariance matrix is a (self.n x self.n x self.lmax+1) ndarray.
-        # We will store the covariance matrix in a (n x n x self.lmax+1) ndarray,
-        # where n = int(self.n * (self.n + 1) / 2).
-        n = int(self.n * (self.n + 1) / 2)
-        res = np.zeros((n, n, self.lmax + 1))
-        for i in range(n):  # Loop over all combinations of pairs of spectra
-            for j in range(i, n):
-                C_AC = self.find_spectrum(fiduDICT, keys[i, j, 0] + keys[i, j, 2])
-                C_BD = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 3])
-                C_AD = self.find_spectrum(fiduDICT, keys[i, j, 0] + keys[i, j, 3])
-                C_BC = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 2])
-                N_AC = self.find_spectrum(noiseDICT, keys[i, j, 0] + keys[i, j, 2])
-                N_BD = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 3])
-                N_AD = self.find_spectrum(noiseDICT, keys[i, j, 0] + keys[i, j, 3])
-                N_BC = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 2])
-                ell = np.arange(len(C_AC))
-                if self.fsky is not None:
-                    res[i, j] = (
-                        ((C_AC + N_AC) * (C_BD + N_BD) + (C_AD + N_AD) * (C_BC + N_BC))
-                        / self.fsky
-                        / (2 * ell + 1)
-                    )
-                else:
-                    AC = keys[i, j, 0] + keys[i, j, 2]
-                    BD = keys[i, j, 1] + keys[i, j, 3]
-                    AD = keys[i, j, 0] + keys[i, j, 3]
-                    BC = keys[i, j, 1] + keys[i, j, 2]
-                    AB = keys[i, j, 0] + keys[i, j, 1]
-                    CD = keys[i, j, 2] + keys[i, j, 3]
-                    res[i, j] = (
-                        (
-                            np.sqrt(self.fskies[AC] * self.fskies[BD])
-                            * (C_AC + N_AC)
-                            * (C_BD + N_BD)
-                            + np.sqrt(self.fskies[AD] * self.fskies[BC])
-                            * (C_AD + N_AD)
-                            * (C_BC + N_BC)
-                        )
-                        / (self.fskies[AB] * self.fskies[CD])
-                        / (2 * ell + 1)
-                    )
-                res[j, i] = res[i, j]
-        return res
-
-    def inv_sigma(self, sigma):
-        """Invert the covariance matrix of the Gaussian case.
-
-        Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
-
-        Parameters:
-            ndarray (np.ndarray):
-                (self.n x self.n x self.lmax+1) ndarray with the previously computed sigma (not inverted).
-        """
-        # Initialize array to store the inverted covariance matrices
-        res = np.zeros(sigma.shape)
-
-        # Loop over multipoles
-        for i in range(self.lmin, self.lmax + 1):
-            # Check if matrix is singular
-            COV = sigma[:, :, i]
-            if np.linalg.det(COV) == 0:
-                # Get indices of null diagonal elements
-                idx = np.where(np.diag(COV) == 0)[0]
-                # Remove corresponding rows and columns
-                COV = np.delete(COV, idx, axis=0)
-                COV = np.delete(COV, idx, axis=1)
-            # Invert matrix
-            res[:, :, i] = np.linalg.inv(COV)
-            # res[i] = COV
-        return res
 
     def get_reduced_data(self, mat):
         """Find the reduced data eliminating the singularity of the matrix.
@@ -482,13 +311,17 @@ class LiLit(Likelihood):
             # Check if it exists
             if cl_lens is not None:
                 # Save it with the normalization to obtain phiphi
-                res["pp"] = cl_lens[:, 0].copy()  # /(res['ell']*(res['ell']+1))
+                array = cl_lens[:, 0].copy()
+                array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
+                res["pp"] = array
                 # Check if we want the cross terms
                 if "pt" in self.keys and "pe" in self.keys:
                     # Loop over the cross terms
                     for i, cross in enumerate(["pt", "pe"]):
                         # Save the result
-                        res[cross] = cl_lens[:, i + 1].copy()
+                        array = cl_lens[:, i + 1].copy()
+                        array[2:] /= np.sqrt(res["ell"] * (res["ell"] + 1))[2:]
+                        res[cross] = array
                         # Save the symmetric term
                         res[cross[::-1]] = res[cross]
         return res
@@ -555,7 +388,7 @@ class LiLit(Likelihood):
             pars.b8 = 1.4964959071110084
             pars.b9 = 1.5652475842498528
             pars.b10 = 1.7429859437184225
-            pars.want_euclid = True
+            pars.SourceTerms.want_euclid = True
         elif self.survey == "LSST":
             pars.b1 = 1.08509147
             pars.b2 = 1.14382284
@@ -567,7 +400,7 @@ class LiLit(Likelihood):
             pars.b8 = 1.53212972
             pars.b9 = 1.60078307
             pars.b10 = 1.67017681
-            pars.want_lsst = True
+            pars.SourceTerms.want_lsst = True
         else:
             err = "Survey not supported"
             raise ValueError(err)
@@ -584,6 +417,7 @@ class LiLit(Likelihood):
 
     def store_sources_results(self, camb_results, results_dict):
         source_res = camb_results.get_source_cls_dict(raw_cl=False, lmax=self.lmax)
+        ell = results_dict["ell"]
         for key, value in source_res.items():
             key = key.lower().replace("w", "").split("x")
             first_field = key[0]
@@ -599,18 +433,9 @@ class LiLit(Likelihood):
             key = first_field + second_field
             if "p" in key:
                 if "pp" in key:
-                    value[2:] = (
-                        value[2:]
-                        / (results_dict["ell"] * (results_dict["ell"] + 1))[2:]
-                    )
+                    value[2:] = value[2:] / (ell * (ell + 1))[2:]
                 else:
-                    ell = np.arange(0, self.lmax+1, 1)
-                    print(f'cross keys = {key}')
-                    fact = np.power(ell[2:] * (ell[2:] + 1), 1/4)/np.sqrt((ell[2:]*(ell[2:]+1)))
-                    value[2:] = (
-                        value[2:]*fact
-                        #/ (np.sqrt(results_dict["ell"] * (results_dict["ell"] + 1)))[2:]
-                    )
+                    value[2:] = value[2:] / (np.sqrt(ell * (ell + 1)))[2:]
             results_dict[key] = value
 
     def prod_fidu(self):
@@ -659,7 +484,7 @@ class LiLit(Likelihood):
         pars.DoLensing = True
         # _pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
 
-        if self.sources:
+        if self.has_sources:
             self.add_sources_params(pars)
 
         start = time.time()
@@ -677,7 +502,7 @@ class LiLit(Likelihood):
         )
         res_dict = self.CAMBres2dict(res)
 
-        if self.sources:
+        if self.has_sources:
             self.store_sources_results(results, res_dict)
 
         return res_dict
@@ -754,8 +579,8 @@ class LiLit(Likelihood):
         # Define the keys for the dictionary that will be returned
         keys = ["tt", "ee", "bb"]
 
-        sigma = np.radians(fwhms / 60.0) / np.sqrt(8.0 * np.log(2.0))
-        sigma2 = sigma**2
+        sigm = np.radians(fwhms / 60.0) / np.sqrt(8.0 * np.log(2.0))
+        sigma2 = sigm**2
 
         # Calculate the Gaussian beam function
         g = np.exp(ell * (ell + 1) * sigma2[:, np.newaxis])
@@ -800,8 +625,12 @@ class LiLit(Likelihood):
         self.noiseCLS = self.prod_noise()
 
         # Compute the covariance matrices
-        self.fiduCOV = self.cov_filling(self.fiduCLS)
-        self.noiseCOV = self.cov_filling(self.noiseCLS)
+        self.fiduCOV = cov_filling(
+            self.all_fields, self.lmin, self.lmax, self.fiduCLS, self.lmins, self.lmaxs
+        )
+        self.noiseCOV = cov_filling(
+            self.all_fields, self.lmin, self.lmax, self.noiseCLS, self.lmins, self.lmaxs
+        )
 
         # Print some information for debugging
         if self.debug:
@@ -822,9 +651,18 @@ class LiLit(Likelihood):
 
         # Compute the inverse of the covariance matrix
         if self.like == "gaussian":
-            self.gauss_keys = self.get_Gauss_keys()
-            sigma2 = self.sigma(self.gauss_keys, self.fiduCLS, self.noiseCLS)
-            self.sigma2 = self.inv_sigma(sigma2)
+            self.gauss_keys = get_Gauss_keys(n=self.n, keys=self.keys, debug=self.debug)
+            sigma2 = sigma(
+                self.n,
+                self.lmin,
+                self.lmax,
+                self.gauss_keys,
+                self.fiduCLS,
+                self.noiseCLS,
+                self.fsky,
+                self.fskies,
+            )
+            self.sigma2 = inv_sigma(self.lmin, self.lmax, sigma2)
 
     def dndz_Euclid(self):
         from scipy.special import erf
@@ -961,14 +799,18 @@ class LiLit(Likelihood):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
         # The likelihood needs the lensed CMB angular power spectra. The keyword can be set to "unlensed_Cl" to get the unlensed ones
         requirements = {}
-        if not self.sources:
-            requirements["Cl"] = {cl: self.lmax for cl in self.keys}
+        N = len(self.fields)
+        requirements["Cl"] = {
+            self.fields[i] + self.fields[j]: self.lmax
+            for i in range(N)
+            for j in range(i, N)
+        }
         # If debug is set to True, the likelihood will print the list of items required by the likelihood
-        if self.sources:
+        if self.has_sources:
             requirements["Cl"] = {"pp": self.lmax}
             self.compute_dndz()
             sources = {}
-            for field in self.fields:
+            for field in self.source_fields:
                 try:
                     sources[field] = {
                         "function": "spline",
@@ -984,7 +826,7 @@ class LiLit(Likelihood):
         if self.debug:
             requirements["CAMBdata"] = None
             print(
-                f"\nYou requested that Cobaya provides to the likelihood the following items: {requirements}",
+                f"\nYou requested that Cobaya provides the following items: {requirements}",
             )
         return requirements
 
@@ -1022,10 +864,9 @@ class LiLit(Likelihood):
             # dataset.
             coba = self.coba[:, :, i]
             data = self.data[:, :, i]
-            det = np.linalg.det(coba)
             # If the determinant is equal to 0, then we need to reduce
             # the dimensionality of the data and covariance matrix.
-            if det == 0:
+            if np.linalg.det(coba) == 0:
                 data = self.get_reduced_data(data)
                 coba = self.get_reduced_data(coba)
             # We compute the matrix M using the covariance matrix and
@@ -1058,13 +899,6 @@ class LiLit(Likelihood):
         if self.n != 1:
             coba, idx = self.data_vector(self.coba[:, :, i])
             data, _ = self.data_vector(self.data[:, :, i])
-            # print(coba.shape, data.shape, self.sigma2[i].shape)
-            # if coba.shape[0] == 1:
-            #     print((coba - data) / self.sigma2[i])
-            #     return (coba - data) / self.sigma2[i] * (coba - data)
-            # print(
-            #     f"CHI2 elem at ell = {i+2} is {(coba - data) @ np.linalg.inv(self.sigma2[i]) @ (coba - data) }"
-            # )
             COV = np.delete(self.sigma2[:, :, i], idx, axis=0)
             COV = np.delete(COV, idx, axis=1)
             return (coba - data) @ COV @ (coba - data)
@@ -1117,75 +951,47 @@ class LiLit(Likelihood):
             print(pars)
 
         # Get the Cls from Cobaya
-        self.cobaCLs = self.provider.get_Cl(ell_factor=True)
+        self.cobaCLS = self.provider.get_Cl(ell_factor=True)
         ell = np.arange(0, self.lmax + 1, 1)
-        for key, value in self.cobaCLs.items():
-            if "pp" in key:
-                print('key')
+        for key, value in self.cobaCLS.items():
+            if key == "pp":
                 value[2 : self.lmax + 1] = (
-                                value[2 : self.lmax + 1] / (ell * (ell + 1))[2:]
-                            )
-        if self.sources:
+                    value[2 : self.lmax + 1] / (ell * (ell + 1))[2:]
+                )
+            elif "p" in key:
+                value[2 : self.lmax + 1] = (
+                    value[2 : self.lmax + 1] / np.sqrt(ell * (ell + 1))[2:]
+                )
+            self.cobaCLS[key] = value[: self.lmax + 1]
+
+        if self.has_sources:
             cobasourceCLs = self.provider.get_source_Cl()
-            
+
             for key, value in cobasourceCLs.items():
                 key = key[0] + key[1]
                 key = key.lower().replace("w", "").replace("x", "")
-                if "p" in key:
-                    if "pp" in key:
-                        value[2 : self.lmax + 1] = (
-                            value[2 : self.lmax + 1] / (ell * (ell + 1))[2:]
-                        )
-                    else:
-                        print('Cross spectrum keys = ', key)
-                        fact = np.power(ell[2:] * (ell[2:] + 1), 1/4)/np.sqrt((ell[2:]*(ell[2:]+1)))
-                        value[2 : self.lmax + 1] = (
-                            value[2 : self.lmax + 1]*fact #/ np.sqrt(ell * (ell + 1))[2:]
-                        )
-                self.cobaCLs[key] = value[: self.lmax + 1]
 
-        # if self.debug:
-        #     print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
+                if key == "pp":
+                    value[2 : self.lmax + 1] = (
+                        value[2 : self.lmax + 1] / (ell * (ell + 1))[2:]
+                    )
+                elif "p" in key:
+                    value[2 : self.lmax + 1] = (
+                        value[2 : self.lmax + 1] / np.sqrt(ell * (ell + 1))[2:]
+                    )
+                self.cobaCLS[key] = value[: self.lmax + 1]
 
-        #     field = list(self.cobaCLs.keys())[1]
-        #     print("\nPrinting the first few values to check that it starts from 0...")
-        #     print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
+        if self.debug:
+            print(f"Keys of Cobaya CLs ---> {self.cobaCLS.keys()}")
+
+            field = list(self.cobaCLS.keys())[1]
+            print("\nPrinting the first few values to check that it starts from 0...")
+            print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLS[field][0:5]}")
 
         # Fill the covariance matrix with the Cls from Cobaya
-        self.cobaCOV = self.cov_filling(self.cobaCLs)
-
-        # if self.debug:
-        #     obs1 = 0
-        #     obs2 = 20
-        #     ell = np.arange(0, self.lmax + 1, 1)
-        #     # print(self.sigma2[50].shape)
-        #     # exit()
-        #     plt.loglog(ell, self.fiduCOV[obs1, obs2, :], label="Fiducial CLs")
-        #     plt.loglog(ell, self.cobaCOV[obs1, obs2, :], label="Cobaya CLs", ls="--")
-
-        #     plt.plot(
-        #         ell,
-        #         np.sqrt(
-        #             (
-        #                 self.fiduCOV[obs1, obs2, :] ** 2
-        #                 + (self.fiduCOV[obs1, obs1, :] + self.noiseCOV[obs1, obs1, :])
-        #                 * (self.fiduCOV[obs2, obs2, :] + self.noiseCOV[obs2, obs2, :])
-        #             )
-        #             / (2 * ell + 1)
-        #             / self.fskies["p9"]
-        #         ),
-        #     )
-
-        #     plt.loglog(
-        #         ell[10 : 999 + 2],
-        #         [np.sqrt(self.sigma2[i][obs2, obs2]) for i in range(8, 999)],
-        #         label="Noise CLs",
-        #     )
-        #     # plt.loglog(ell, self.noiseCOV[obs1, obs2, :], label="Noise CLs")
-        #     plt.xlim(2, None)
-        #     plt.legend()
-        #     plt.show()
-        # exit()
+        self.cobaCOV = cov_filling(
+            self.all_fields, self.lmin, self.lmax, self.cobaCLS, self.lmins, self.lmaxs
+        )
 
         # Add the noise covariance to the covariance matrix filled with the Cls from Cobaya
         self.coba = (
@@ -1197,28 +1003,69 @@ class LiLit(Likelihood):
         logp = self.log_likelihood()
 
         if self.debug:
-            print(pars)
-
             ell = np.arange(0, self.lmax + 1, 1)
             print(logp)
             import matplotlib.ticker as tck
+
             fig, ax = plt.subplots()
-            ax.tick_params(direction='in', which='both', labelsize = 13, width = 1.0)
-            ax.yaxis.set_ticks_position('both')
-            ax.xaxis.set_ticks_position('both')
+            ax.tick_params(direction="in", which="both", labelsize=13, width=1.0)
+            ax.yaxis.set_ticks_position("both")
+            ax.xaxis.set_ticks_position("both")
             ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
             ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
-            plt.plot(ell, self.noiseCOV[0,0,:], label ='noisepp')
-            plt.loglog(ell, self.fiduCOV[0,0,:], label = 'fidupp')
-            plt.plot(ell, self.cobaCOV[0,0,:], label = 'cobapp', ls = '--')
-            plt.loglog(ell, self.noiseCOV[1,1,:], label = 'noisegg')
-            plt.loglog(ell, self.fiduCOV[1,1,:], label = 'fidugg')
-            plt.loglog(ell, self.cobaCOV[1,1,:], label = 'cobagg', ls = '--')
-            plt.plot(ell, self.fiduCOV[0,1,:], label = 'fidupg')
-            plt.plot(ell, self.cobaCOV[1,0, :], label = 'cobapg', ls = '--')
+            bin = 1
+            plt.plot(ell, self.noiseCOV[0, 0, :], label="noisepp")
+            plt.plot(ell, self.fiduCOV[0, 0, :], label="fidupp")
+            plt.plot(ell, self.cobaCOV[0, 0, :], label="cobapp", ls="--")
+            plt.plot(ell, self.noiseCOV[bin, bin, :], label="noisegg")
+            plt.plot(ell, self.fiduCOV[bin, bin, :], label="fidugg")
+            plt.plot(ell, self.cobaCOV[bin, bin, :], label="cobagg", ls="--")
+            plt.plot(ell, self.fiduCOV[0, bin, :], label="fidupg")
+            plt.plot(ell, self.cobaCOV[bin, 0, :], label="cobapg", ls="--")
             plt.legend()
-            plt.xlim(5, self.lmax)
-            plt.show(block = True)
+            plt.loglog()
+            plt.xlim(2, self.lmax)
+            plt.show(block=True)
+
+        # if self.debug:
+        #     ell = np.arange(0, self.lmax + 1, 1)
+        #     print(logp)
+        #     import matplotlib.ticker as tck
+
+        #     fig, ax = plt.subplots()
+        #     ax.tick_params(direction="in", which="both", labelsize=13, width=1.0)
+        #     ax.yaxis.set_ticks_position("both")
+        #     ax.xaxis.set_ticks_position("both")
+        #     ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
+        #     ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
+        #     bin = 0
+
+        #     # plt.plot(ell, self.noiseCOV[bin, bin, :], label="noisegg")
+        #     plt.plot(ell, self.fiduCOV[bin, bin, :] ** 2, label="fidugg")
+        #     plt.plot(ell, self.cobaCOV[bin, bin, :] ** 2, label="cobagg", ls="--")
+
+        #     plt.plot(
+        #         ell[2:],
+        #         (2 * self.data[bin, bin, :] ** 2 / (2 * ell[2:] + 1) / 0.8),
+        #         # / np.sqrt(ell[2:] + 1)
+        #         # / np.sqrt(ell[2:])
+        #         # / 2 * np.pi,
+        #         label="sigma computation",
+        #     )
+
+        #     plt.plot(
+        #         ell[2:],
+        #         self.sigma2[0, 0, :] ** -1,
+        #         label="sigma",
+        #     )
+
+        #     plt.legend()
+        #     plt.loglog()
+        #     plt.xlim(2, self.lmax)
+        #     plt.show(block=True)
+
+        if self.debug:
+            print(f"Log-posterior -->  {logp}")
             exit()
 
         return logp
