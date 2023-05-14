@@ -1,5 +1,16 @@
 import numpy as np
 
+__all__ = [
+    "get_keys",
+    "get_Gauss_keys",
+    "cov_filling",
+    "find_spectrum",
+    "sigma",
+    "inv_sigma",
+    "CAMBres2dict",
+    "txt2dict",
+]
+
 
 def get_keys(fields: list, *, debug: bool = False):
     """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc."""
