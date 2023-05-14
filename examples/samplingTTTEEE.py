@@ -5,11 +5,11 @@ from cobaya.run import run
 from cobaya.log import LoggedError
 from lilit import LiLit
 
-debug = False
+debug = True
 name = "TTTEEE"
 
 # Note that the order of these list has to be the same of the fields keyword
-lmin = [20, 2]
+lmin = [2, 20]
 lmax = [1500, 1200]
 fsky = [0.8, 0.5]
 
