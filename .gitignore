@@ -5,3 +5,4 @@ examples/chains/
 dist/
 lilit.egg-info/
 build/
+.eggs/

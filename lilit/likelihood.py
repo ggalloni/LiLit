@@ -12,6 +12,8 @@ from .functions import (
     cov_filling,
     sigma,
     inv_sigma,
+    CAMBres2dict,
+    txt2dict,
 )
 
 
@@ -156,7 +158,7 @@ class LiLit(Likelihood):
         self.sep = sep
         self.cl_file = cl_file
         self.nl_file = nl_file
-        if self.nl_file.endswith(".txt"):
+        if self.nl_file is not None and self.nl_file.endswith(".txt"):
             self.mapping = mapping
         self.experiment = experiment
         if self.experiment is not None:
@@ -449,69 +451,69 @@ class LiLit(Likelihood):
         # Delete the rows and columns from the matrix
         return np.delete(np.delete(mat, idx, axis=0), idx, axis=1)
 
-    def CAMBres2dict(self, camb_results):
-        """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
+    # def CAMBres2dict(self, camb_results):
+    #     """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
 
-        Parameters:
-            camb_results (CAMBdata):
-                CAMB result product from the method get_cmb_power_spectra.
-        """
-        # Get the number of multipoles
-        ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
-        # Mapping between the CAMB keys and the ones we want
-        mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
-        # Initialize the output dictionary
-        res = {"ell": ls}
-        # Loop over the keys we want
-        for key, i in mapping.items():
-            # Save the results
-            res[key] = camb_results["total"][:, i]
-        # Check if we want the lensing potential
-        if "pp" in self.keys:
-            # Get the lensing potential
-            cl_lens = camb_results.get("lens_potential")
-            # Check if it exists
-            if cl_lens is not None:
-                # Save it with the normalization to obtain phiphi
-                array = cl_lens[:, 0].copy()
-                array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
-                res["pp"] = array
-                # Check if we want the cross terms
-                if "pt" in self.keys and "pe" in self.keys:
-                    # Loop over the cross terms
-                    for i, cross in enumerate(["pt", "pe"]):
-                        # Save the result
-                        array = cl_lens[:, i + 1].copy()
-                        array[2:] /= np.sqrt(res["ell"] * (res["ell"] + 1))[2:]
-                        res[cross] = array
-                        # Save the symmetric term
-                        res[cross[::-1]] = res[cross]
-        return res
+    #     Parameters:
+    #         camb_results (CAMBdata):
+    #             CAMB result product from the method get_cmb_power_spectra.
+    #     """
+    #     # Get the number of multipoles
+    #     ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
+    #     # Mapping between the CAMB keys and the ones we want
+    #     mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
+    #     # Initialize the output dictionary
+    #     res = {"ell": ls}
+    #     # Loop over the keys we want
+    #     for key, i in mapping.items():
+    #         # Save the results
+    #         res[key] = camb_results["total"][:, i]
+    #     # Check if we want the lensing potential
+    #     if "pp" in self.keys:
+    #         # Get the lensing potential
+    #         cl_lens = camb_results.get("lens_potential")
+    #         # Check if it exists
+    #         if cl_lens is not None:
+    #             # Save it with the normalization to obtain phiphi
+    #             array = cl_lens[:, 0].copy()
+    #             array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
+    #             res["pp"] = array
+    #             # Check if we want the cross terms
+    #             if "pt" in self.keys and "pe" in self.keys:
+    #                 # Loop over the cross terms
+    #                 for i, cross in enumerate(["pt", "pe"]):
+    #                     # Save the result
+    #                     array = cl_lens[:, i + 1].copy()
+    #                     array[2:] /= np.sqrt(res["ell"] * (res["ell"] + 1))[2:]
+    #                     res[cross] = array
+    #                     # Save the symmetric term
+    #                     res[cross[::-1]] = res[cross]
+    #     return res
 
-    def txt2dict(self, txt, mapping=None, apply_ellfactor=None):
-        """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
+    # def txt2dict(self, txt, mapping=None, apply_ellfactor=None):
+    #     """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
 
-        Parameters:
-            txt (str):
-                Path to txt file containing the spectra as columns.
-            mapping (dict):
-                Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
-        """
-        # Define the ell values from the length of the txt file
-        assert (
-            mapping is not None
-        ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
-        res = {}
-        # Loop over the mapping and extract the corresponding column from the txt file
-        # and store it in the dictionary under the corresponding keyword
-        for key, i in mapping.items():
-            ls = np.arange(len(txt[:, i]), dtype=np.int64)
-            res["ell"] = ls
-            if apply_ellfactor:
-                res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi
-            else:
-                res[key] = txt[:, i]
-        return res
+    #     Parameters:
+    #         txt (str):
+    #             Path to txt file containing the spectra as columns.
+    #         mapping (dict):
+    #             Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
+    #     """
+    #     # Define the ell values from the length of the txt file
+    #     assert (
+    #         mapping is not None
+    #     ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
+    #     res = {}
+    #     # Loop over the mapping and extract the corresponding column from the txt file
+    #     # and store it in the dictionary under the corresponding keyword
+    #     for key, i in mapping.items():
+    #         ls = np.arange(len(txt[:, i]), dtype=np.int64)
+    #         res["ell"] = ls
+    #         if apply_ellfactor:
+    #             res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi
+    #         else:
+    #             res[key] = txt[:, i]
+    #     return res
 
     def prod_fidu(self):
         """Produce fiducial spectra or read the input ones.
@@ -528,7 +530,7 @@ class LiLit(Likelihood):
             else:
                 txt = np.loadtxt(self.cl_file)
                 mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
-                res = self.txt2dict(txt, mapping)
+                res = txt2dict(txt, mapping)
             return res
 
         try:
@@ -566,7 +568,7 @@ class LiLit(Likelihood):
             lmax=self.lmax,
             raw_cl=False,
         )
-        return self.CAMBres2dict(res)
+        return CAMBres2dict(res, self.keys)
 
     def prod_noise(self):
         """Produce noise power spectra or read the input ones.
@@ -583,7 +585,9 @@ class LiLit(Likelihood):
             else:
                 _txt = np.loadtxt(self.nl_file)
                 # Convert the text file to a dictionary
-                res = self.txt2dict(_txt, self.mapping, apply_ellfactor=True)
+                res = txt2dict(
+                    _txt, self.mapping, apply_ellfactor=True
+                )  # eliminate this part, conversion can be done outside likelihood
             return res
 
         print(
@@ -687,8 +691,12 @@ class LiLit(Likelihood):
         self.noiseCLS = self.prod_noise()
 
         # Compute the covariance matrices
-        self.fiduCOV = self.cov_filling(self.fiduCLS)
-        self.noiseCOV = self.cov_filling(self.noiseCLS)
+        self.fiduCOV = cov_filling(
+            self.fields, self.lmin, self.lmax, self.fiduCLS, self.lmins, self.lmaxs
+        )
+        self.noiseCOV = cov_filling(
+            self.fields, self.lmin, self.lmax, self.noiseCLS, self.lmins, self.lmaxs
+        )
 
         # Print some information for debugging
         if self.debug:
@@ -763,8 +771,8 @@ class LiLit(Likelihood):
         # If the number of datasets is not equal to 1, then we have a
         # multi-dataset case, in which case we need to compute the
         # covariance matrix for each dataset.
-        ell = np.arange(0, self.lmax + 1, 1)
         if self.n != 1:
+            ell = np.arange(0, self.lmax + 1, 1)
             # We extract the covariance matrix and data for the ith
             # dataset.
             coba = self.coba[:, :, i]
@@ -786,6 +794,7 @@ class LiLit(Likelihood):
         # dataset case, in which case we do not need to loop over the
         # datasets.
         else:
+            ell = np.arange(2, self.lmax + 1, 1)
             # We compute the matrix M using the covariance matrix and
             # the data.
             M = self.data / self.coba
@@ -856,7 +865,7 @@ class LiLit(Likelihood):
             print(pars)
 
         # Get the Cls from Cobaya
-        self.cobaCLs = self.provider.get_Cl(ell_factor=True)
+        self.cobaCLS = self.provider.get_Cl(ell_factor=True)
         ell = np.arange(0, self.lmax + 1, 1)
         for key, value in self.cobaCLS.items():
             if key == "pp":
@@ -870,11 +879,11 @@ class LiLit(Likelihood):
             self.cobaCLS[key] = value[: self.lmax + 1]
 
         if self.debug:
-            print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
+            print(f"Keys of Cobaya CLs ---> {self.cobaCLS.keys()}")
 
-            field = list(self.cobaCLs.keys())[1]
+            field = list(self.cobaCLS.keys())[1]
             print("\nPrinting the first few values to check that it starts from 0...")
-            print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
+            print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLS[field][0:5]}")
 
         # Fill the covariance matrix with the Cls from Cobaya
         self.cobaCOV = cov_filling(
@@ -883,9 +892,12 @@ class LiLit(Likelihood):
 
         if self.debug:
             ell = np.arange(0, self.lmax + 1, 1)
-            plt.loglog(ell, self.fiduCOV[0, 0, :], label="Fiducial CLs")
-            plt.loglog(ell, self.cobaCOV[0, 0, :], label="Cobaya CLs", ls="--")
-            plt.loglog(ell, self.noiseCOV[0, 0, :], label="Noise CLs")
+            obs1 = 0
+            obs2 = 0
+            plt.plot(ell, self.fiduCOV[obs1, obs2, :], label="Fiducial CLs")
+            plt.plot(ell, self.cobaCOV[obs1, obs2, :], label="Cobaya CLs", ls="--")
+            plt.plot(ell, self.noiseCOV[obs1, obs2, :], label="Noise CLs")
+            plt.semilogx()
             plt.xlim(2, None)
             plt.legend()
             plt.show()

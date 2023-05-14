@@ -5,7 +5,7 @@ from cobaya.run import run
 from cobaya.log import LoggedError
 from lilit import LiLit
 
-debug = False
+debug = True
 name = "BB"
 lmax = 500
 
@@ -94,7 +94,6 @@ info = {
                 "pivot_tensor": 0.01,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
-                # "Accuracy.AccuracyBoost": 2, # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
             },
         },
     },
