@@ -267,3 +267,10 @@ def txt2dict(txt, mapping_probe2colnum=None, apply_ellfactor=None):
         else:
             res[probe] = txt[:, i]
     return res
+
+
+__docformat__ = "google"
+__pdoc__ = {}
+__pdoc__[
+    "Likelihood"
+] = "Likelihood class from Cobaya, refer to Cobaya documentation for more information."
