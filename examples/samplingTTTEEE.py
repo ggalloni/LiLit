@@ -115,15 +115,11 @@ info = {
                 "NonLinear": "NonLinear_both",  # This is necessary to be concordant with Planck2018 fiducial spectra
                 "max_l": 2700,  # This is necessary to get accurate lensing B-modes
                 "WantTransfer": True,  # This is necessary to be concordant with Planck2018 fiducial spectra
-                "Transfer.high_precision": True,  # This is necessary to be concordant with Planck2018 fiducial spectra (this will impact negatively on the performance, so you might want to switch it off. However, remember to chanfe the fiducial accordingly.)
-                "Reion.helium_delta_redshift": 0.4,
-                "Reion.helium_redshiftstart": 6.0,
-                "Reion.fraction": -1,
+                "Transfer.high_precision": True,  # This is necessary to be concordant with Planck2018 fiducial spectra (this will impact negatively on the performance, so you might want to switch it off. However, remember to change the fiducial accordingly.)
                 "parameterization": 2,
                 "num_nu_massless": 2.046,
                 "share_delta_neff": True,
                 "YHe": 0.2454006,
-                "nu_mass_degeneracies": [0],
                 "pivot_tensor": 0.05,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
@@ -153,4 +149,4 @@ if not success and rank == 0:
 
 end = time.time()
 
-print(f"ALL DONE IN {round(end-start, 2)} SECONDS!")
+print(f"******** ALL DONE IN {round(end-start, 2)} SECONDS! ********")

@@ -190,7 +190,6 @@ class LiLit(Likelihood):
         self.lmaxs = {}
         self.fskies = {}
 
-        # Set lmin
         if isinstance(lmin, list):
             assert (
                 len(lmin) == self.n
@@ -206,7 +205,6 @@ class LiLit(Likelihood):
         else:
             self.lmin = lmin
 
-        # Set lmax
         if isinstance(lmax, list):
             assert (
                 len(lmax) == self.n
@@ -222,7 +220,6 @@ class LiLit(Likelihood):
         else:
             self.lmax = lmax
 
-        # Set fsky
         if isinstance(fsky, list):
             assert (
                 len(fsky) == self.n
@@ -248,9 +245,7 @@ class LiLit(Likelihood):
             ndarray (np.ndarray):
                 A ndarray containing the covariance matrices, with some singular ones.
         """
-        # Select the indices corresponding to the zero diagonal
         idx = np.where(np.diag(mat) == 0)[0]
-        # Delete the rows and columns from the matrix
         return np.delete(np.delete(mat, idx, axis=0), idx, axis=1)
 
     def prod_fidu(self):
@@ -258,7 +253,7 @@ class LiLit(Likelihood):
 
         If the user has not provided a Cl file, this function will produce the fiducial power spectra starting from the CAMB inifile for Planck2018. The extra keywords defined will maximize the accordance between the fiducial Cls and the ones obtained from Cobaya. If B-modes are requested, the tensor-to-scalar ratio and the spectral tilt will be set to the requested values. Note that if you do not provide a tilt, this will follow the standard single-field consistency relation. If instead you provide a custom file, stores that.
         """
-        # If a custom file is provided, use that
+
         if self.cl_file is not None:
             if not self.cl_file.endswith(".pkl"):
                 print(
@@ -272,7 +267,6 @@ class LiLit(Likelihood):
         except ImportError:
             print("CAMB seems to be not installed. Check the requirements.")
 
-        # Read the ini file containing the parameters for CAMB
         path = os.path.dirname(os.path.abspath(__file__))
         planck_path = os.path.join(path, "planck_2018.ini")
         pars = camb.read_ini(planck_path)
@@ -291,7 +285,6 @@ class LiLit(Likelihood):
             pars.WantTensors = True
             pars.Accuracy.AccurateBB = True
         pars.DoLensing = True
-        # _pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
 
         if self.debug:
             print(pars)
@@ -341,16 +334,12 @@ class LiLit(Likelihood):
         with open(experiments_path) as f:
             data = yaml.load(f, Loader=SafeLoader)
 
-        # Get the instrument data from the saved data
         instrument = data[self.experiment]
 
-        # Get the FWHM values from the instrument data
         fwhms = np.array(instrument["fwhm"])
 
-        # Get the frequency values from the instrument data
         freqs = np.array(instrument["frequency"])
 
-        # Get the depth values from the instrument data
         depth_p = np.array(instrument["depth_p"])
         depth_i = np.array(instrument["depth_i"])
 
@@ -360,27 +349,21 @@ class LiLit(Likelihood):
         depth_p *= np.sqrt(hp.nside2pixarea(self.nside, degrees=False))
         depth_i *= np.sqrt(hp.nside2pixarea(self.nside, degrees=False))
 
-        # Get the number of frequencies
         n_freq = len(freqs)
 
-        # Define the ell values as a numpy array
         ell = np.arange(0, self.lmax + 1, 1)
 
-        # Define the keys for the dictionary that will be returned
         keys = ["tt", "ee", "bb"]
 
         sigma = np.radians(fwhms / 60.0) / np.sqrt(8.0 * np.log(2.0))
         sigma2 = sigma**2
 
-        # Calculate the Gaussian beam function
         g = np.exp(ell * (ell + 1) * sigma2[:, np.newaxis])
 
-        # Calculate the polarization factor
         pol_factor = np.array(
             [np.zeros(sigma2.shape), 2 * sigma2, 2 * sigma2, sigma2],
         )
 
-        # Calculate the polarization factor as a function of ell
         pol_factor = np.exp(pol_factor)
 
         # Calculate the Gaussian beam function for each polarization
@@ -389,15 +372,12 @@ class LiLit(Likelihood):
             G.append(g * arr[:, np.newaxis])
         g = np.array(G)
 
-        # Initialize the dictionary that will be returned
         res = {key: np.zeros((n_freq, self.lmax + 1)) for key in keys}
 
-        # Calculate the unnormalized power spectra
         res["tt"] = 1 / (g[0, :, :] * depth_i[:, np.newaxis] ** 2)
         res["ee"] = 1 / (g[3, :, :] * depth_p[:, np.newaxis] ** 2)
         res["bb"] = 1 / (g[3, :, :] * depth_p[:, np.newaxis] ** 2)
 
-        # Calculate the normalized power spectra
         res["tt"] = ell * (ell + 1) / (np.sum(res["tt"], axis=0)) / 2 / np.pi
         res["ee"] = ell * (ell + 1) / (np.sum(res["ee"], axis=0)) / 2 / np.pi
         res["bb"] = ell * (ell + 1) / (np.sum(res["bb"], axis=0)) / 2 / np.pi
@@ -410,11 +390,9 @@ class LiLit(Likelihood):
 
     def initialize(self):
         """Initializes the fiducial spectra and the noise power spectra."""
-        # Compute the fiducial and noise power spectra
         self.fiduCLS = self.prod_fidu()
         self.noiseCLS = self.prod_noise()
 
-        # Compute the covariance matrices
         self.fiduCOV = cov_filling(
             self.fields, self.lmin, self.lmax, self.fiduCLS, self.lmins, self.lmaxs
         )
@@ -422,7 +400,6 @@ class LiLit(Likelihood):
             self.fields, self.lmin, self.lmax, self.noiseCLS, self.lmins, self.lmaxs
         )
 
-        # Print some information for debugging
         if self.debug:
             print(f"Keys of fiducial CLs ---> {self.fiduCLS.keys()}")
             print(f"Keys of noise CLs ---> {self.noiseCLS.keys()}")
@@ -433,13 +410,11 @@ class LiLit(Likelihood):
             field = list(self.noiseCLS.keys())[1]
             print(f"Noise CLs for {field.upper()} ---> {self.noiseCLS[field][0:5]}")
 
-        # Compute the total covariance matrix
         self.data = (
             self.fiduCOV[:, :, self.lmin : self.lmax + 1]
             + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
         )
 
-        # Compute the inverse of the covariance matrix
         if self.like == "gaussian":
             self.gauss_keys = get_Gauss_keys(n=self.n, keys=self.keys, debug=self.debug)
             sigma2 = sigma(
@@ -456,10 +431,8 @@ class LiLit(Likelihood):
 
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
-        # The likelihood needs the lensed CMB angular power spectra. The keyword can be set to "unlensed_Cl" to get the unlensed ones
         requitements = {}
         requitements["Cl"] = {cl: self.lmax for cl in self.keys}
-        # If debug is set to True, the likelihood will print the list of items required by the likelihood
         if self.debug:
             requitements["CAMBdata"] = None
             print(
@@ -492,38 +465,22 @@ class LiLit(Likelihood):
             i (int, optional):
                 ell index if needed. Defaults to 0.
         """
-        # If the number of datasets is not equal to 1, then we have a
-        # multi-dataset case, in which case we need to compute the
-        # covariance matrix for each dataset.
         if self.n != 1:
             ell = np.arange(0, self.lmax + 1, 1)
-            # We extract the covariance matrix and data for the ith
-            # dataset.
             coba = self.coba[:, :, i]
             data = self.data[:, :, i]
-            # If the determinant is equal to 0, then we need to reduce
-            # the dimensionality of the data and covariance matrix.
-            if np.linalg.det(coba) == 0:
+            if (
+                np.linalg.det(coba) == 0
+            ):  # If the determinant is null, we need to reduce the covariance matrix
                 data = self.get_reduced_data(data)
                 coba = self.get_reduced_data(coba)
-            # We compute the matrix M using the covariance matrix and
-            # the data.
             M = np.linalg.solve(coba, data)
-            # We compute the chi-square term using the trace of M, the
-            # log determinant of M, and the number of fields.
             return (2 * ell[i] + 1) * (
                 np.trace(M) - np.linalg.slogdet(M)[1] - data.shape[0]
             )
-        # If the number of datasets is equal to 1, then we have a single
-        # dataset case, in which case we do not need to loop over the
-        # datasets.
         else:
             ell = np.arange(2, self.lmax + 1, 1)
-            # We compute the matrix M using the covariance matrix and
-            # the data.
             M = self.data / self.coba
-            # We compute the chi-square term using M, the log of M, and
-            # a constant value.
             return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
 
     def chi_gaussian(self, i=0):
@@ -533,14 +490,12 @@ class LiLit(Likelihood):
             i (int, optional):
                 ell index if needed. Defaults to 0.
         """
-        # If we have more than one data vector
         if self.n != 1:
             coba, idx = self.data_vector(self.coba[:, :, i])
             data, _ = self.data_vector(self.data[:, :, i])
             COV = np.delete(self.sigma2[:, :, i], idx, axis=0)
             COV = np.delete(COV, idx, axis=1)
             return (coba - data) @ COV @ (coba - data)
-        # If we have only one data vector
         else:
             coba = self.coba[0, 0, :]
             data = self.data[0, 0, :]
@@ -554,15 +509,10 @@ class LiLit(Likelihood):
             i (int, optional):
                 ell index if needed. Defaults to 0.
         """
-        # check if the likelihood is "exact"
         if self.like == "exact":
-            # if so, compute the chi-square term for the exact likelihood
             return self.chi_exact(i)
-        # if not, check if it is "gaussian"
         elif self.like == "gaussian":
-            # if so, compute the chi-square term for the gaussian likelihood
             return self.chi_gaussian(i)
-        # if neither, print an error message
         else:
             print("You requested something different from 'exact or 'gaussian'!")
             return
