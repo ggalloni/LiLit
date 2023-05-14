@@ -190,3 +190,69 @@ def inv_sigma(lmin, lmax, sigma):
         # Invert matrix
         res[:, :, ell] = np.linalg.inv(COV)
     return res[:, :, lmin:]
+
+
+def CAMBres2dict(camb_results, keys):
+    """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
+
+    Parameters:
+        camb_results (CAMBdata):
+            CAMB result product from the method get_cmb_power_spectra.
+    """
+    # Get the number of multipoles
+    ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
+    # Mapping between the CAMB keys and the ones we want
+    mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
+    # Initialize the output dictionary
+    res = {"ell": ls}
+    # Loop over the keys we want
+    for key, i in mapping.items():
+        # Save the results
+        res[key] = camb_results["total"][:, i]
+    # Check if we want the lensing potential
+    if "pp" in keys:
+        # Get the lensing potential
+        cl_lens = camb_results.get("lens_potential")
+        # Check if it exists
+        if cl_lens is not None:
+            # Save it with the normalization to obtain phiphi
+            array = cl_lens[:, 0].copy()
+            array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
+            res["pp"] = array
+            # Check if we want the cross terms
+            if "pt" in keys and "pe" in keys:
+                # Loop over the cross terms
+                for i, cross in enumerate(["pt", "pe"]):
+                    # Save the result
+                    array = cl_lens[:, i + 1].copy()
+                    array[2:] /= np.sqrt(res["ell"] * (res["ell"] + 1))[2:]
+                    res[cross] = array
+                    # Save the symmetric term
+                    res[cross[::-1]] = res[cross]
+    return res
+
+
+def txt2dict(txt, mapping=None, apply_ellfactor=None):
+    """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
+
+    Parameters:
+        txt (str):
+            Path to txt file containing the spectra as columns.
+        mapping (dict):
+            Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
+    """
+    # Define the ell values from the length of the txt file
+    assert (
+        mapping is not None
+    ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
+    res = {}
+    # Loop over the mapping and extract the corresponding column from the txt file
+    # and store it in the dictionary under the corresponding keyword
+    for key, i in mapping.items():
+        ls = np.arange(len(txt[:, i]), dtype=np.int64)
+        res["ell"] = ls
+        if apply_ellfactor:
+            res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi
+        else:
+            res[key] = txt[:, i]
+    return res
