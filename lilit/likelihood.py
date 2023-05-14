@@ -1,9 +1,18 @@
 import pickle
 import os
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
 from cobaya.likelihood import Likelihood
+
+from .functions import (
+    get_keys,
+    get_Gauss_keys,
+    cov_filling,
+    sigma,
+    inv_sigma,
+)
 
 
 class LiLit(Likelihood):
@@ -155,7 +164,7 @@ class LiLit(Likelihood):
             assert nside is not None, "You must provide an nside to compute the noise"
             self.nside = nside
         self.debug = debug
-        self.keys = self.get_keys()
+        self.keys = get_keys(fields=self.fields, debug=self.debug)
         if "bb" in self.keys:
             # Check that the user has provided the tensor-to-scalar ratio if a BB likelihood is used
             assert (
@@ -236,195 +245,195 @@ class LiLit(Likelihood):
             self.fsky = fsky
         return
 
-    def cov_filling(self, cov_dict):
-        """Fill covariance matrix with appropriate spectra.
+    # def cov_filling(self, cov_dict):
+    #     """Fill covariance matrix with appropriate spectra.
 
-        Computes the covariance matrix once given a dictionary. Returns the covariance matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax, or lmin, is specified, there will be null values in the matrices, making them singular. This will be handled in another method.
+    #     Computes the covariance matrix once given a dictionary. Returns the covariance matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax, or lmin, is specified, there will be null values in the matrices, making them singular. This will be handled in another method.
 
-        Parameters:
-            cov_dict (dict):
-                The input dictionary of spectra.
-        """
-        # Initialize output array
-        res = np.zeros((self.n, self.n, self.lmax + 1))
+    #     Parameters:
+    #         cov_dict (dict):
+    #             The input dictionary of spectra.
+    #     """
+    #     # Initialize output array
+    #     res = np.zeros((self.n, self.n, self.lmax + 1))
 
-        # Loop over field1
-        for i, field1 in enumerate(self.fields):
-            # Loop over field2
-            for j, field2 in enumerate(self.fields[i:]):
-                # Get the index of field2
-                j += i
+    #     # Loop over field1
+    #     for i, field1 in enumerate(self.fields):
+    #         # Loop over field2
+    #         for j, field2 in enumerate(self.fields[i:]):
+    #             # Get the index of field2
+    #             j += i
 
-                # Get the key of the covariance matrix
-                key = field1 + self.sep + field2
+    #             # Get the key of the covariance matrix
+    #             key = field1 + self.sep + field2
 
-                # Get lmin and lmax for this field pair
-                lmin = self.lmins.get(key, self.lmin)
-                lmax = self.lmaxs.get(key, self.lmax)
+    #             # Get lmin and lmax for this field pair
+    #             lmin = self.lmins.get(key, self.lmin)
+    #             lmax = self.lmaxs.get(key, self.lmax)
 
-                # Get the covariance for this field pair
-                cov = cov_dict.get(key, np.zeros(lmax + 1))
+    #             # Get the covariance for this field pair
+    #             cov = cov_dict.get(key, np.zeros(lmax + 1))
 
-                # Set the appropriate values in the covariance matrix
-                res[i, j, lmin : lmax + 1] = cov[lmin : lmax + 1]
-                # Fill the covariance matrix symmetrically
-                res[j, i] = res[i, j]
+    #             # Set the appropriate values in the covariance matrix
+    #             res[i, j, lmin : lmax + 1] = cov[lmin : lmax + 1]
+    #             # Fill the covariance matrix symmetrically
+    #             res[j, i] = res[i, j]
 
-        return res
+    #     return res
 
-    def get_keys(self):
-        """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc."""
-        # List of all the possible combinations of the requested fields
-        res = [
-            self.fields[i] + self.sep + self.fields[j]
-            for i in range(self.n)
-            for j in range(i, self.n)
-        ]
-        # Print the requested keys
-        if self.debug:
-            print(f"\nThe requested keys are {res}")
-        return res
+    # def get_keys(self):
+    #     """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc."""
+    #     # List of all the possible combinations of the requested fields
+    #     res = [
+    #         self.fields[i] + self.sep + self.fields[j]
+    #         for i in range(self.n)
+    #         for j in range(i, self.n)
+    #     ]
+    #     # Print the requested keys
+    #     if self.debug:
+    #         print(f"\nThe requested keys are {res}")
+    #     return res
 
-    def get_Gauss_keys(self):
-        """Find the proper dictionary keys for the requested fields.
+    # def get_Gauss_keys(self):
+    #     """Find the proper dictionary keys for the requested fields.
 
-        Extracts the keys that has to be used as a function of the requested fields for the Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.
-        """
-        # Calculate the number of elements in the covariance matrix
-        n = int(self.n * (self.n + 1) / 2)
-        # Initialize a 3-d array to store the keys
-        res = np.zeros((n, n, 4), dtype=str)
-        # Loop over all the elements in the covariance matrix
-        for i in range(n):
-            for j in range(i, n):
-                # Generate a key for the i-th and j-th element
-                elem = self.keys[i] + self.sep + self.keys[j]
-                # Loop over all the characters in the key
-                for k in range(4):
-                    # Add the k-th character to the i-th, j-th, and k-th
-                    # indices of the array
-                    res[i, j, k] = np.asarray(list(elem)[k])
-                    res[j, i, k] = res[i, j, k]
-        # Print the keys if the debug flag is set
-        if self.debug:
-            print(f"\nThe requested keys are {res}")
-        # Return the keys
-        return res
+    #     Extracts the keys that has to be used as a function of the requested fields for the Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.
+    #     """
+    #     # Calculate the number of elements in the covariance matrix
+    #     n = int(self.n * (self.n + 1) / 2)
+    #     # Initialize a 3-d array to store the keys
+    #     res = np.zeros((n, n, 4), dtype=str)
+    #     # Loop over all the elements in the covariance matrix
+    #     for i in range(n):
+    #         for j in range(i, n):
+    #             # Generate a key for the i-th and j-th element
+    #             elem = self.keys[i] + self.sep + self.keys[j]
+    #             # Loop over all the characters in the key
+    #             for k in range(4):
+    #                 # Add the k-th character to the i-th, j-th, and k-th
+    #                 # indices of the array
+    #                 res[i, j, k] = np.asarray(list(elem)[k])
+    #                 res[j, i, k] = res[i, j, k]
+    #     # Print the keys if the debug flag is set
+    #     if self.debug:
+    #         print(f"\nThe requested keys are {res}")
+    #     # Return the keys
+    #     return res
 
-    def find_spectrum(self, input_dict, key):
-        """Find a spectrum in a given dictionary.
+    # def find_spectrum(self, input_dict, key):
+    #     """Find a spectrum in a given dictionary.
 
-        Returns the corresponding power sepctrum for a given key. If the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
+    #     Returns the corresponding power sepctrum for a given key. If the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
 
-        Parameters:
-            input_dict (dict):
-                Dictionary where you want to search for keys.
+    #     Parameters:
+    #         input_dict (dict):
+    #             Dictionary where you want to search for keys.
 
-            key (str):
-                Key to search for.
-        """
-        # create a zero array
-        res = np.zeros(self.lmax + 1)
+    #         key (str):
+    #             Key to search for.
+    #     """
+    #     # create a zero array
+    #     res = np.zeros(self.lmax + 1)
 
-        # get lmin and lmax
-        lmin = self.lmins.get(key, self.lmin)
-        lmax = self.lmaxs.get(key, self.lmax)
+    #     # get lmin and lmax
+    #     lmin = self.lmins.get(key, self.lmin)
+    #     lmax = self.lmaxs.get(key, self.lmax)
 
-        # try to find the key in the dictionary
-        if key in input_dict:
-            cov = input_dict[key]
-        # if the key is not found, try the reverse key
-        else:
-            cov = input_dict.get(key[::-1], np.zeros(lmax + 1))
+    #     # try to find the key in the dictionary
+    #     if key in input_dict:
+    #         cov = input_dict[key]
+    #     # if the key is not found, try the reverse key
+    #     else:
+    #         cov = input_dict.get(key[::-1], np.zeros(lmax + 1))
 
-        # fill the array with the requested spectrum
-        res[lmin : lmax + 1] = cov[lmin : lmax + 1]
+    #     # fill the array with the requested spectrum
+    #     res[lmin : lmax + 1] = cov[lmin : lmax + 1]
 
-        return res
+    #     return res
 
-    def sigma(self, keys, fiduDICT, noiseDICT):
-        """Define the covariance matrix for the Gaussian case.
+    # def sigma(self, keys, fiduDICT, noiseDICT):
+    #     """Define the covariance matrix for the Gaussian case.
 
-        In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
+    #     In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
 
-        Parameters:
-            keys (dict):
-                Keys for the covariance elements.
+    #     Parameters:
+    #         keys (dict):
+    #             Keys for the covariance elements.
 
-            fiduDICT (dict):
-                Dictionary with the fiducial spectra.
+    #         fiduDICT (dict):
+    #             Dictionary with the fiducial spectra.
 
-            noiseDICT (dict):
-                Dictionary with the noise spectra.
-        """
-        # The covariance matrix has to be symmetric.
-        # The number of parameters in the likelihood is self.n.
-        # The covariance matrix is a (self.n x self.n x self.lmax+1) ndarray.
-        # We will store the covariance matrix in a (n x n x self.lmax+1) ndarray,
-        # where n = int(self.n * (self.n + 1) / 2).
-        n = int(self.n * (self.n + 1) / 2)
-        res = np.zeros((n, n, self.lmax + 1))
-        for i in range(n):  # Loop over all combinations of pairs of spectra
-            for j in range(i, n):
-                C_AC = self.find_spectrum(
-                    fiduDICT, keys[i, j, 0] + keys[i, j, 2]
-                )  # Find the fiducial spectra for each pair
-                C_BD = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 3])
-                C_AD = self.find_spectrum(fiduDICT, keys[i, j, 0] + keys[i, j, 3])
-                C_BC = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 2])
-                N_AC = self.find_spectrum(
-                    noiseDICT, keys[i, j, 0] + keys[i, j, 2]
-                )  # Find the noise spectra for each pair
-                N_BD = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 3])
-                N_AD = self.find_spectrum(noiseDICT, keys[i, j, 0] + keys[i, j, 3])
-                N_BC = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 2])
-                if self.fsky is not None:  # If self.fsky is defined, use the fsky value
-                    res[i, j] = (
-                        (C_AC + N_AC) * (C_BD + N_BD) + (C_AD + N_AD) * (C_BC + N_BC)
-                    ) / self.fsky
-                else:  # Otherwise, use the fsky values from the input spectra
-                    AC = keys[i, j, 0] + keys[i, j, 2]
-                    BD = keys[i, j, 1] + keys[i, j, 3]
-                    AD = keys[i, j, 0] + keys[i, j, 3]
-                    BC = keys[i, j, 1] + keys[i, j, 2]
-                    AB = keys[i, j, 0] + keys[i, j, 1]
-                    CD = keys[i, j, 2] + keys[i, j, 3]
-                    res[i, j] = (
-                        np.sqrt(self.fskies[AC] * self.fskies[BD])
-                        * (C_AC + N_AC)
-                        * (C_BD + N_BD)
-                        + np.sqrt(self.fskies[AD] * self.fskies[BC])
-                        * (C_AD + N_AD)
-                        * (C_BC + N_BC)
-                    ) / (self.fskies[AB] * self.fskies[CD])
-                res[j, i] = res[i, j]
-        return res
+    #         noiseDICT (dict):
+    #             Dictionary with the noise spectra.
+    #     """
+    #     # The covariance matrix has to be symmetric.
+    #     # The number of parameters in the likelihood is self.n.
+    #     # The covariance matrix is a (self.n x self.n x self.lmax+1) ndarray.
+    #     # We will store the covariance matrix in a (n x n x self.lmax+1) ndarray,
+    #     # where n = int(self.n * (self.n + 1) / 2).
+    #     n = int(self.n * (self.n + 1) / 2)
+    #     res = np.zeros((n, n, self.lmax + 1))
+    #     for i in range(n):  # Loop over all combinations of pairs of spectra
+    #         for j in range(i, n):
+    #             C_AC = self.find_spectrum(
+    #                 fiduDICT, keys[i, j, 0] + keys[i, j, 2]
+    #             )  # Find the fiducial spectra for each pair
+    #             C_BD = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 3])
+    #             C_AD = self.find_spectrum(fiduDICT, keys[i, j, 0] + keys[i, j, 3])
+    #             C_BC = self.find_spectrum(fiduDICT, keys[i, j, 1] + keys[i, j, 2])
+    #             N_AC = self.find_spectrum(
+    #                 noiseDICT, keys[i, j, 0] + keys[i, j, 2]
+    #             )  # Find the noise spectra for each pair
+    #             N_BD = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 3])
+    #             N_AD = self.find_spectrum(noiseDICT, keys[i, j, 0] + keys[i, j, 3])
+    #             N_BC = self.find_spectrum(noiseDICT, keys[i, j, 1] + keys[i, j, 2])
+    #             if self.fsky is not None:  # If self.fsky is defined, use the fsky value
+    #                 res[i, j] = (
+    #                     (C_AC + N_AC) * (C_BD + N_BD) + (C_AD + N_AD) * (C_BC + N_BC)
+    #                 ) / self.fsky
+    #             else:  # Otherwise, use the fsky values from the input spectra
+    #                 AC = keys[i, j, 0] + keys[i, j, 2]
+    #                 BD = keys[i, j, 1] + keys[i, j, 3]
+    #                 AD = keys[i, j, 0] + keys[i, j, 3]
+    #                 BC = keys[i, j, 1] + keys[i, j, 2]
+    #                 AB = keys[i, j, 0] + keys[i, j, 1]
+    #                 CD = keys[i, j, 2] + keys[i, j, 3]
+    #                 res[i, j] = (
+    #                     np.sqrt(self.fskies[AC] * self.fskies[BD])
+    #                     * (C_AC + N_AC)
+    #                     * (C_BD + N_BD)
+    #                     + np.sqrt(self.fskies[AD] * self.fskies[BC])
+    #                     * (C_AD + N_AD)
+    #                     * (C_BC + N_BC)
+    #                 ) / (self.fskies[AB] * self.fskies[CD])
+    #             res[j, i] = res[i, j]
+    #     return res
 
-    def inv_sigma(self, sigma):
-        """Invert the covariance matrix of the Gaussian case.
+    # def inv_sigma(self, sigma):
+    #     """Invert the covariance matrix of the Gaussian case.
 
-        Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
+    #     Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
 
-        Parameters:
-            ndarray (np.ndarray):
-                (self.n x self.n x self.lmax+1) ndarray with the previously computed sigma (not inverted).
-        """
-        # Initialize array to store the inverted covariance matrices
-        res = np.zeros(self.lmax + 1, dtype=object)
+    #     Parameters:
+    #         ndarray (np.ndarray):
+    #             (self.n x self.n x self.lmax+1) ndarray with the previously computed sigma (not inverted).
+    #     """
+    #     # Initialize array to store the inverted covariance matrices
+    #     res = np.zeros(self.lmax + 1, dtype=object)
 
-        # Loop over multipoles
-        for i in range(self.lmax + 1):
-            # Check if matrix is singular
-            COV = sigma[:, :, i]
-            if np.linalg.det(COV) == 0:
-                # Get indices of null diagonal elements
-                idx = np.where(np.diag(COV) == 0)[0]
-                # Remove corresponding rows and columns
-                COV = np.delete(COV, idx, axis=0)
-                COV = np.delete(COV, idx, axis=1)
-            # Invert matrix
-            res[i] = np.linalg.inv(COV)
-        return res[2:]
+    #     # Loop over multipoles
+    #     for i in range(self.lmax + 1):
+    #         # Check if matrix is singular
+    #         COV = sigma[:, :, i]
+    #         if np.linalg.det(COV) == 0:
+    #             # Get indices of null diagonal elements
+    #             idx = np.where(np.diag(COV) == 0)[0]
+    #             # Remove corresponding rows and columns
+    #             COV = np.delete(COV, idx, axis=0)
+    #             COV = np.delete(COV, idx, axis=1)
+    #         # Invert matrix
+    #         res[i] = np.linalg.inv(COV)
+    #     return res[2:]
 
     def get_reduced_data(self, mat):
         """Find the reduced data eliminating the singularity of the matrix.
@@ -463,14 +472,18 @@ class LiLit(Likelihood):
             cl_lens = camb_results.get("lens_potential")
             # Check if it exists
             if cl_lens is not None:
-                # Save it
-                res["pp"] = cl_lens[:, 0].copy()
+                # Save it with the normalization to obtain phiphi
+                array = cl_lens[:, 0].copy()
+                array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
+                res["pp"] = array
                 # Check if we want the cross terms
                 if "pt" in self.keys and "pe" in self.keys:
                     # Loop over the cross terms
                     for i, cross in enumerate(["pt", "pe"]):
                         # Save the result
-                        res[cross] = cl_lens[:, i + 1].copy()
+                        array = cl_lens[:, i + 1].copy()
+                        array[2:] /= np.sqrt(res["ell"] * (res["ell"] + 1))[2:]
+                        res[cross] = array
                         # Save the symmetric term
                         res[cross[::-1]] = res[cross]
         return res
@@ -488,11 +501,12 @@ class LiLit(Likelihood):
         assert (
             mapping is not None
         ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
-        ls = np.arange(txt.shape[0], dtype=np.int64)
-        res = {"ell": ls}
+        res = {}
         # Loop over the mapping and extract the corresponding column from the txt file
         # and store it in the dictionary under the corresponding keyword
         for key, i in mapping.items():
+            ls = np.arange(len(txt[:, i]), dtype=np.int64)
+            res["ell"] = ls
             if apply_ellfactor:
                 res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi
             else:
@@ -561,6 +575,7 @@ class LiLit(Likelihood):
         """
         # If the input noise file is a pickle file, load it.
         if self.nl_file is not None:
+            print("\nReading noise power spectra from file")
             if self.nl_file.endswith(".pkl"):
                 with open(self.nl_file, "rb") as pickle_file:
                     res = pickle.load(pickle_file)
@@ -681,9 +696,9 @@ class LiLit(Likelihood):
             print(f"Keys of noise CLs ---> {self.noiseCLS.keys()}")
 
             print("\nPrinting the first few values to check that it starts from 0...")
-            field = list(self.fiduCLS.keys())[0]
+            field = list(self.fiduCLS.keys())[1]
             print(f"Fiducial CLs for {field.upper()} ---> {self.fiduCLS[field][0:5]}")
-            field = list(self.noiseCLS.keys())[0]
+            field = list(self.noiseCLS.keys())[1]
             print(f"Noise CLs for {field.upper()} ---> {self.noiseCLS[field][0:5]}")
 
         # Compute the total covariance matrix
@@ -694,9 +709,18 @@ class LiLit(Likelihood):
 
         # Compute the inverse of the covariance matrix
         if self.like == "gaussian":
-            self.gauss_keys = self.get_Gauss_keys()
-            sigma2 = self.sigma(self.gauss_keys, self.fiduCLS, self.noiseCLS)
-            self.sigma2 = self.inv_sigma(sigma2)
+            self.gauss_keys = get_Gauss_keys(n=self.n, keys=self.keys, debug=self.debug)
+            sigma2 = sigma(
+                self.n,
+                self.lmin,
+                self.lmax,
+                self.gauss_keys,
+                self.fiduCLS,
+                self.noiseCLS,
+                self.fsky,
+                self.fskies,
+            )
+            self.sigma2 = inv_sigma(self.lmin, self.lmax, sigma2)
 
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
@@ -720,7 +744,14 @@ class LiLit(Likelihood):
             cov (np.ndarray):
                 A ndarray containing the covariance matrices, with some null ones.
         """
-        return cov[np.triu_indices(self.n)][cov[np.triu_indices(self.n)] != 0]
+
+        upper_triang = cov[np.triu_indices(self.n)]
+        # Get indices of null diagonal elements
+        idx = np.where(upper_triang == 0)[0]
+        # Remove corresponding rows and columns
+        upper_triang = np.delete(upper_triang, idx, axis=0)
+
+        return upper_triang, idx
 
     def chi_exact(self, i=0):
         """Computes proper chi-square term for the exact likelihood case.
@@ -732,15 +763,15 @@ class LiLit(Likelihood):
         # If the number of datasets is not equal to 1, then we have a
         # multi-dataset case, in which case we need to compute the
         # covariance matrix for each dataset.
+        ell = np.arange(0, self.lmax + 1, 1)
         if self.n != 1:
             # We extract the covariance matrix and data for the ith
             # dataset.
             coba = self.coba[:, :, i]
             data = self.data[:, :, i]
-            det = np.linalg.det(coba)
             # If the determinant is equal to 0, then we need to reduce
             # the dimensionality of the data and covariance matrix.
-            if det == 0:
+            if np.linalg.det(coba) == 0:
                 data = self.get_reduced_data(data)
                 coba = self.get_reduced_data(coba)
             # We compute the matrix M using the covariance matrix and
@@ -748,7 +779,9 @@ class LiLit(Likelihood):
             M = np.linalg.solve(coba, data)
             # We compute the chi-square term using the trace of M, the
             # log determinant of M, and the number of fields.
-            return np.trace(M) - np.linalg.slogdet(M)[1] - data.shape[0]
+            return (2 * ell[i] + 1) * (
+                np.trace(M) - np.linalg.slogdet(M)[1] - data.shape[0]
+            )
         # If the number of datasets is equal to 1, then we have a single
         # dataset case, in which case we do not need to loop over the
         # datasets.
@@ -758,7 +791,7 @@ class LiLit(Likelihood):
             M = self.data / self.coba
             # We compute the chi-square term using M, the log of M, and
             # a constant value.
-            return M - np.log(np.abs(M)) - 1
+            return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
 
     def chi_gaussian(self, i=0):
         """Computes proper chi-square term for the Gaussian likelihood case.
@@ -769,9 +802,11 @@ class LiLit(Likelihood):
         """
         # If we have more than one data vector
         if self.n != 1:
-            coba = self.data_vector(self.coba[:, :, i])
-            data = self.data_vector(self.data[:, :, i])
-            return (coba - data) @ self.sigma2[i] @ (coba - data)
+            coba, idx = self.data_vector(self.coba[:, :, i])
+            data, _ = self.data_vector(self.data[:, :, i])
+            COV = np.delete(self.sigma2[:, :, i], idx, axis=0)
+            COV = np.delete(COV, idx, axis=1)
+            return (coba - data) @ COV @ (coba - data)
         # If we have only one data vector
         else:
             coba = self.coba[0, 0, :]
@@ -807,9 +842,9 @@ class LiLit(Likelihood):
         if self.n != 1:
             logp_ℓ = np.zeros(ell.shape)
             for i in range(0, self.lmax + 1 - self.lmin):
-                logp_ℓ[i] = -0.5 * (2 * ell[i] + 1) * self.compute_chi_part(i)
+                logp_ℓ[i] = -0.5 * self.compute_chi_part(i)
         else:
-            logp_ℓ = -0.5 * (2 * ell + 1) * self.compute_chi_part()
+            logp_ℓ = -0.5 * self.compute_chi_part()
         # Sum the log likelihood over multipoles
         return np.sum(logp_ℓ)
 
@@ -822,16 +857,29 @@ class LiLit(Likelihood):
 
         # Get the Cls from Cobaya
         self.cobaCLs = self.provider.get_Cl(ell_factor=True)
+        ell = np.arange(0, self.lmax + 1, 1)
+        for key, value in self.cobaCLS.items():
+            if key == "pp":
+                value[2 : self.lmax + 1] = (
+                    value[2 : self.lmax + 1] / (ell * (ell + 1))[2:]
+                )
+            elif "p" in key:
+                value[2 : self.lmax + 1] = (
+                    value[2 : self.lmax + 1] / np.sqrt(ell * (ell + 1))[2:]
+                )
+            self.cobaCLS[key] = value[: self.lmax + 1]
 
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
 
-            field = list(self.cobaCLs.keys())[0]
+            field = list(self.cobaCLs.keys())[1]
             print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLs[field][0:5]}")
 
         # Fill the covariance matrix with the Cls from Cobaya
-        self.cobaCOV = self.cov_filling(self.cobaCLs)
+        self.cobaCOV = cov_filling(
+            self.fields, self.lmin, self.lmax, self.cobaCLS, self.lmins, self.lmaxs
+        )
 
         if self.debug:
             ell = np.arange(0, self.lmax + 1, 1)
@@ -852,7 +900,7 @@ class LiLit(Likelihood):
         logp = self.log_likelihood()
 
         if self.debug:
-            print(logp)
+            print(f"Log-posterior -->  {logp}")
             exit()
 
         return logp
