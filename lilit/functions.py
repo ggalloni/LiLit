@@ -13,7 +13,14 @@ __all__ = [
 
 
 def get_keys(fields: list, *, debug: bool = False):
-    """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc."""
+    """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc.
+
+    Parameters:
+        fields (list):
+            List of fields
+        debug (bool, optional):
+            If True, print out the requested keys
+    """
     # List of all the possible combinations of the requested fields
     n = len(fields)
     res = [fields[i] + fields[j] for i in range(n) for j in range(i, n)]
@@ -27,6 +34,14 @@ def get_Gauss_keys(n: int, keys: list, *, debug: bool = False):
     """Find the proper dictionary keys for the requested fields.
 
     Extracts the keys that has to be used as a function of the requested fields for the Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.
+
+    Parameters:
+        n (int):
+            Number of fields.
+        keys (list):
+            List of keys to use for the computation.
+        debug (bool, optional):
+            If set, print the keys that are used, by default False.
     """
     # Calculate the number of elements in the covariance matrix from the number of fields
     n = int(n * (n + 1) / 2)
@@ -63,8 +78,18 @@ def cov_filling(
     Computes the covariance matrix once given a dictionary. Returns the covariance matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax, or lmin, is specified, there will be null values in the matrices, making them singular. This will be handled in another method.
 
     Parameters:
+        fields (list):
+            The list of fields to consider.
+        absolute_lmin (int):
+            The minimum multipole to consider.
+        absolute_lmax (int):
+            The maximum multipole to consider.
         cov_dict (dict):
             The input dictionary of spectra.
+        lmins (dict):
+            The dictionary of minimum multipole to consider for each field pair.
+        lmaxs (dict):
+            The dictionary of maximum multipole to consider for each field pair.
     """
     # Initialize output array
     n = len(fields)
@@ -101,9 +126,12 @@ def find_spectrum(lmin, lmax, input_dict, key):
     Returns the corresponding power sepctrum for a given key. If the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
 
     Parameters:
+        lmin (int):
+            The minimum multipole to consider.
+        lmax (int):
+            The maximum multipole to consider.
         input_dict (dict):
             Dictionary where you want to search for keys.
-
         key (str):
             Key to search for.
     """
@@ -129,12 +157,16 @@ def sigma(n, lmin, lmax, keys, fiduDICT, noiseDICT, fsky=None, fskies=[]):
     In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
 
     Parameters:
+        n (int):
+            Number of fields.
+        lmin (int):
+            The minimum multipole to consider.
+        lmax (int):
+            The maximum multipole to consider.
         keys (dict):
             Keys for the covariance elements.
-
         fiduDICT (dict):
             Dictionary with the fiducial spectra.
-
         noiseDICT (dict):
             Dictionary with the noise spectra.
     """
@@ -182,7 +214,11 @@ def inv_sigma(lmin, lmax, sigma):
     Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
 
     Parameters:
-        ndarray (np.ndarray):
+        lmin (int):
+            The minimum multipole to consider.
+        lmax (int):
+            The maximum multipole to consider.
+        sigma (np.ndarray):
             (n x n x lmax+1) ndarray with the previously computed sigma (not inverted).
     """
     # Initialize array to store the inverted covariance matrices
@@ -209,6 +245,8 @@ def CAMBres2dict(camb_results, keys):
     Parameters:
         camb_results (CAMBdata):
             CAMB result product from the method get_cmb_power_spectra.
+        keys (dict):
+            Keys for the spectra we want to save.
     """
     # Get the number of multipoles
     ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
