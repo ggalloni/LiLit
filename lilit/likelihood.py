@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cobaya.likelihood import Likelihood
 
-from functions import (
+from .functions import (
     get_keys,
     get_Gauss_keys,
-    find_spectrum,
     cov_filling,
     sigma,
     inv_sigma,
+    CAMBres2dict,
 )
 
 
@@ -133,7 +133,6 @@ class LiLit(Likelihood):
         lmin=2,
         cl_file=None,
         nl_file=None,
-        mapping=None,
         experiment=None,
         nside=None,
         r=None,
@@ -167,8 +166,6 @@ class LiLit(Likelihood):
         self.like = like
         self.cl_file = cl_file
         self.nl_file = nl_file
-        if self.nl_file.endswith(".txt"):
-            self.mapping = mapping
         self.experiment = experiment
         if self.experiment is not None:
             # Check that the user has provided the nside if an experiment is used
@@ -287,70 +284,6 @@ class LiLit(Likelihood):
         # Delete the rows and columns from the matrix
         return np.delete(np.delete(mat, idx, axis=0), idx, axis=1)
 
-    def CAMBres2dict(self, camb_results):
-        """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
-
-        Parameters:
-            camb_results (CAMBdata):
-                CAMB result product from the method get_cmb_power_spectra.
-        """
-        # Get the number of multipoles
-        ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
-        # Mapping between the CAMB keys and the ones we want
-        mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
-        # Initialize the output dictionary
-        res = {"ell": ls}
-        # Loop over the keys we want
-        for key, i in mapping.items():
-            # Save the results
-            res[key] = camb_results["total"][:, i]
-        # Check if we want the lensing potential
-        if "pp" in self.keys:
-            # Get the lensing potential
-            cl_lens = camb_results.get("lens_potential")
-            # Check if it exists
-            if cl_lens is not None:
-                # Save it with the normalization to obtain phiphi
-                array = cl_lens[:, 0].copy()
-                array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
-                res["pp"] = array
-                # Check if we want the cross terms
-                if "pt" in self.keys and "pe" in self.keys:
-                    # Loop over the cross terms
-                    for i, cross in enumerate(["pt", "pe"]):
-                        # Save the result
-                        array = cl_lens[:, i + 1].copy()
-                        array[2:] /= np.sqrt(res["ell"] * (res["ell"] + 1))[2:]
-                        res[cross] = array
-                        # Save the symmetric term
-                        res[cross[::-1]] = res[cross]
-        return res
-
-    def txt2dict(self, txt, mapping=None, apply_ellfactor=None):
-        """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
-
-        Parameters:
-            txt (str):
-                Path to txt file containing the spectra as columns.
-            mapping (dict):
-                Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
-        """
-        # Define the ell values from the length of the txt file
-        assert (
-            mapping is not None
-        ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
-        res = {}
-        # Loop over the mapping and extract the corresponding column from the txt file
-        # and store it in the dictionary under the corresponding keyword
-        for key, i in mapping.items():
-            ls = np.arange(len(txt[:, i]), dtype=np.int64)
-            res["ell"] = ls
-            if apply_ellfactor:
-                res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi  # TODO check this
-            else:
-                res[key] = txt[:, i]
-        return res
-
     def add_sources_params(self, pars):
         from camb.model import NonLinear_both
         from camb.sources import SplinedSourceWindow
@@ -445,16 +378,13 @@ class LiLit(Likelihood):
         """
         # If a custom file is provided, use that
         if self.cl_file is not None:
-            # If the file is a pickle file, load it
-            if self.cl_file.endswith(".pkl"):
-                with open(self.cl_file, "rb") as pickle_file:
-                    res = pickle.load(pickle_file)
-            # Otherwise, load it as text file
-            else:
-                txt = np.loadtxt(self.cl_file)
-                mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
-                res = self.txt2dict(txt, mapping)
-            return res
+            if not self.cl_file.endswith(".pkl"):
+                print(
+                    "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+                )
+                raise TypeError
+            with open(self.cl_file, "rb") as pickle_file:
+                return pickle.load(pickle_file)
 
         try:
             import camb
@@ -500,7 +430,7 @@ class LiLit(Likelihood):
             lmax=self.lmax,
             raw_cl=False,
         )
-        res_dict = self.CAMBres2dict(res)
+        res_dict = CAMBres2dict(res, self.keys)
 
         if self.has_sources:
             self.store_sources_results(results, res_dict)
@@ -512,17 +442,14 @@ class LiLit(Likelihood):
 
         If the user has not provided a noise file, this function will produce the noise power spectra for a given experiment with inverse noise weighting of white noise in each channel (TT, EE, BB). Note that you may want to have a look at the procedure since it is merely a place-holder. Indeed, you should provide a more realistic file from which to read the noise spectra, given that inverse noise weighting severely underestimates the amount of noise. If instead you provide the proper custom file, this method stores that.
         """
-        # If the input noise file is a pickle file, load it.
         if self.nl_file is not None:
-            if self.nl_file.endswith(".pkl"):
-                with open(self.nl_file, "rb") as pickle_file:
-                    res = pickle.load(pickle_file)
-            # If not, load the file as a text file
-            else:
-                _txt = np.loadtxt(self.nl_file)
-                # Convert the text file to a dictionary
-                res = self.txt2dict(_txt, self.mapping, apply_ellfactor=True)
-            return res
+            if not self.nl_file.endswith(".pkl"):
+                print(
+                    "The file provided for the noise is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+                )
+                raise TypeError
+            with open(self.nl_file, "rb") as pickle_file:
+                return pickle.load(pickle_file)
 
         print(
             "***WARNING***: the inverse noise weighting performed here severely underestimates \
@@ -563,12 +490,8 @@ class LiLit(Likelihood):
         # Convert the depth to a pixel value
         depth_p /= hp.nside2resol(self.nside, arcmin=True)
         depth_i /= hp.nside2resol(self.nside, arcmin=True)
-        depth_p = depth_p * np.sqrt(
-            hp.pixelfunc.nside2pixarea(self.nside, degrees=False),
-        )
-        depth_i = depth_i * np.sqrt(
-            hp.pixelfunc.nside2pixarea(self.nside, degrees=False),
-        )
+        depth_p *= np.sqrt(hp.nside2pixarea(self.nside, degrees=False))
+        depth_i *= np.sqrt(hp.nside2pixarea(self.nside, degrees=False))
 
         # Get the number of frequencies
         n_freq = len(freqs)
@@ -858,8 +781,8 @@ class LiLit(Likelihood):
         # If the number of datasets is not equal to 1, then we have a
         # multi-dataset case, in which case we need to compute the
         # covariance matrix for each dataset.
-        ell = np.arange(0, self.lmax + 1, 1)
         if self.n != 1:
+            ell = np.arange(0, self.lmax + 1, 1)
             # We extract the covariance matrix and data for the ith
             # dataset.
             coba = self.coba[:, :, i]
@@ -881,6 +804,7 @@ class LiLit(Likelihood):
         # dataset case, in which case we do not need to loop over the
         # datasets.
         else:
+            ell = np.arange(2, self.lmax + 1, 1)
             # We compute the matrix M using the covariance matrix and
             # the data.
             M = self.data / self.coba
@@ -993,6 +917,18 @@ class LiLit(Likelihood):
             self.all_fields, self.lmin, self.lmax, self.cobaCLS, self.lmins, self.lmaxs
         )
 
+        if self.debug:
+            ell = np.arange(0, self.lmax + 1, 1)
+            obs1 = 0
+            obs2 = 0
+            plt.plot(ell, self.fiduCOV[obs1, obs2, :], label="Fiducial CLs")
+            plt.plot(ell, self.cobaCOV[obs1, obs2, :], label="Cobaya CLs", ls="--")
+            plt.plot(ell, self.noiseCOV[obs1, obs2, :], label="Noise CLs")
+            plt.loglog()
+            plt.xlim(2, None)
+            plt.legend()
+            plt.show()
+
         # Add the noise covariance to the covariance matrix filled with the Cls from Cobaya
         self.coba = (
             self.cobaCOV[:, :, self.lmin : self.lmax + 1]
@@ -1026,43 +962,6 @@ class LiLit(Likelihood):
             plt.loglog()
             plt.xlim(2, self.lmax)
             plt.show(block=True)
-
-        # if self.debug:
-        #     ell = np.arange(0, self.lmax + 1, 1)
-        #     print(logp)
-        #     import matplotlib.ticker as tck
-
-        #     fig, ax = plt.subplots()
-        #     ax.tick_params(direction="in", which="both", labelsize=13, width=1.0)
-        #     ax.yaxis.set_ticks_position("both")
-        #     ax.xaxis.set_ticks_position("both")
-        #     ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
-        #     ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
-        #     bin = 0
-
-        #     # plt.plot(ell, self.noiseCOV[bin, bin, :], label="noisegg")
-        #     plt.plot(ell, self.fiduCOV[bin, bin, :] ** 2, label="fidugg")
-        #     plt.plot(ell, self.cobaCOV[bin, bin, :] ** 2, label="cobagg", ls="--")
-
-        #     plt.plot(
-        #         ell[2:],
-        #         (2 * self.data[bin, bin, :] ** 2 / (2 * ell[2:] + 1) / 0.8),
-        #         # / np.sqrt(ell[2:] + 1)
-        #         # / np.sqrt(ell[2:])
-        #         # / 2 * np.pi,
-        #         label="sigma computation",
-        #     )
-
-        #     plt.plot(
-        #         ell[2:],
-        #         self.sigma2[0, 0, :] ** -1,
-        #         label="sigma",
-        #     )
-
-        #     plt.legend()
-        #     plt.loglog()
-        #     plt.xlim(2, self.lmax)
-        #     plt.show(block=True)
 
         if self.debug:
             print(f"Log-posterior -->  {logp}")
