@@ -311,7 +311,9 @@ class LiLit(Likelihood):
             # Check if it exists
             if cl_lens is not None:
                 # Save it with the normalization to obtain phiphi
-                res["pp"] = cl_lens[:, 0].copy()  # /(res['ell']*(res['ell']+1))
+                array = cl_lens[:, 0].copy()
+                array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
+                res["pp"] = array
                 # Check if we want the cross terms
                 if "pt" in self.keys and "pe" in self.keys:
                     # Loop over the cross terms
@@ -344,7 +346,6 @@ class LiLit(Likelihood):
             ls = np.arange(len(txt[:, i]), dtype=np.int64)
             res["ell"] = ls
             if apply_ellfactor:
-                res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi  # TODO check this
                 res[key] = txt[:, i] * ls * (ls + 1) / 2 / np.pi  # TODO check this
             else:
                 res[key] = txt[:, i]
@@ -483,32 +484,8 @@ class LiLit(Likelihood):
         pars.DoLensing = True
         # _pars.Accuracy.AccuracyBoost = 2 # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
 
-        if "1" in self.fields:
-            pars.SourceTerms.counts_redshift = False
-            pars.SourceTerms.counts_lensing = False
-            pars.SourceTerms.limber_windows = True
-            pars.SourceTerms.limber_phi_lmin = 100
-            pars.SourceTerms.counts_velocity = False
-            pars.SourceTerms.counts_radial = False
-            pars.SourceTerms.counts_timedelay = False
-            pars.SourceTerms.counts_ISW = True
-            pars.SourceTerms.counts_potential = False
-            pars.SourceTerms.counts_evolve = True
-            pars.SourceTerms.line_phot_dipole = False
-            pars.SourceTerms.line_phot_quadrupole = False
-            pars.SourceTerms.line_basic = True
-            pars.SourceTerms.line_distortions = False
-            pars.SourceTerms.line_extra = False
-            pars.SourceTerms.line_reionization = False
-            pars.SourceTerms.use_21cm_mK = False
-            pars.Want_CMB = True
-            pars.NonLinear = camb.model.NonLinear_both
-
-            from camb.sources import SplinedSourceWindow
-
-            self.compute_dndz()
-
-            from camb.sources import SplinedSourceWindow
+        if self.has_sources:
+            self.add_sources_params(pars)
 
         start = time.time()
         results = camb.get_results(pars)
@@ -525,21 +502,8 @@ class LiLit(Likelihood):
         )
         res_dict = self.CAMBres2dict(res)
 
-        if "1" in fields:
-            source_res = results.get_source_cls_dict(raw_cl=False, lmax=lmax)
-            for key, value in source_res.items():
-                key = key.replace("W", "").replace("x", "")
-                if "P" in key:
-                    if "PP" in key:
-                        res_dict[key] = value / (
-                            (res_dict["ell"] * (res_dict["ell"] + 1))
-                        )
-                    else:
-                        res_dict[key] = value / (
-                            np.sqrt(res_dict["ell"] * (res_dict["ell"] + 1))
-                        )
-                else:
-                    res_dict[key] = value
+        if self.has_sources:
+            self.store_sources_results(results, res_dict)
 
         return res_dict
 
@@ -788,19 +752,6 @@ class LiLit(Likelihood):
         def dndz(z, zm, alpha):
             return (z**2) * np.exp(-((z / zm) ** (alpha)))
 
-        bi = [
-            1.08509147,
-            1.14382284,
-            1.2047005,
-            1.26740743,
-            1.3317134,
-            1.3974141,
-            1.46429394,
-            1.53212972,
-            1.60078307,
-            1.67017681,
-        ]
-
         z_bin_p = np.arange(0.2, 1.3, 0.1)
 
         dndz_tot = dndz(self.zz, z0, alpha)
@@ -831,8 +782,6 @@ class LiLit(Likelihood):
             )
             for i in range(len(z_bin_p) - 1)
         ]
-
-        self.bz_step = [np.ones(len(self.zz)) * bi(i) for i in range(len(z_bin_p) - 1)]
 
         return
 
@@ -1077,6 +1026,43 @@ class LiLit(Likelihood):
             plt.loglog()
             plt.xlim(2, self.lmax)
             plt.show(block=True)
+
+        # if self.debug:
+        #     ell = np.arange(0, self.lmax + 1, 1)
+        #     print(logp)
+        #     import matplotlib.ticker as tck
+
+        #     fig, ax = plt.subplots()
+        #     ax.tick_params(direction="in", which="both", labelsize=13, width=1.0)
+        #     ax.yaxis.set_ticks_position("both")
+        #     ax.xaxis.set_ticks_position("both")
+        #     ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
+        #     ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
+        #     bin = 0
+
+        #     # plt.plot(ell, self.noiseCOV[bin, bin, :], label="noisegg")
+        #     plt.plot(ell, self.fiduCOV[bin, bin, :] ** 2, label="fidugg")
+        #     plt.plot(ell, self.cobaCOV[bin, bin, :] ** 2, label="cobagg", ls="--")
+
+        #     plt.plot(
+        #         ell[2:],
+        #         (2 * self.data[bin, bin, :] ** 2 / (2 * ell[2:] + 1) / 0.8),
+        #         # / np.sqrt(ell[2:] + 1)
+        #         # / np.sqrt(ell[2:])
+        #         # / 2 * np.pi,
+        #         label="sigma computation",
+        #     )
+
+        #     plt.plot(
+        #         ell[2:],
+        #         self.sigma2[0, 0, :] ** -1,
+        #         label="sigma",
+        #     )
+
+        #     plt.legend()
+        #     plt.loglog()
+        #     plt.xlim(2, self.lmax)
+        #     plt.show(block=True)
 
         if self.debug:
             print(f"Log-posterior -->  {logp}")
