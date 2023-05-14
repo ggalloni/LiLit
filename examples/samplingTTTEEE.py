@@ -3,14 +3,8 @@ import time
 from mpi4py import MPI
 from cobaya.run import run
 from cobaya.log import LoggedError
-import lilit
 from lilit import LiLit
-
-from lilit import functions as func
-
-print(func.get_keys(["t", "e"]))
-
-print(lilit.__version__)
+from lilit import CAMBres2dict
 
 debug = True
 name = "TTTEEE"
@@ -32,17 +26,17 @@ exactTTTEEE = LiLit(
     debug=debug,
 )
 
-# gaussTTTEEE = LiLit(
-#     name=name,
-#     fields=["t", "e"],
-#     like="gaussian",
-#     experiment="PTEPLiteBIRD",
-#     nside=256,
-#     lmin=lmin,
-#     lmax=lmax,
-#     fsky=fsky,
-#     debug=debug,
-# )
+gaussTTTEEE = LiLit(
+    name=name,
+    fields=["t", "e"],
+    like="gaussian",
+    experiment="PTEPLiteBIRD",
+    nside=256,
+    lmin=lmin,
+    lmax=lmax,
+    fsky=fsky,
+    debug=debug,
+)
 
 info = {
     "likelihood": {name: exactTTTEEE},
@@ -59,45 +53,45 @@ info = {
             "latex": "\\log(10^{10} A_\\mathrm{s})",
             "prior": {"max": 3.91, "min": 1.61},
             "proposal": 0.001,
-            # "ref": {"dist": "norm", "loc": 3.04478383213, "scale": 0.0001},
-            "ref": 3.04478383213,
+            "ref": {"dist": "norm", "loc": 3.04478383213, "scale": 0.0001},
+            # "ref": 3.04478383213,
         },
         "mnu": 0.06,
         "ns": {
             "latex": "n_\\mathrm{s}",
             "prior": {"max": 1.2, "min": 0.8},
             "proposal": 0.002,
-            # "ref": {"dist": "norm", "loc": 0.9660499, "scale": 0.0004},
-            "ref": 0.9660499,
+            "ref": {"dist": "norm", "loc": 0.9660499, "scale": 0.0004},
+            # "ref": 0.9660499,
         },
         "ombh2": {
             "latex": "\\Omega_\\mathrm{b} h^2",
             "prior": {"max": 0.1, "min": 0.005},
             "proposal": 0.0001,
-            # "ref": {"dist": "norm", "loc": 0.0223828, "scale": 0.00001},
-            "ref": 0.0223828,
+            "ref": {"dist": "norm", "loc": 0.0223828, "scale": 0.00001},
+            # "ref": 0.0223828,
         },
         "omch2": {
             "latex": "\\Omega_\\mathrm{c} h^2",
             "prior": {"max": 0.99, "min": 0.001},
             "proposal": 0.0005,
-            # "ref": {"dist": "norm", "loc": 0.1201075, "scale": 0.0001},
-            "ref": 0.1201075,
+            "ref": {"dist": "norm", "loc": 0.1201075, "scale": 0.0001},
+            # "ref": 0.1201075,
         },
         "tau": {
             "latex": "\\tau_\\mathrm{reio}",
             "prior": {"max": 0.8, "min": 0.01},
             "proposal": 0.003,
-            # "ref": {"dist": "norm", "loc": 0.05430842, "scale": 0.0006},
-            "ref": 0.05430842,
+            "ref": {"dist": "norm", "loc": 0.05430842, "scale": 0.0006},
+            # "ref": 0.05430842,
         },
         "theta_MC_100": {
             "drop": True,
             "latex": "100\\theta_\\mathrm{MC}",
             "prior": {"max": 10, "min": 0.5},
             "proposal": 0.0002,
-            # "ref": {"dist": "norm", "loc": 1.04109, "scale": 0.00004},
-            "ref": 1.041456798,
+            "ref": {"dist": "norm", "loc": 1.04109, "scale": 0.00004},
+            # "ref": 1.041456798,
             "renames": "theta",
         },
     },
