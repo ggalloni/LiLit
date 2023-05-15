@@ -33,10 +33,10 @@ class LiLit(Likelihood):
             Type of likelihood to use (default: "exact"). Currently supports "exact" and "gaussian".
         lmin (int or list):
             Minimum multipole to consider (default: 2).
-        cl_file (str, optional):
-            Path to Cl file (default: None).
-        nl_file (str, optional):
-            Path to noise file (default: None).
+        cl_file (str, dict, optional):
+            Path to Cl file or dictionary of fiducial spectra (default: None).
+        nl_file (str, dict, optional):
+            Path to noise file or dictionary of noise spectra (default: None).
         experiment (str, optional):
             Name of experiment (default: None).
         nside (int, optional):
@@ -80,8 +80,8 @@ class LiLit(Likelihood):
             Dictionary of lmin values.
         like (str):
             Type of likelihood to use.
-        cl_file (str):
-            Path to Cl file.
+        cl_file (str, dict):
+            Path to Cl file or dictionary of fiducial spectra.
         fiduCLS (dict):
             Dictionary of fiducial Cls.
         noiseCLS (dict):
@@ -98,8 +98,8 @@ class LiLit(Likelihood):
             Cobaya covariance matrix obtained from the corresponding dictionary.
         coba (np.ndarray):
             Cobaya vector obtained by summing cobaCOV + noiseCOV.
-        nl_file (str):
-            Path to noise file.
+        nl_file (str, dict):
+            Path to noise file or dictionary of the noise spectra.
         experiment (str):
             Name of experiment.
         nside (int):
@@ -255,7 +255,9 @@ class LiLit(Likelihood):
         """
 
         if self.cl_file is not None:
-            if not self.cl_file.endswith(".pkl"):
+            if isinstance(self.cl_file, dict):
+                return self.cl_file
+            elif not self.cl_file.endswith(".pkl"):
                 print(
                     "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
                 )
@@ -303,7 +305,9 @@ class LiLit(Likelihood):
         If the user has not provided a noise file, this function will produce the noise power spectra for a given experiment with inverse noise weighting of white noise in each channel (TT, EE, BB). Note that you may want to have a look at the procedure since it is merely a place-holder. Indeed, you should provide a more realistic file from which to read the noise spectra, given that inverse noise weighting severely underestimates the amount of noise. If instead you provide the proper custom file, this method stores that.
         """
         if self.nl_file is not None:
-            if not self.nl_file.endswith(".pkl"):
+            if isinstance(self.nl_file, dict):
+                return self.nl_file
+            elif not self.nl_file.endswith(".pkl"):
                 print(
                     "The file provided for the noise is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
                 )
