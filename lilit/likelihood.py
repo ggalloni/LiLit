@@ -1,5 +1,5 @@
-import pickle
 import os
+import pickle
 import time
 
 import matplotlib.pyplot as plt
@@ -7,12 +7,12 @@ import numpy as np
 from cobaya.likelihood import Likelihood
 
 from .functions import (
-    get_keys,
-    get_Gauss_keys,
-    cov_filling,
-    sigma,
-    inv_sigma,
     CAMBres2dict,
+    cov_filling,
+    get_Gauss_keys,
+    get_keys,
+    inv_sigma,
+    sigma,
 )
 
 
@@ -318,9 +318,9 @@ class LiLit(Likelihood):
         )
 
         try:
+            import healpy as hp
             import yaml
             from yaml.loader import SafeLoader
-            import healpy as hp
         except ImportError:
             print("YAML or Healpy seems to be not installed. Check the requirements.")
 
