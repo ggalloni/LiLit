@@ -56,6 +56,7 @@ def get_Gauss_keys(n: int, keys: list, *, debug: bool = False):
 
 def cov_filling(
     fields: list,
+    excluded_probes: list,
     absolute_lmin: int,
     absolute_lmax: int,
     cov_dict: dict,
@@ -69,6 +70,8 @@ def cov_filling(
     Parameters:
         fields (list):
             The list of fields to consider.
+        excluded_probes (list):
+            The list of probes to exclude.
         absolute_lmin (int):
             The minimum multipole to consider.
         absolute_lmax (int):
@@ -94,13 +97,16 @@ def cov_filling(
 
             cov = cov_dict.get(key, np.zeros(lmax + 1))
 
+            if excluded_probes is not None and key in excluded_probes:
+                cov = np.zeros(lmax + 1)
+
             res[i, j, lmin : lmax + 1] = cov[lmin : lmax + 1]
             res[j, i] = res[i, j]
 
     return res
 
 
-def find_spectrum(lmin, lmax, input_dict, key):
+def find_spectrum(lmin: int, lmax: int, input_dict: dict, key: str):
     """Find a spectrum in a given dictionary.
 
     Returns the corresponding power sepctrum for a given key. If the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
@@ -128,7 +134,16 @@ def find_spectrum(lmin, lmax, input_dict, key):
     return res
 
 
-def sigma(n, lmin, lmax, keys, fiduDICT, noiseDICT, fsky=None, fskies=[]):
+def sigma(
+    n: int,
+    lmin: int,
+    lmax: int,
+    gauss_keys: dict,
+    fiduDICT: dict,
+    noiseDICT: dict,
+    fsky=None,
+    fskies: dict = {},
+):
     """Define the covariance matrix for the Gaussian case.
 
     In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
@@ -146,6 +161,10 @@ def sigma(n, lmin, lmax, keys, fiduDICT, noiseDICT, fsky=None, fskies=[]):
             Dictionary with the fiducial spectra.
         noiseDICT (dict):
             Dictionary with the noise spectra.
+        fsky (float, optional):
+            The fraction of sky to consider. If not specified, it means that the fraction of sky is different for each field pair.
+        fskies (dict, optional):
+            The dictionary of fraction of sky to consider for each field pair.
     """
     # The covariance matrix has to be symmetric.
     # The number of parameters in the likelihood is n.
@@ -156,26 +175,42 @@ def sigma(n, lmin, lmax, keys, fiduDICT, noiseDICT, fsky=None, fskies=[]):
     res = np.zeros((n, n, lmax + 1))
     for i in range(n):  # Loop over all combinations of pairs of spectra
         for j in range(i, n):
-            C_AC = find_spectrum(lmin, lmax, fiduDICT, keys[i, j, 0] + keys[i, j, 2])
-            C_BD = find_spectrum(lmin, lmax, fiduDICT, keys[i, j, 1] + keys[i, j, 3])
-            C_AD = find_spectrum(lmin, lmax, fiduDICT, keys[i, j, 0] + keys[i, j, 3])
-            C_BC = find_spectrum(lmin, lmax, fiduDICT, keys[i, j, 1] + keys[i, j, 2])
-            N_AC = find_spectrum(lmin, lmax, noiseDICT, keys[i, j, 0] + keys[i, j, 2])
-            N_BD = find_spectrum(lmin, lmax, noiseDICT, keys[i, j, 1] + keys[i, j, 3])
-            N_AD = find_spectrum(lmin, lmax, noiseDICT, keys[i, j, 0] + keys[i, j, 3])
-            N_BC = find_spectrum(lmin, lmax, noiseDICT, keys[i, j, 1] + keys[i, j, 2])
+            C_AC = find_spectrum(
+                lmin, lmax, fiduDICT, gauss_keys[i, j, 0] + gauss_keys[i, j, 2]
+            )
+            C_BD = find_spectrum(
+                lmin, lmax, fiduDICT, gauss_keys[i, j, 1] + gauss_keys[i, j, 3]
+            )
+            C_AD = find_spectrum(
+                lmin, lmax, fiduDICT, gauss_keys[i, j, 0] + gauss_keys[i, j, 3]
+            )
+            C_BC = find_spectrum(
+                lmin, lmax, fiduDICT, gauss_keys[i, j, 1] + gauss_keys[i, j, 2]
+            )
+            N_AC = find_spectrum(
+                lmin, lmax, noiseDICT, gauss_keys[i, j, 0] + gauss_keys[i, j, 2]
+            )
+            N_BD = find_spectrum(
+                lmin, lmax, noiseDICT, gauss_keys[i, j, 1] + gauss_keys[i, j, 3]
+            )
+            N_AD = find_spectrum(
+                lmin, lmax, noiseDICT, gauss_keys[i, j, 0] + gauss_keys[i, j, 3]
+            )
+            N_BC = find_spectrum(
+                lmin, lmax, noiseDICT, gauss_keys[i, j, 1] + gauss_keys[i, j, 2]
+            )
             ell = np.arange(len(C_AC))
             if fsky is not None:
                 res[i, j] = (
                     (C_AC + N_AC) * (C_BD + N_BD) + (C_AD + N_AD) * (C_BC + N_BC)
                 ) / fsky
             else:
-                AC = keys[i, j, 0] + keys[i, j, 2]
-                BD = keys[i, j, 1] + keys[i, j, 3]
-                AD = keys[i, j, 0] + keys[i, j, 3]
-                BC = keys[i, j, 1] + keys[i, j, 2]
-                AB = keys[i, j, 0] + keys[i, j, 1]
-                CD = keys[i, j, 2] + keys[i, j, 3]
+                AC = gauss_keys[i, j, 0] + gauss_keys[i, j, 2]
+                BD = gauss_keys[i, j, 1] + gauss_keys[i, j, 3]
+                AD = gauss_keys[i, j, 0] + gauss_keys[i, j, 3]
+                BC = gauss_keys[i, j, 1] + gauss_keys[i, j, 2]
+                AB = gauss_keys[i, j, 0] + gauss_keys[i, j, 1]
+                CD = gauss_keys[i, j, 2] + gauss_keys[i, j, 3]
                 res[i, j] = (
                     np.sqrt(fskies[AC] * fskies[BD]) * (C_AC + N_AC) * (C_BD + N_BD)
                     + np.sqrt(fskies[AD] * fskies[BC]) * (C_AD + N_AD) * (C_BC + N_BC)
@@ -185,7 +220,59 @@ def sigma(n, lmin, lmax, keys, fiduDICT, noiseDICT, fsky=None, fskies=[]):
     return res
 
 
-def inv_sigma(lmin, lmax, sigma):
+def get_masked_sigma(
+    n: int,
+    absolute_lmin: int,
+    absolute_lmax: int,
+    gauss_keys: dict,
+    sigma: np.ndarray,
+    excluded_probes: list,
+    lmins: dict = {},
+    lmaxs: dict = {},
+):
+    """Mask the covariance matrix for the Gaussian case in certain ranges of multipoles.
+
+    The covariance matrix is correctly built between lmin and lmax by the function "sigma". However, some observables might be missing in some multipole ranges, so we need to fill the matrix with zeros.
+
+    Parameters:
+        n (int):
+            Number of fields.
+        absolute_lmin (int):
+            The minimum multipole to consider.
+        absolute_lmax (int):
+            The maximum multipole to consider.
+        gauss_keys (dict):
+            Keys for the covariance elements.
+        sigma (ndarray):
+            The covariance matrix.
+        excluded_probes (list):
+            List of probes to exclude.
+        lmins (dict):
+            The dictionary of minimum multipole to consider for each field pair.
+        lmaxs (dict):
+            The dictionary of maximum multipole to consider for each field pair.
+    """
+    n = int(n * (n + 1) / 2)
+    mask = np.zeros(sigma.shape)
+
+    for i in range(n):
+        key = gauss_keys[i, i, 0] + gauss_keys[i, i, 1]
+
+        lmin = lmins.get(key, absolute_lmin)
+        lmax = lmaxs.get(key, absolute_lmax)
+        print(key, lmin, lmax)
+        for ell in range(absolute_lmax + 1):
+            if ell < lmin or ell > lmax:
+                mask[i, :, ell] = 1
+                mask[:, i, ell] = 1
+            if excluded_probes is not None and key in excluded_probes:
+                mask[i, :, ell] = 1
+                mask[:, i, ell] = 1
+
+    return np.ma.masked_array(sigma, mask)
+
+
+def inv_sigma(lmin: int, lmax: int, masked_sigma):
     """Invert the covariance matrix of the Gaussian case.
 
     Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
@@ -195,23 +282,22 @@ def inv_sigma(lmin, lmax, sigma):
             The minimum multipole to consider.
         lmax (int):
             The maximum multipole to consider.
-        sigma (np.ndarray):
-            (n x n x lmax+1) ndarray with the previously computed sigma (not inverted).
+        masked_sigma (np.ma.masked_array):
+            Previously computed and masked covariance matrix (not inverted).
     """
-    res = np.zeros(sigma.shape)
-
-    for ell in range(lmin, lmax + 1):
-        # Check if matrix is singular
-        COV = sigma[:, :, ell]
+    res = []
+    for ell in range(lmax + 1):
+        # Here we need to remove the masked elements to get the non null covariance matrix
+        new_dimension = np.count_nonzero(np.diag(masked_sigma.mask[:, :, ell]) == False)
+        COV = masked_sigma[:, :, ell].compressed().reshape(new_dimension, new_dimension)
+        # This check is not necessary in principle, but it is useful to avoid singular matrices
         if np.linalg.det(COV) == 0:
-            # Get indices of null diagonal elements
             idx = np.where(np.diag(COV) == 0)[0]
-            # Remove corresponding rows and columns
             COV = np.delete(COV, idx, axis=0)
             COV = np.delete(COV, idx, axis=1)
 
-        res[:, :, ell] = np.linalg.inv(COV)
-    return res[:, :, lmin:]
+        res.append(np.linalg.inv(COV))
+    return res[lmin:], masked_sigma.mask[:, :, 2:]
 
 
 def CAMBres2dict(camb_results, probes):
