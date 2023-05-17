@@ -17,6 +17,7 @@ fsky = [0.8, 0.5]
 exactTTTEEE = LiLit(
     name=name,
     fields=["t", "e"],
+    excluded_probes=["ee"],
     like="exact",
     experiment="PTEPLiteBIRD",
     nside=256,

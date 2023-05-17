@@ -1,5 +1,5 @@
-import pickle
 import os
+import pickle
 import time
 
 import matplotlib.pyplot as plt
@@ -7,12 +7,13 @@ import numpy as np
 from cobaya.likelihood import Likelihood
 
 from .functions import (
-    get_keys,
-    get_Gauss_keys,
-    cov_filling,
-    sigma,
-    inv_sigma,
     CAMBres2dict,
+    cov_filling,
+    get_Gauss_keys,
+    get_keys,
+    get_masked_sigma,
+    inv_sigma,
+    sigma,
 )
 
 
@@ -33,10 +34,10 @@ class LiLit(Likelihood):
             Type of likelihood to use (default: "exact"). Currently supports "exact" and "gaussian".
         lmin (int or list):
             Minimum multipole to consider (default: 2).
-        cl_file (str, optional):
-            Path to Cl file (default: None).
-        nl_file (str, optional):
-            Path to noise file (default: None).
+        cl_file (str, dict, optional):
+            Path to Cl file or dictionary of fiducial spectra (default: None).
+        nl_file (str, dict, optional):
+            Path to noise file or dictionary of noise spectra (default: None).
         experiment (str, optional):
             Name of experiment (default: None).
         nside (int, optional):
@@ -49,8 +50,8 @@ class LiLit(Likelihood):
             Pivot scale of the tensor primordial power spectrum (default: 0.01).
         fsky (float or list):
             Sky fraction (default: 1).
-        sep (str, optional):
-            Separator used in the data file (default: "").
+        excluded_probes (list, optional):
+            List of probes to exclude (default: None).
         debug (bool, optional):
             If True, produces more verbose output (default: None).
 
@@ -64,8 +65,8 @@ class LiLit(Likelihood):
             List of keywords for the dictionaries.
         gauss_keys (list):
             List of keywords for the Gaussian likelihood (4-points).
-        sigma2 (np.ndarray):
-            Array of covariances for the Gaussian likelihood case.
+        inverse_covariance (list):
+            List of covariances for the Gaussian likelihood case, one for each multipole.
         lmax (int or list):
             List of lmax values.
         lmaxes (dict):
@@ -80,8 +81,8 @@ class LiLit(Likelihood):
             Dictionary of lmin values.
         like (str):
             Type of likelihood to use.
-        cl_file (str):
-            Path to Cl file.
+        cl_file (str, dict):
+            Path to Cl file or dictionary of fiducial spectra.
         fiduCLS (dict):
             Dictionary of fiducial Cls.
         noiseCLS (dict):
@@ -98,8 +99,8 @@ class LiLit(Likelihood):
             Cobaya covariance matrix obtained from the corresponding dictionary.
         coba (np.ndarray):
             Cobaya vector obtained by summing cobaCOV + noiseCOV.
-        nl_file (str):
-            Path to noise file.
+        nl_file (str, dict):
+            Path to noise file or dictionary of the noise spectra.
         experiment (str):
             Name of experiment.
         nside (int):
@@ -110,8 +111,6 @@ class LiLit(Likelihood):
             Tensor spectral tilt.
         pivot_t (float):
             Pivot scale of the tensor primordial power spectrum.
-        sep (str):
-            Separator used in the data file.
         debug (bool):
             If True, produces more output.
     """
@@ -131,7 +130,7 @@ class LiLit(Likelihood):
         nt=None,
         pivot_t=0.01,
         fsky=1,
-        sep="",
+        excluded_probes=None,
         debug=None,
     ):
         # Check that the user has provided the name of the likelihood
@@ -149,7 +148,7 @@ class LiLit(Likelihood):
         self.n = len(fields)
         self.lmin = lmin
         self.like = like
-        self.sep = sep
+        self.excluded_probes = excluded_probes
         self.cl_file = cl_file
         self.nl_file = nl_file
         self.experiment = experiment
@@ -168,7 +167,7 @@ class LiLit(Likelihood):
             self.nt = nt
             self.pivot_t = pivot_t
 
-        self.set_lmin_lmax_fsky(lmin, lmax, fsky)
+        self.set_lmin_lmax_fsky(lmin=lmin, lmax=lmax, fsky=fsky)
 
         Likelihood.__init__(self, name=name)
 
@@ -196,7 +195,7 @@ class LiLit(Likelihood):
             ), "If you provide multiple lmin, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    key = self.fields[i] + self.sep + self.fields[j]
+                    key = self.fields[i] + self.fields[j]
                     self.lmins[key] = int(
                         np.ceil(np.sqrt(lmin[i] * lmin[j]))
                     )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
@@ -211,7 +210,7 @@ class LiLit(Likelihood):
             ), "If you provide multiple lmax, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    key = self.fields[i] + self.sep + self.fields[j]
+                    key = self.fields[i] + self.fields[j]
                     self.lmaxs[key] = int(
                         np.floor(np.sqrt(lmax[i] * lmax[j]))
                     )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
@@ -226,7 +225,7 @@ class LiLit(Likelihood):
             ), "If you provide multiple fsky, they must match the number of requested fields with the same order"
             for i in range(self.n):
                 for j in range(i, self.n):
-                    key = self.fields[i] + self.sep + self.fields[j]
+                    key = self.fields[i] + self.fields[j]
                     self.fskies[key] = np.sqrt(
                         fsky[i] * fsky[j]
                     )  # this approximation for the cross-correlation is not correct in the case of two very different masks (verified with simulations)
@@ -255,7 +254,9 @@ class LiLit(Likelihood):
         """
 
         if self.cl_file is not None:
-            if not self.cl_file.endswith(".pkl"):
+            if isinstance(self.cl_file, dict):
+                return self.cl_file
+            elif not self.cl_file.endswith(".pkl"):
                 print(
                     "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
                 )
@@ -303,7 +304,9 @@ class LiLit(Likelihood):
         If the user has not provided a noise file, this function will produce the noise power spectra for a given experiment with inverse noise weighting of white noise in each channel (TT, EE, BB). Note that you may want to have a look at the procedure since it is merely a place-holder. Indeed, you should provide a more realistic file from which to read the noise spectra, given that inverse noise weighting severely underestimates the amount of noise. If instead you provide the proper custom file, this method stores that.
         """
         if self.nl_file is not None:
-            if not self.nl_file.endswith(".pkl"):
+            if isinstance(self.nl_file, dict):
+                return self.nl_file
+            elif not self.nl_file.endswith(".pkl"):
                 print(
                     "The file provided for the noise is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
                 )
@@ -318,9 +321,9 @@ class LiLit(Likelihood):
         )
 
         try:
+            import healpy as hp
             import yaml
             from yaml.loader import SafeLoader
-            import healpy as hp
         except ImportError:
             print("YAML or Healpy seems to be not installed. Check the requirements.")
 
@@ -394,10 +397,22 @@ class LiLit(Likelihood):
         self.noiseCLS = self.prod_noise()
 
         self.fiduCOV = cov_filling(
-            self.fields, self.lmin, self.lmax, self.fiduCLS, self.lmins, self.lmaxs
+            fields=self.fields,
+            excluded_probes=self.excluded_probes,
+            absolute_lmin=self.lmin,
+            absolute_lmax=self.lmax,
+            cov_dict=self.fiduCLS,
+            lmins=self.lmins,
+            lmaxs=self.lmaxs,
         )
         self.noiseCOV = cov_filling(
-            self.fields, self.lmin, self.lmax, self.noiseCLS, self.lmins, self.lmaxs
+            fields=self.fields,
+            excluded_probes=self.excluded_probes,
+            absolute_lmin=self.lmin,
+            absolute_lmax=self.lmax,
+            cov_dict=self.noiseCLS,
+            lmins=self.lmins,
+            lmaxs=self.lmaxs,
         )
 
         if self.debug:
@@ -417,17 +432,32 @@ class LiLit(Likelihood):
 
         if self.like == "gaussian":
             self.gauss_keys = get_Gauss_keys(n=self.n, keys=self.keys, debug=self.debug)
+
             sigma2 = sigma(
-                self.n,
-                self.lmin,
-                self.lmax,
-                self.gauss_keys,
-                self.fiduCLS,
-                self.noiseCLS,
-                self.fsky,
-                self.fskies,
+                n=self.n,
+                lmin=self.lmin,
+                lmax=self.lmax,
+                gauss_keys=self.gauss_keys,
+                fiduDICT=self.fiduCLS,
+                noiseDICT=self.noiseCLS,
+                fsky=self.fsky,
+                fskies=self.fskies,
             )
-            self.sigma2 = inv_sigma(self.lmin, self.lmax, sigma2)
+
+            masked_sigma2 = get_masked_sigma(
+                n=self.n,
+                absolute_lmin=self.lmin,
+                absolute_lmax=self.lmax,
+                gauss_keys=self.gauss_keys,
+                sigma=sigma2,
+                excluded_probes=self.excluded_probes,
+                lmins=self.lmins,
+                lmaxs=self.lmaxs,
+            )
+
+            self.inverse_covariance, self.mask = inv_sigma(
+                lmin=self.lmin, lmax=self.lmax, masked_sigma=masked_sigma2
+            )
 
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
@@ -440,7 +470,7 @@ class LiLit(Likelihood):
             )
         return requitements
 
-    def data_vector(self, cov):
+    def data_vector(self, cov, mask):
         """Get data vector from the covariance matrix.
 
         Extracts the data vector necessary for the Gaussian case. Note that this will cut the null value since some may be null when the fields have different values for lmax.
@@ -450,13 +480,10 @@ class LiLit(Likelihood):
                 A ndarray containing the covariance matrices, with some null ones.
         """
 
-        upper_triang = cov[np.triu_indices(self.n)]
-        # Get indices of null diagonal elements
-        idx = np.where(upper_triang == 0)[0]
-        # Remove corresponding rows and columns
-        upper_triang = np.delete(upper_triang, idx, axis=0)
+        vector = cov[np.triu_indices(self.n)]
+        masked_vector = np.ma.masked_array(vector, mask)
 
-        return upper_triang, idx
+        return masked_vector.compressed()
 
     def chi_exact(self, i=0):
         """Computes proper chi-square term for the exact likelihood case.
@@ -491,15 +518,18 @@ class LiLit(Likelihood):
                 ell index if needed. Defaults to 0.
         """
         if self.n != 1:
-            coba, idx = self.data_vector(self.coba[:, :, i])
-            data, _ = self.data_vector(self.data[:, :, i])
-            COV = np.delete(self.sigma2[:, :, i], idx, axis=0)
-            COV = np.delete(COV, idx, axis=1)
+            coba = self.data_vector(
+                cov=self.coba[:, :, i], mask=np.diag(self.mask[:, :, i])
+            )
+            data = self.data_vector(
+                cov=self.data[:, :, i], mask=np.diag(self.mask[:, :, i])
+            )
+            COV = self.inverse_covariance[i]
             return (coba - data) @ COV @ (coba - data)
         else:
             coba = self.coba[0, 0, :]
             data = self.data[0, 0, :]
-            res = (coba - data) * self.sigma2 * (coba - data)
+            res = (coba - data) * self.inverse_covariance * (coba - data)
             return res
 
     def compute_chi_part(self, i=0):
@@ -561,7 +591,13 @@ class LiLit(Likelihood):
 
         # Fill the covariance matrix with the Cls from Cobaya
         self.cobaCOV = cov_filling(
-            self.fields, self.lmin, self.lmax, self.cobaCLS, self.lmins, self.lmaxs
+            self.fields,
+            self.excluded_probes,
+            self.lmin,
+            self.lmax,
+            self.cobaCLS,
+            self.lmins,
+            self.lmaxs,
         )
 
         if self.debug:
