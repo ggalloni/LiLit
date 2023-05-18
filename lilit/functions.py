@@ -344,6 +344,7 @@ def txt2dict(txt, mapping_probe2colnum=None, apply_ellfactor=None):
     assert (
         mapping_probe2colnum is not None
     ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
+    txt = np.loadtxt(txt)
     res = {}
     for probe, i in mapping_probe2colnum.items():
         ls = np.arange(len(txt[:, i]), dtype=np.int64)
