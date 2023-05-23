@@ -235,18 +235,6 @@ class LiLit(Likelihood):
             self.fsky = fsky
         return
 
-    def get_reduced_data(self, mat):
-        """Find the reduced data eliminating the singularity of the matrix.
-
-        Cuts the row and column corresponding to a zero diagonal value. Indeed, in case of different lmax, or lmin, for the fields, you will have singular marices.
-
-        Parameters:
-            ndarray (np.ndarray):
-                A ndarray containing the covariance matrices, with some singular ones.
-        """
-        idx = np.where(np.diag(mat) == 0)[0]
-        return np.delete(np.delete(mat, idx, axis=0), idx, axis=1)
-
     def prod_fidu(self):
         """Produce fiducial spectra or read the input ones.
 
@@ -461,29 +449,26 @@ class LiLit(Likelihood):
 
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
-        requitements = {}
-        requitements["Cl"] = {cl: self.lmax for cl in self.keys}
+        requirements = {}
+        requirements["Cl"] = {cl: self.lmax for cl in self.keys}
         if self.debug:
-            requitements["CAMBdata"] = None
+            requirements["CAMBdata"] = None
             print(
-                f"\nYou requested that Cobaya provides to the likelihood the following items: {requitements}",
+                f"\nYou requested that Cobaya provides to the likelihood the following items: {requirements}",
             )
-        return requitements
+        return requirements
 
-    def data_vector(self, cov, mask):
-        """Get data vector from the covariance matrix.
+    def get_reduced_data(self, mat):
+        """Find the reduced data eliminating the singularity of the matrix.
 
-        Extracts the data vector necessary for the Gaussian case. Note that this will cut the null value since some may be null when the fields have different values for lmax.
+        Cuts the row and column corresponding to a zero diagonal value. Indeed, in case of different lmax, or lmin, for the fields, you will have singular marices.
 
         Parameters:
-            cov (np.ndarray):
-                A ndarray containing the covariance matrices, with some null ones.
+            ndarray (np.ndarray):
+                A ndarray containing the covariance matrices, with some singular ones.
         """
-
-        vector = cov[np.triu_indices(self.n)]
-        masked_vector = np.ma.masked_array(vector, mask)
-
-        return masked_vector.compressed()
+        idx = np.where(np.diag(mat) == 0)[0]
+        return np.delete(np.delete(mat, idx, axis=0), idx, axis=1)
 
     def chi_exact(self, i=0):
         """Computes proper chi-square term for the exact likelihood case.
@@ -509,6 +494,21 @@ class LiLit(Likelihood):
             ell = np.arange(2, self.lmax + 1, 1)
             M = self.data / self.coba
             return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
+
+    def data_vector(self, cov, mask):
+        """Get data vector from the covariance matrix.
+
+        Extracts the data vector necessary for the Gaussian case. Note that this will cut the null value since some may be null when the fields have different values for lmax.
+
+        Parameters:
+            cov (np.ndarray):
+                A ndarray containing the covariance matrices, with some null ones.
+        """
+
+        vector = cov[np.triu_indices(self.n)]
+        masked_vector = np.ma.masked_array(vector, mask)
+
+        return masked_vector.compressed()
 
     def chi_gaussian(self, i=0):
         """Computes proper chi-square term for the Gaussian likelihood case.
