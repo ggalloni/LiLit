@@ -33,7 +33,7 @@ class LiLit(Likelihood):
             List of fields in the data file (default: None).
         lmax (int or list):
             Maximum multipole to consider (default: None).
-        like (str, optional):
+        like_approx (str, optional):
             Type of likelihood to use (default: "exact"). Currently supports "exact" and "gaussian".
         lmin (int or list):
             Minimum multipole to consider (default: 2).
@@ -82,7 +82,7 @@ class LiLit(Likelihood):
             Minimum multipole to consider.
         lmins (dict):
             Dictionary of lmin values.
-        like (str):
+        like_approx (str):
             Type of likelihood to use.
         cl_file (str, dict):
             Path to Cl file or dictionary of fiducial spectra.
@@ -150,7 +150,7 @@ class LiLit(Likelihood):
         self.fields = fields
         self.n = len(fields)
         self.lmin = lmin
-        self.like = like
+        self.like_approx = like
         self.excluded_probes = excluded_probes
         self.cl_file = cl_file
         self.nl_file = nl_file
@@ -170,9 +170,18 @@ class LiLit(Likelihood):
             self.nt = nt
             self.pivot_t = pivot_t
 
+        self.check_supported_approximations()
         self.set_lmin_lmax_fsky(lmin=lmin, lmax=lmax, fsky=fsky)
 
         Likelihood.__init__(self, name=name)
+
+    def check_supported_approximations(self):
+        self.supported = ["exact", "gaussian"]
+        assert (
+            self.like_approx in self.supported
+        ), f"The likelihood approximation you specified, {self.desiderata}, is not supported!"
+
+        return
 
     def set_lmin_lmax_fsky(self, lmin, lmax, fsky):
         """Take lmin, lmax and fsky parameters and set the corresponding attributes.
@@ -452,7 +461,7 @@ class LiLit(Likelihood):
             + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
         )
 
-        if self.like == "gaussian":
+        if self.like_approx == "gaussian":
             self.compute_covariance_Cl()
 
     def get_requirements(self):
@@ -529,9 +538,9 @@ class LiLit(Likelihood):
             i (int, optional):
                 ell index if needed. Defaults to 0.
         """
-        if self.like == "exact":
+        if self.like_approx == "exact":
             return self.chi_exact()
-        elif self.like == "gaussian":
+        elif self.like_approx == "gaussian":
             return self.chi_gaussian()
         else:
             print("You requested something different from 'exact or 'gaussian'!")
