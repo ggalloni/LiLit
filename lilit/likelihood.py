@@ -9,9 +9,12 @@ from cobaya.likelihood import Likelihood
 from .functions import (
     CAMBres2dict,
     cov_filling,
+    cov_filling_fidu,
     get_Gauss_keys,
     get_keys,
     get_masked_sigma,
+    get_reduced_covariances,
+    get_reduced_data_vectors,
     inv_sigma,
     sigma,
 )
@@ -379,6 +382,37 @@ class LiLit(Likelihood):
 
         return res
 
+    def compute_covariance_Cl(self):
+        "Compute the covariance matrix of the Cl."
+        self.gauss_keys = get_Gauss_keys(n=self.n, keys=self.keys, debug=self.debug)
+
+        sigma2 = sigma(
+            n=self.n,
+            lmin=self.lmin,
+            lmax=self.lmax,
+            gauss_keys=self.gauss_keys,
+            fiduDICT=self.fiduCLS,
+            noiseDICT=self.noiseCLS,
+            fsky=self.fsky,
+            fskies=self.fskies,
+        )
+
+        masked_sigma2 = get_masked_sigma(
+            n=self.n,
+            absolute_lmin=self.lmin,
+            absolute_lmax=self.lmax,
+            gauss_keys=self.gauss_keys,
+            sigma=sigma2,
+            excluded_probes=self.excluded_probes,
+            lmins=self.lmins,
+            lmaxs=self.lmaxs,
+        )
+
+        self.inverse_covariance, self.mask = inv_sigma(
+            lmin=self.lmin, lmax=self.lmax, masked_sigma=masked_sigma2
+        )
+        return
+
     def initialize(self):
         """Initializes the fiducial spectra and the noise power spectra."""
         self.fiduCLS = self.prod_fidu()
@@ -419,33 +453,7 @@ class LiLit(Likelihood):
         )
 
         if self.like == "gaussian":
-            self.gauss_keys = get_Gauss_keys(n=self.n, keys=self.keys, debug=self.debug)
-
-            sigma2 = sigma(
-                n=self.n,
-                lmin=self.lmin,
-                lmax=self.lmax,
-                gauss_keys=self.gauss_keys,
-                fiduDICT=self.fiduCLS,
-                noiseDICT=self.noiseCLS,
-                fsky=self.fsky,
-                fskies=self.fskies,
-            )
-
-            masked_sigma2 = get_masked_sigma(
-                n=self.n,
-                absolute_lmin=self.lmin,
-                absolute_lmax=self.lmax,
-                gauss_keys=self.gauss_keys,
-                sigma=sigma2,
-                excluded_probes=self.excluded_probes,
-                lmins=self.lmins,
-                lmaxs=self.lmaxs,
-            )
-
-            self.inverse_covariance, self.mask = inv_sigma(
-                lmin=self.lmin, lmax=self.lmax, masked_sigma=masked_sigma2
-            )
+            self.compute_covariance_Cl()
 
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
@@ -458,81 +466,63 @@ class LiLit(Likelihood):
             )
         return requirements
 
-    def get_reduced_data(self, mat):
-        """Find the reduced data eliminating the singularity of the matrix.
-
-        Cuts the row and column corresponding to a zero diagonal value. Indeed, in case of different lmax, or lmin, for the fields, you will have singular marices.
-
-        Parameters:
-            ndarray (np.ndarray):
-                A ndarray containing the covariance matrices, with some singular ones.
-        """
-        idx = np.where(np.diag(mat) == 0)[0]
-        return np.delete(np.delete(mat, idx, axis=0), idx, axis=1)
-
-    def chi_exact(self, i=0):
+    def chi_exact(self):
         """Computes proper chi-square term for the exact likelihood case.
 
         Parameters:
             i (int, optional):
                 ell index if needed. Defaults to 0.
         """
+        ell = np.arange(self.lmin, self.lmax + 1, 1)
         if self.n != 1:
-            ell = np.arange(0, self.lmax + 1, 1)
-            coba = self.coba[:, :, i]
-            data = self.data[:, :, i]
-            if (
-                np.linalg.det(coba) == 0
-            ):  # If the determinant is null, we need to reduce the covariance matrix
-                data = self.get_reduced_data(data)
-                coba = self.get_reduced_data(coba)
-            M = np.linalg.solve(coba, data)
-            return (2 * ell[i] + 1) * (
-                np.trace(M) - np.linalg.slogdet(M)[1] - data.shape[0]
+            reduced_coba, _ = get_reduced_covariances(
+                self.n, self.coba, self.lmin, self.lmax
             )
+            reduced_data, _ = get_reduced_covariances(
+                self.n, self.data, self.lmin, self.lmax
+            )
+            M = list(map(np.linalg.solve, reduced_coba, reduced_data))
+            return (2 * ell + 1) * [
+                np.trace(x) - np.linalg.slogdet(x)[1] - x.shape[0] for x in M
+            ]
         else:
-            ell = np.arange(2, self.lmax + 1, 1)
             M = self.data / self.coba
             return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
 
-    def data_vector(self, cov, mask):
-        """Get data vector from the covariance matrix.
-
-        Extracts the data vector necessary for the Gaussian case. Note that this will cut the null value since some may be null when the fields have different values for lmax.
-
-        Parameters:
-            cov (np.ndarray):
-                A ndarray containing the covariance matrices, with some null ones.
-        """
-
-        vector = cov[np.triu_indices(self.n)]
-        masked_vector = np.ma.masked_array(vector, mask)
-
-        return masked_vector.compressed()
-
-    def chi_gaussian(self, i=0):
+    def chi_gaussian(self):
         """Computes proper chi-square term for the Gaussian likelihood case.
 
         Parameters:
             i (int, optional):
                 ell index if needed. Defaults to 0.
         """
-        if self.n != 1:
-            coba = self.data_vector(
-                cov=self.coba[:, :, i], mask=np.diag(self.mask[:, :, i])
-            )
-            data = self.data_vector(
-                cov=self.data[:, :, i], mask=np.diag(self.mask[:, :, i])
-            )
-            COV = self.inverse_covariance[i]
-            return (coba - data) @ COV @ (coba - data)
-        else:
-            coba = self.coba[0, 0, :]
-            data = self.data[0, 0, :]
-            res = (coba - data) * self.inverse_covariance * (coba - data)
-            return res
 
-    def compute_chi_part(self, i=0):
+        if self.n != 1:
+            coba = get_reduced_data_vectors(
+                self.n,
+                self.coba,
+                self.mask,
+                self.lmin,
+                self.lmax,
+            )
+            data = get_reduced_data_vectors(
+                self.n,
+                self.data,
+                self.mask,
+                self.lmin,
+                self.lmax,
+            )
+            COV = self.inverse_covariance
+            return [
+                (coba[j] - data[j]) @ COV[j] @ (coba[j] - data[j])
+                for j in range(self.lmax + 1 - self.lmin)
+            ]
+        else:
+            return (self.coba[0, 0, :] - self.data[0, 0, :]) ** 2 * np.array(
+                self.inverse_covariance
+            )[:, 0, 0]
+
+    def compute_chi_part(self):
         """Chooses which chi-square term to compute.
 
         Parameters:
@@ -540,25 +530,17 @@ class LiLit(Likelihood):
                 ell index if needed. Defaults to 0.
         """
         if self.like == "exact":
-            return self.chi_exact(i)
+            return self.chi_exact()
         elif self.like == "gaussian":
-            return self.chi_gaussian(i)
+            return self.chi_gaussian()
         else:
             print("You requested something different from 'exact or 'gaussian'!")
             return
 
     def log_likelihood(self):
         """Computes the log likelihood."""
-        # Get the array of multipoles
-        ell = np.arange(self.lmin, self.lmax + 1, 1)
-        # Compute the log likelihood for each multipole
-        if self.n != 1:
-            logp_ℓ = np.zeros(ell.shape)
-            for i in range(0, self.lmax + 1 - self.lmin):
-                logp_ℓ[i] = -0.5 * self.compute_chi_part(i)
-        else:
-            logp_ℓ = -0.5 * self.compute_chi_part()
-        # Sum the log likelihood over multipoles
+
+        logp_ℓ = -0.5 * np.array(self.compute_chi_part())
         return np.sum(logp_ℓ)
 
     def logp(self, **params_values):
