@@ -3,6 +3,8 @@ import numpy as np
 __all__ = [
     "get_keys",
     "get_Gauss_keys",
+    "get_reduced_covariances",
+    "get_reduced_data_vectors",
     "cov_filling",
     "find_spectrum",
     "sigma",
