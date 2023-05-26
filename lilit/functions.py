@@ -12,6 +12,62 @@ __all__ = [
 ]
 
 
+def CAMBres2dict(camb_results, probes):
+    """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
+
+    Parameters:
+        camb_results (CAMBdata):
+            CAMB result product from the method get_cmb_power_spectra.
+        probes (dict):
+            Keys for the spectra dictionary we want to save.
+    """
+    ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
+    # Mapping between the CAMB keys and the ones we want
+    mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
+    res = {"ell": ls}
+    for probe, i in mapping.items():
+        res[probe] = camb_results["total"][:, i]
+    if "pp" in probes:
+        cl_lens = camb_results.get("lens_potential")
+        if cl_lens is not None:
+            # Save it with the normalization to obtain phiphi
+            array = cl_lens[:, 0].copy()
+            array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
+            res["pp"] = array
+            if "pt" in probes and "pe" in probes:
+                # Loop over the cross terms correcting the normalization to phiX
+                for i, cross in enumerate(["pt", "pe"]):
+                    array = cl_lens[:, i + 1].copy()
+                    array[2:] /= np.sqrt(res["ell"] * (res["ell"] + 1))[2:]
+                    res[cross] = array
+                    res[cross[::-1]] = res[cross]
+    return res
+
+
+def txt2dict(txt, mapping_probe2colnum=None, apply_ellfactor=None):
+    """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
+
+    Parameters:
+        txt (str):
+            Path to txt file containing the spectra as columns.
+        mapping (dict):
+            Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
+    """
+    assert (
+        mapping_probe2colnum is not None
+    ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
+    txt = np.loadtxt(txt)
+    res = {}
+    for probe, i in mapping_probe2colnum.items():
+        ls = np.arange(len(txt[:, i]), dtype=np.int64)
+        res["ell"] = ls
+        if apply_ellfactor:
+            res[probe] = txt[:, i] * ls * (ls + 1) / 2 / np.pi
+        else:
+            res[probe] = txt[:, i]
+    return res
+
+
 def get_keys(fields: list, *, debug: bool = False):
     """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc.
 
@@ -260,7 +316,7 @@ def get_masked_sigma(
 
         lmin = lmins.get(key, absolute_lmin)
         lmax = lmaxs.get(key, absolute_lmax)
-        print(key, lmin, lmax)
+
         for ell in range(absolute_lmax + 1):
             if ell < lmin or ell > lmax:
                 mask[i, :, ell] = 1
@@ -297,63 +353,70 @@ def inv_sigma(lmin: int, lmax: int, masked_sigma):
             COV = np.delete(COV, idx, axis=1)
 
         res.append(np.linalg.inv(COV))
-    return res[lmin:], masked_sigma.mask[:, :, 2:]
+    return res[lmin:], masked_sigma.mask[:, :, lmin:]
 
 
-def CAMBres2dict(camb_results, probes):
-    """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
-
-    Parameters:
-        camb_results (CAMBdata):
-            CAMB result product from the method get_cmb_power_spectra.
-        probes (dict):
-            Keys for the spectra dictionary we want to save.
-    """
-    ls = np.arange(camb_results["total"].shape[0], dtype=np.int64)
-    # Mapping between the CAMB keys and the ones we want
-    mapping = {"tt": 0, "ee": 1, "bb": 2, "te": 3, "et": 3}
-    res = {"ell": ls}
-    for probe, i in mapping.items():
-        res[probe] = camb_results["total"][:, i]
-    if "pp" in probes:
-        cl_lens = camb_results.get("lens_potential")
-        if cl_lens is not None:
-            # Save it with the normalization to obtain phiphi
-            array = cl_lens[:, 0].copy()
-            array[2:] /= (res["ell"] * (res["ell"] + 1))[2:]
-            res["pp"] = array
-            if "pt" in probes and "pe" in probes:
-                # Loop over the cross terms correcting the normalization to phiX
-                for i, cross in enumerate(["pt", "pe"]):
-                    array = cl_lens[:, i + 1].copy()
-                    array[2:] /= np.sqrt(res["ell"] * (res["ell"] + 1))[2:]
-                    res[cross] = array
-                    res[cross[::-1]] = res[cross]
-    return res
-
-
-def txt2dict(txt, mapping_probe2colnum=None, apply_ellfactor=None):
-    """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
+def get_reduced_covariances(n, covariance, lmin, lmax, custom_idx=None):
+    """Reduce the dimension of the covariance matrices given that they might be singular for some multipole ranges.
 
     Parameters:
-        txt (str):
-            Path to txt file containing the spectra as columns.
-        mapping (dict):
-            Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
+        n (int):
+            Number of fields.
+        covariance (ndarray):
+            The covariance matrix.
+        lmin (int):
+            The minimum multipole to consider.
+        lmax (int):
+            The maximum multipole to consider.
     """
-    assert (
-        mapping_probe2colnum is not None
-    ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
-    txt = np.loadtxt(txt)
-    res = {}
-    for probe, i in mapping_probe2colnum.items():
-        ls = np.arange(len(txt[:, i]), dtype=np.int64)
-        res["ell"] = ls
-        if apply_ellfactor:
-            res[probe] = txt[:, i] * ls * (ls + 1) / 2 / np.pi
-        else:
-            res[probe] = txt[:, i]
-    return res
+    n = int(n * (n + 1) / 2)
+    reduced_covariance = []
+    if custom_idx is not None:
+        for ell in range(lmax + 1 - lmin):
+            matrix = covariance[:, :, ell]
+            matrix = np.delete(
+                np.delete(matrix, custom_idx[ell], axis=0), custom_idx[ell], axis=1
+            )
+            reduced_covariance.append(matrix)
+        return reduced_covariance, custom_idx
+    else:
+        indeces = {}
+        for ell in range(lmax + 1 - lmin):
+            matrix = covariance[:, :, ell]
+            # If the determinant is null, we need to reduce the covariance matrix
+            idx = []
+            if np.linalg.det(matrix) == 0:
+                idx = np.where(np.diag(matrix) == 0)[0]
+                matrix = np.delete(np.delete(matrix, idx, axis=0), idx, axis=1)
+            # print(ell, idx)
+            indeces[ell] = idx
+            reduced_covariance.append(matrix)
+        return reduced_covariance, indeces
+
+
+def get_reduced_data_vectors(n, covariance, mask, lmin, lmax):
+    """Reduce the dimension of the data vectors given that some probe might not be defined in some multipole ranges or it might be excluded by the user.
+
+    Parameters:
+        n (int):
+            Number of fields.
+        covariance (ndarray):
+            The covariance matrix.
+        mask (ndarray):
+            The mask matrix.
+        lmin (int):
+            The minimum multipole to consider.
+        lmax (int):
+            The maximum multipole to consider.
+    """
+    reduced_data_vector = []
+    for ell in range(lmax + 1 - lmin):
+        vector = covariance[:, :, ell][np.triu_indices(n)]
+        reduced_data_vector.append(
+            np.ma.masked_array(vector, np.diag(mask[:, :, ell])).compressed()
+        )
+        print(ell, np.diag(mask[:, :, ell]))
+    return reduced_data_vector
 
 
 __docformat__ = "google"
