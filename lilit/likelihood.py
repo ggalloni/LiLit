@@ -1,5 +1,6 @@
 import os
 import pickle
+from typing import Union, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -125,22 +126,22 @@ class LiLit(Likelihood):
 
     def __init__(
         self,
-        name=None,
-        fields=None,
-        lmax=None,
-        like="exact",
-        lmin=2,
-        cl_file=None,
-        nl_file=None,
-        bias_file=None,
-        experiment=None,
-        nside=None,
-        r=None,
-        nt=None,
-        pivot_t=0.01,
-        fsky=1,
-        excluded_probes=None,
-        debug=None,
+        name: str = None,
+        fields: list(str) = None,
+        lmin: Optional[Union[int, list(int)]] = 2,
+        lmax: Union[int, list(int)] = None,
+        like: str = "exact",
+        cl_file: Optional[Union[dict, str]] = None,
+        nl_file: Optional[Union[dict, str]] = None,
+        bias_file: Optional[Union[dict, str]] = None,
+        experiment: Optional[str] = None,
+        nside: Optional[int] = None,
+        r: Optional[float] = None,
+        nt: Optional[float] = None,
+        pivot_t: Optional[float] = 0.01,
+        fsky: Union[float, list(float)] = 1,
+        excluded_probes: Optional[list(str)] = None,
+        debug: Optional[bool] = None,
     ):
         # Check that the user has provided the name of the likelihood
         assert (
@@ -196,7 +197,7 @@ class LiLit(Likelihood):
 
         return
 
-    def set_lmin(self, lmin):
+    def set_lmin(self, lmin: Union[int, list(int)]):
         """Take lmin parameter and set the corresponding attributes.
 
         This handles automatically the case of a single value or a list of values. Note that the lmin for the cross-correlations is set to the geometrical mean of the lmin of the two fields when the likelihood approximation is not exact. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped. On the other hand, lmin is set to the maximum of the two other probes for the exact likelihood. Indeed, the geometrical mean causes some issues in this case.
@@ -222,7 +223,7 @@ class LiLit(Likelihood):
             self.lmin = lmin
         return
 
-    def set_lmax(self, lmax):
+    def set_lmax(self, lmax: Union[int, list(int)]):
         """Take lmax parameter and set the corresponding attributes.
 
         This handles automatically the case of a single value or a list of values. Note that the lmax for the cross-correlations is set to the geometrical mean of the lmax of the two fields when the likelihood approximation is not exact. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped. On the other hand, lmax is set to the minimum of the two other probes for the exact likelihood. Indeed, the geometrical mean causes some issues in this case.
@@ -248,7 +249,7 @@ class LiLit(Likelihood):
             self.lmax = lmax
         return
 
-    def set_fsky(self, fsky):
+    def set_fsky(self, fsky: Union[float, list(float)]):
         """Take fsky parameter and set the corresponding attributes.
 
         This handles automatically the case of a single value or a list of values. Note that the fsky for the cross-correlations is set to the geometrical mean of the fsky of the two fields. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped.
@@ -468,7 +469,7 @@ class LiLit(Likelihood):
         self.fiduCLS = self.get_fiducial_spectra()
         self.noiseCLS = self.get_noise_spectra()
 
-        # If a bias is provided, this adds the spectra to the fiducial ones
+        # If a bias is provided, this biases the fiducial spectra
         if self.bias_file is not None:
             self.biasCLS = self.get_bias_spectra()
             self.fiduCLS = {

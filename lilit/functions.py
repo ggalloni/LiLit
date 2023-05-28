@@ -1,6 +1,11 @@
 import numpy as np
+from numpy.ma import MaskedArray
+from camb import CAMBdata
 
 __all__ = [
+    "get_chi_exact",
+    "get_chi_gaussian",
+    "get_chi_correlated_gaussian",
     "get_keys",
     "get_Gauss_keys",
     "get_reduced_covariances",
@@ -14,7 +19,7 @@ __all__ = [
 ]
 
 
-def CAMBres2dict(camb_results, probes):
+def CAMBres2dict(camb_results: CAMBdata, probes: list):
     """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
 
     Parameters:
@@ -46,7 +51,9 @@ def CAMBres2dict(camb_results, probes):
     return res
 
 
-def txt2dict(txt, mapping_probe2colnum=None, apply_ellfactor=None):
+def txt2dict(
+    txt: str, *, mapping_probe2colnum: dict = None, apply_ellfactor: bool = None
+):
     """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
 
     Parameters:
@@ -199,7 +206,7 @@ def sigma(
     gauss_keys: dict,
     fiduDICT: dict,
     noiseDICT: dict,
-    fsky=None,
+    fsky: float = None,
     fskies: dict = {},
 ):
     """Define the covariance matrix for the Gaussian case.
@@ -224,14 +231,9 @@ def sigma(
         fskies (dict, optional):
             The dictionary of fraction of sky to consider for each field pair.
     """
-    # The covariance matrix has to be symmetric.
-    # The number of parameters in the likelihood is n.
-    # The covariance matrix is a (n x n x lmax+1) ndarray.
-    # We will store the covariance matrix in a (n x n x lmax+1) ndarray,
-    # where n = int(n * (n + 1) / 2).
-    n = int(n * (n + 1) / 2)
+    n = int(n * (n + 1) / 2)  # Num. of probes from num. of fields
     res = np.zeros((n, n, lmax + 1))
-    for i in range(n):  # Loop over all combinations of pairs of spectra
+    for i in range(n):
         for j in range(i, n):
             C_AC = find_spectrum(
                 lmin, lmax, fiduDICT, gauss_keys[i, j, 0] + gauss_keys[i, j, 2]
@@ -283,7 +285,7 @@ def get_masked_sigma(
     absolute_lmin: int,
     absolute_lmax: int,
     gauss_keys: dict,
-    sigma: np.ndarray,
+    sigma: list(np.ndarray),
     excluded_probes: list,
     lmins: dict = {},
     lmaxs: dict = {},
@@ -330,7 +332,7 @@ def get_masked_sigma(
     return np.ma.masked_array(sigma, mask)
 
 
-def inv_sigma(lmin: int, lmax: int, masked_sigma):
+def inv_sigma(lmin: int, lmax: int, masked_sigma: list(MaskedArray)):
     """Invert the covariance matrix of the Gaussian case.
 
     Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
@@ -358,12 +360,10 @@ def inv_sigma(lmin: int, lmax: int, masked_sigma):
     return res[lmin:], masked_sigma.mask[:, :, lmin:]
 
 
-def get_reduced_covariances(n, covariance, lmin, lmax, custom_idx=None):
+def get_reduced_covariances(covariance: np.ndarray, lmin: int, lmax: int):
     """Reduce the dimension of the covariance matrices given that they might be singular for some multipole ranges.
 
     Parameters:
-        n (int):
-            Number of fields.
         covariance (ndarray):
             The covariance matrix.
         lmin (int):
@@ -371,7 +371,6 @@ def get_reduced_covariances(n, covariance, lmin, lmax, custom_idx=None):
         lmax (int):
             The maximum multipole to consider.
     """
-    n = int(n * (n + 1) / 2)
     reduced_covariance = []
     for ell in range(lmax + 1 - lmin):
         matrix = covariance[:, :, ell]
@@ -384,11 +383,13 @@ def get_reduced_covariances(n, covariance, lmin, lmax, custom_idx=None):
     return reduced_covariance
 
 
-def get_reduced_data_vectors(n, covariance, mask, lmin, lmax):
+def get_reduced_data_vectors(
+    N: int, covariance: np.ndarray, mask: np.ndarray, lmin: int, lmax: int
+):
     """Reduce the dimension of the data vectors given that some probe might not be defined in some multipole ranges or it might be excluded by the user.
 
     Parameters:
-        n (int):
+        N (int):
             Number of fields.
         covariance (ndarray):
             The covariance matrix.
@@ -401,19 +402,32 @@ def get_reduced_data_vectors(n, covariance, mask, lmin, lmax):
     """
     reduced_data_vector = []
     for ell in range(lmax + 1 - lmin):
-        vector = covariance[:, :, ell][np.triu_indices(n)]
+        vector = covariance[:, :, ell][np.triu_indices(N)]
         reduced_data_vector.append(
             np.ma.masked_array(vector, np.diag(mask[:, :, ell])).compressed()
         )
     return reduced_data_vector
 
 
-def get_chi_exact(N, data, coba, lmin, lmax):
-    """Computes proper chi-square term for the exact likelihood case."""
+def get_chi_exact(N: int, data: np.ndarray, coba: np.ndarray, lmin: int, lmax: int):
+    """Computes proper chi-square term for the exact likelihood case.
+
+    Parameters:
+        N (int):
+            Number of fields.
+        data (ndarray):
+            The covariance matrix of the data.
+        coba (ndarray):
+            The covariance matrix on the MCMC step.
+        lmin (int):
+            The minimum multipole to consider.
+        lmax (int):
+            The maximum multipole to consider.
+    """
     ell = np.arange(lmin, lmax + 1, 1)
     if N != 1:
-        reduced_data = get_reduced_covariances(N, data, lmin, lmax)
-        reduced_coba = get_reduced_covariances(N, coba, lmin, lmax)
+        reduced_data = get_reduced_covariances(data, lmin, lmax)
+        reduced_coba = get_reduced_covariances(coba, lmin, lmax)
 
         M_ℓ = list(map(np.linalg.solve, reduced_coba, reduced_data))
         return (2 * ell + 1) * [
@@ -424,8 +438,33 @@ def get_chi_exact(N, data, coba, lmin, lmax):
         return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
 
 
-def get_chi_gaussian(N, data, coba, mask, inverse_covariance, lmin, lmax):
-    """Computes proper chi-square term for the Gaussian likelihood case."""
+def get_chi_gaussian(
+    N: int,
+    data: np.ndarray,
+    coba: np.ndarray,
+    mask: np.ndarray,
+    inverse_covariance: list(np.ndarray),
+    lmin: int,
+    lmax: int,
+):
+    """Computes proper chi-square term for the Gaussian likelihood case.
+
+    Parameters:
+        N (int):
+            Number of fields.
+        data (ndarray):
+            The covariance matrix of the data.
+        coba (ndarray):
+            The covariance matrix on the MCMC step.
+        mask (ndarray):
+            Mask corresponding to both excluded probes and excluded multipole ranges.
+        inverse_covariance (list(ndarray)):
+            Inverse of the covaraince matrices for each multipole.
+        lmin (int):
+            The minimum multipole to consider.
+        lmax (int):
+            The maximum multipole to consider.
+    """
 
     if N != 1:
         reduced_coba = get_reduced_data_vectors(
@@ -455,8 +494,19 @@ def get_chi_gaussian(N, data, coba, mask, inverse_covariance, lmin, lmax):
         ]
 
 
-def get_chi_correlated_gaussian(data, coba, inverse_covariance):
-    """Computes proper chi-square term for the Gaussian likelihood case."""
+def get_chi_correlated_gaussian(
+    data: np.ndarray, coba: np.ndarray, inverse_covariance: list(np.ndarray)
+):
+    """Computes proper chi-square term for the Gaussian likelihood case.
+
+    Parameters:
+        data (ndarray):
+            The covariance matrix of the data.
+        coba (ndarray):
+            The covariance matrix on the MCMC step.
+        inverse_covariance (list(ndarray)):
+            Inverse of the covaraince matrices for each multipole.
+    """
 
     return (
         (coba[0, 0, :] - data[0, 0, :])
