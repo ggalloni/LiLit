@@ -1,6 +1,5 @@
 import os
 import pickle
-import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,12 +8,12 @@ from cobaya.likelihood import Likelihood
 from .functions import (
     CAMBres2dict,
     cov_filling,
-    cov_filling_fidu,
+    get_chi_exact,
+    get_chi_gaussian,
+    get_chi_correlated_gaussian,
     get_Gauss_keys,
     get_keys,
     get_masked_sigma,
-    get_reduced_covariances,
-    get_reduced_data_vectors,
     inv_sigma,
     sigma,
 )
@@ -41,6 +40,8 @@ class LiLit(Likelihood):
             Path to Cl file or dictionary of fiducial spectra (default: None).
         nl_file (str, dict, optional):
             Path to noise file or dictionary of noise spectra (default: None).
+        bias_file (str, dict, optional):
+            Path to bias file or dictionary of bias spectra (default: None).
         experiment (str, optional):
             Name of experiment (default: None).
         nside (int, optional):
@@ -62,7 +63,7 @@ class LiLit(Likelihood):
     Attributes:
         fields (list):
             List of fields in the data file.
-        n_fields (int):
+        N (int):
             Number of fields.
         keys (list):
             List of keywords for the dictionaries.
@@ -86,24 +87,28 @@ class LiLit(Likelihood):
             Type of likelihood to use.
         cl_file (str, dict):
             Path to Cl file or dictionary of fiducial spectra.
+        nl_file (str, dict):
+            Path to noise file or dictionary of the noise spectra.
+        bias_file (str, dict):
+            Path to bias file or dictionary of the bias spectra.
         fiduCLS (dict):
             Dictionary of fiducial Cls.
         noiseCLS (dict):
             Dictionary of noise Cls.
+        biasCLS (dict):
+            Dictionary of bias Cls.
         fiduCOV (np.ndarray):
             Fiducial covariance matrix obtained from the corresponding dictionary.
         noiseCOV (np.ndarray):
             Noise covariance matrix obtained from the corresponding dictionary.
-        data (np.ndarray):
-            Data vector obtained by summing fiduCOV + noiseCOV.
         cobaCLS (dict):
             Dictionary of Cobaya Cls.
         cobaCOV (np.ndarray):
             Cobaya covariance matrix obtained from the corresponding dictionary.
+        data (np.ndarray):
+            Data vector obtained by summing fiduCOV + noiseCOV + biasCOV.
         coba (np.ndarray):
             Cobaya vector obtained by summing cobaCOV + noiseCOV.
-        nl_file (str, dict):
-            Path to noise file or dictionary of the noise spectra.
         experiment (str):
             Name of experiment.
         nside (int):
@@ -127,6 +132,7 @@ class LiLit(Likelihood):
         lmin=2,
         cl_file=None,
         nl_file=None,
+        bias_file=None,
         experiment=None,
         nside=None,
         r=None,
@@ -148,12 +154,12 @@ class LiLit(Likelihood):
         assert lmax is not None, "You must provide the lmax (e.g. 300)"
 
         self.fields = fields
-        self.n = len(fields)
-        self.lmin = lmin
+        self.N = len(fields)
         self.like_approx = like
         self.excluded_probes = excluded_probes
         self.cl_file = cl_file
         self.nl_file = nl_file
+        self.bias_file = bias_file
         self.experiment = experiment
         if self.experiment is not None:
             # Check that the user has provided the nside if an experiment is used
@@ -163,91 +169,110 @@ class LiLit(Likelihood):
         self.keys = get_keys(fields=self.fields, debug=self.debug)
         if "bb" in self.keys:
             # Check that the user has provided the tensor-to-scalar ratio if a BB likelihood is used
-            assert (
-                r is not None
-            ), "You must provide the tensor-to-scalar ratio r for the fiducial production (defaul is at 0.01 Mpc^-1)"
+            if cl_file is not None:
+                assert (
+                    r is not None
+                ), "You must provide the tensor-to-scalar ratio r for the fiducial production (defaul is at 0.01 Mpc^-1)"
             self.r = r
             self.nt = nt
             self.pivot_t = pivot_t
 
         self.check_supported_approximations()
-        self.set_lmin_lmax_fsky(lmin=lmin, lmax=lmax, fsky=fsky)
+        self.set_lmin(lmin)
+        self.set_lmax(lmax)
+        self.set_fsky(fsky)
 
         Likelihood.__init__(self, name=name)
 
     def check_supported_approximations(self):
-        self.supported = ["exact", "gaussian"]
+        """Check that the requested likelihood approximation is actually supported.
+
+        Note: the correlated Gaussian is supported for a single field, not multiple ones.
+        """
+        self.supported = ["exact", "gaussian", "correlated_gaussian"]
         assert (
             self.like_approx in self.supported
-        ), f"The likelihood approximation you specified, {self.desiderata}, is not supported!"
+        ), f"The likelihood approximation you specified, {self.like_approx}, is not supported!"
 
         return
 
-    def set_lmin_lmax_fsky(self, lmin, lmax, fsky):
-        """Take lmin, lmax and fsky parameters and set the corresponding attributes.
+    def set_lmin(self, lmin):
+        """Take lmin parameter and set the corresponding attributes.
 
-        Sets the minimum multipole, the maximum multipole and the sky fraction. This handles automatically the case of a single value or a list of values. Note that the lmin, lmax and fsky for the cross-correlations are set to the geometrical mean of the lmin, lmax and fsky of the two fields. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped.
+        This handles automatically the case of a single value or a list of values. Note that the lmin for the cross-correlations is set to the geometrical mean of the lmin of the two fields when the likelihood approximation is not exact. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped. On the other hand, lmin is set to the maximum of the two other probes for the exact likelihood. Indeed, the geometrical mean causes some issues in this case.
 
         Parameters:
             lmin (int or list):
                 Value or list of values of lmin.
-            lmax (int or list):
-                Value or list of values of lmax.
-            fsky (float or list):
-                Value or list of values of fsky.
         """
-
         self.lmins = {}
-        self.lmaxs = {}
-        self.fskies = {}
-
         if isinstance(lmin, list):
             assert (
-                len(lmin) == self.n
+                len(lmin) == self.N
             ), "If you provide multiple lmin, they must match the number of requested fields with the same order"
-            for i in range(self.n):
-                for j in range(i, self.n):
+            for i in range(self.N):
+                for j in range(i, self.N):
                     key = self.fields[i] + self.fields[j]
-                    self.lmins[key] = int(
-                        np.ceil(np.sqrt(lmin[i] * lmin[j]))
-                    )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
-                    self.lmins[key[::-1]] = int(np.ceil(np.sqrt(lmin[i] * lmin[j])))
+                    self.lmins[key] = int(max(lmin[i], lmin[j]))
+                    if self.like_approx != "exact":
+                        self.lmins[key] = int(np.ceil(np.sqrt(lmin[i] * lmin[j])))
+                    self.lmins[key[::-1]] = self.lmins[key]
             self.lmin = min(lmin)
         else:
             self.lmin = lmin
+        return
 
+    def set_lmax(self, lmax):
+        """Take lmax parameter and set the corresponding attributes.
+
+        This handles automatically the case of a single value or a list of values. Note that the lmax for the cross-correlations is set to the geometrical mean of the lmax of the two fields when the likelihood approximation is not exact. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped. On the other hand, lmax is set to the minimum of the two other probes for the exact likelihood. Indeed, the geometrical mean causes some issues in this case.
+
+        Parameters:
+            lmax (int or list):
+                Value or list of values of lmax.
+        """
+        self.lmaxs = {}
         if isinstance(lmax, list):
             assert (
-                len(lmax) == self.n
+                len(lmax) == self.N
             ), "If you provide multiple lmax, they must match the number of requested fields with the same order"
-            for i in range(self.n):
-                for j in range(i, self.n):
+            for i in range(self.N):
+                for j in range(i, self.N):
                     key = self.fields[i] + self.fields[j]
-                    self.lmaxs[key] = int(
-                        np.floor(np.sqrt(lmax[i] * lmax[j]))
-                    )  # this approximaiton allows to gain some extra multipoles in the cross-correalation for which the SNR is still good.
-                    self.lmaxs[key[::-1]] = int(np.floor(np.sqrt(lmax[i] * lmax[j])))
+                    self.lmaxs[key] = int(min(lmax[i], lmax[j]))
+                    if self.like_approx != "exact":
+                        self.lmaxs[key] = int(np.floor(np.sqrt(lmax[i] * lmax[j])))
+                    self.lmaxs[key[::-1]] = self.lmaxs[key]
             self.lmax = max(lmax)
         else:
             self.lmax = lmax
+        return
 
+    def set_fsky(self, fsky):
+        """Take fsky parameter and set the corresponding attributes.
+
+        This handles automatically the case of a single value or a list of values. Note that the fsky for the cross-correlations is set to the geometrical mean of the fsky of the two fields. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped.
+
+        Parameters:
+            fsky (float or list):
+                Value or list of values of fsky.
+        """
+        self.fskies = {}
         if isinstance(fsky, list):
             assert (
-                len(fsky) == self.n
+                len(fsky) == self.N
             ), "If you provide multiple fsky, they must match the number of requested fields with the same order"
-            for i in range(self.n):
-                for j in range(i, self.n):
+            for i in range(self.N):
+                for j in range(i, self.N):
                     key = self.fields[i] + self.fields[j]
-                    self.fskies[key] = np.sqrt(
-                        fsky[i] * fsky[j]
-                    )  # this approximation for the cross-correlation is not correct in the case of two very different masks (verified with simulations)
+                    self.fskies[key] = np.sqrt(fsky[i] * fsky[j])
                     self.fskies[key[::-1]] = np.sqrt(fsky[i] * fsky[j])
             self.fsky = None
         else:
             self.fsky = fsky
         return
 
-    def prod_fidu(self):
+    def get_fiducial_spectra(self):
         """Produce fiducial spectra or read the input ones.
 
         If the user has not provided a Cl file, this function will produce the fiducial power spectra starting from the CAMB inifile for Planck2018. The extra keywords defined will maximize the accordance between the fiducial Cls and the ones obtained from Cobaya. If B-modes are requested, the tensor-to-scalar ratio and the spectral tilt will be set to the requested values. Note that if you do not provide a tilt, this will follow the standard single-field consistency relation. If instead you provide a custom file, stores that.
@@ -298,7 +323,7 @@ class LiLit(Likelihood):
         )
         return CAMBres2dict(res, self.keys)
 
-    def prod_noise(self):
+    def get_noise_spectra(self):
         """Produce noise power spectra or read the input ones.
 
         If the user has not provided a noise file, this function will produce the noise power spectra for a given experiment with inverse noise weighting of white noise in each channel (TT, EE, BB). Note that you may want to have a look at the procedure since it is merely a place-holder. Indeed, you should provide a more realistic file from which to read the noise spectra, given that inverse noise weighting severely underestimates the amount of noise. If instead you provide the proper custom file, this method stores that.
@@ -391,12 +416,28 @@ class LiLit(Likelihood):
 
         return res
 
+    def get_bias_spectra(self):
+        """Store the input spectra for the bias.
+
+        The bias spectra stored here will be add to the fiducial power spectra, but not to the ones prodeced by Cobaya. In this way, one can study the case in which something is causing a bias in the spectra reconstruction (e.g. foregrounds, systematics and such).
+        """
+
+        if isinstance(self.bias, dict):
+            return self.bias
+        elif not self.bias.endswith(".pkl"):
+            print(
+                "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+            )
+            raise TypeError
+        with open(self.bias, "rb") as pickle_file:
+            return pickle.load(pickle_file)
+
     def compute_covariance_Cl(self):
         "Compute the covariance matrix of the Cl."
-        self.gauss_keys = get_Gauss_keys(n=self.n, keys=self.keys, debug=self.debug)
+        self.gauss_keys = get_Gauss_keys(n=self.N, keys=self.keys, debug=self.debug)
 
         sigma2 = sigma(
-            n=self.n,
+            n=self.N,
             lmin=self.lmin,
             lmax=self.lmax,
             gauss_keys=self.gauss_keys,
@@ -407,7 +448,7 @@ class LiLit(Likelihood):
         )
 
         masked_sigma2 = get_masked_sigma(
-            n=self.n,
+            n=self.N,
             absolute_lmin=self.lmin,
             absolute_lmax=self.lmax,
             gauss_keys=self.gauss_keys,
@@ -424,8 +465,16 @@ class LiLit(Likelihood):
 
     def initialize(self):
         """Initializes the fiducial spectra and the noise power spectra."""
-        self.fiduCLS = self.prod_fidu()
-        self.noiseCLS = self.prod_noise()
+        self.fiduCLS = self.get_fiducial_spectra()
+        self.noiseCLS = self.get_noise_spectra()
+
+        # If a bias is provided, this adds the spectra to the fiducial ones
+        if self.bias_file is not None:
+            self.biasCLS = self.get_bias_spectra()
+            self.fiduCLS = {
+                key: self.fiduCLS.get(key, 0) + self.biasCLS.get(key, 0)
+                for key in set(self.fiduCLS)
+            }
 
         self.fiduCOV = cov_filling(
             fields=self.fields,
@@ -475,81 +524,48 @@ class LiLit(Likelihood):
             )
         return requirements
 
-    def chi_exact(self):
-        """Computes proper chi-square term for the exact likelihood case.
-
-        Parameters:
-            i (int, optional):
-                ell index if needed. Defaults to 0.
-        """
-        ell = np.arange(self.lmin, self.lmax + 1, 1)
-        if self.n != 1:
-            reduced_coba, _ = get_reduced_covariances(
-                self.n, self.coba, self.lmin, self.lmax
-            )
-            reduced_data, _ = get_reduced_covariances(
-                self.n, self.data, self.lmin, self.lmax
-            )
-            M = list(map(np.linalg.solve, reduced_coba, reduced_data))
-            return (2 * ell + 1) * [
-                np.trace(x) - np.linalg.slogdet(x)[1] - x.shape[0] for x in M
-            ]
-        else:
-            M = self.data / self.coba
-            return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
-
-    def chi_gaussian(self):
-        """Computes proper chi-square term for the Gaussian likelihood case.
-
-        Parameters:
-            i (int, optional):
-                ell index if needed. Defaults to 0.
-        """
-
-        if self.n != 1:
-            coba = get_reduced_data_vectors(
-                self.n,
-                self.coba,
-                self.mask,
-                self.lmin,
-                self.lmax,
-            )
-            data = get_reduced_data_vectors(
-                self.n,
-                self.data,
-                self.mask,
-                self.lmin,
-                self.lmax,
-            )
-            COV = self.inverse_covariance
-            return [
-                (coba[j] - data[j]) @ COV[j] @ (coba[j] - data[j])
-                for j in range(self.lmax + 1 - self.lmin)
-            ]
-        else:
-            return (self.coba[0, 0, :] - self.data[0, 0, :]) ** 2 * np.array(
-                self.inverse_covariance
-            )[:, 0, 0]
-
-    def compute_chi_part(self):
-        """Chooses which chi-square term to compute.
-
-        Parameters:
-            i (int, optional):
-                ell index if needed. Defaults to 0.
-        """
-        if self.like_approx == "exact":
-            return self.chi_exact()
-        elif self.like_approx == "gaussian":
-            return self.chi_gaussian()
-        else:
-            print("You requested something different from 'exact or 'gaussian'!")
-            return
-
     def log_likelihood(self):
-        """Computes the log likelihood."""
+        """Convert into log likelihood and sum over multipoles."""
+        if self.like_approx == "exact":
+            logp_ℓ = -0.5 * np.array(
+                get_chi_exact(
+                    N=self.N,
+                    data=self.data,
+                    coba=self.coba,
+                    lmin=self.lmin,
+                    lmax=self.lmax,
+                )
+            )
+        elif self.like_approx == "gaussian":
+            logp_ℓ = -0.5 * np.array(
+                get_chi_gaussian(
+                    N=self.N,
+                    data=self.data,
+                    coba=self.coba,
+                    mask=self.mask,
+                    inverse_covariance=self.inverse_covariance,
+                    lmin=self.lmin,
+                    lmax=self.lmax,
+                )
+            )
+        elif self.like_approx == "correlated_gaussian":
+            logp_ℓ = -0.5 * np.array(
+                get_chi_correlated_gaussian(
+                    # N=self.N,
+                    data=self.data,
+                    coba=self.coba,
+                    # mask=self.mask,
+                    inverse_covariance=self.inverse_covariance,
+                    # lmin=self.lmin,
+                    # lmax=self.lmax,
+                )
+            )
+        else:
+            print(
+                f"You requested some likelihood approximation (i.e. {self.like_approx}) which is not supported!"
+            )
+            raise KeyError
 
-        logp_ℓ = -0.5 * np.array(self.compute_chi_part())
         return np.sum(logp_ℓ)
 
     def logp(self, **params_values):

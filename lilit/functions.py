@@ -373,27 +373,15 @@ def get_reduced_covariances(n, covariance, lmin, lmax, custom_idx=None):
     """
     n = int(n * (n + 1) / 2)
     reduced_covariance = []
-    if custom_idx is not None:
-        for ell in range(lmax + 1 - lmin):
-            matrix = covariance[:, :, ell]
-            matrix = np.delete(
-                np.delete(matrix, custom_idx[ell], axis=0), custom_idx[ell], axis=1
-            )
-            reduced_covariance.append(matrix)
-        return reduced_covariance, custom_idx
-    else:
-        indeces = {}
-        for ell in range(lmax + 1 - lmin):
-            matrix = covariance[:, :, ell]
-            # If the determinant is null, we need to reduce the covariance matrix
-            idx = []
-            if np.linalg.det(matrix) == 0:
-                idx = np.where(np.diag(matrix) == 0)[0]
-                matrix = np.delete(np.delete(matrix, idx, axis=0), idx, axis=1)
-            # print(ell, idx)
-            indeces[ell] = idx
-            reduced_covariance.append(matrix)
-        return reduced_covariance, indeces
+    for ell in range(lmax + 1 - lmin):
+        matrix = covariance[:, :, ell]
+        # If the determinant is null, we need to reduce the covariance matrix
+        idx = []
+        if np.linalg.det(matrix) == 0:
+            idx = np.where(np.diag(matrix) == 0)[0]
+            matrix = np.delete(np.delete(matrix, idx, axis=0), idx, axis=1)
+        reduced_covariance.append(matrix)
+    return reduced_covariance
 
 
 def get_reduced_data_vectors(n, covariance, mask, lmin, lmax):
@@ -417,8 +405,64 @@ def get_reduced_data_vectors(n, covariance, mask, lmin, lmax):
         reduced_data_vector.append(
             np.ma.masked_array(vector, np.diag(mask[:, :, ell])).compressed()
         )
-        print(ell, np.diag(mask[:, :, ell]))
     return reduced_data_vector
+
+
+def get_chi_exact(N, data, coba, lmin, lmax):
+    """Computes proper chi-square term for the exact likelihood case."""
+    ell = np.arange(lmin, lmax + 1, 1)
+    if N != 1:
+        reduced_data = get_reduced_covariances(N, data, lmin, lmax)
+        reduced_coba = get_reduced_covariances(N, coba, lmin, lmax)
+
+        M_ℓ = list(map(np.linalg.solve, reduced_coba, reduced_data))
+        return (2 * ell + 1) * [
+            np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ
+        ]
+    else:
+        M = data / coba
+        return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
+
+
+def get_chi_gaussian(N, data, coba, mask, inverse_covariance, lmin, lmax):
+    """Computes proper chi-square term for the Gaussian likelihood case."""
+
+    if N != 1:
+        reduced_coba = get_reduced_data_vectors(
+            N,
+            coba,
+            mask,
+            lmin,
+            lmax,
+        )
+        reduced_data = get_reduced_data_vectors(
+            N,
+            data,
+            mask,
+            lmin,
+            lmax,
+        )
+
+        return [
+            (reduced_coba[j] - reduced_data[j])
+            @ inverse_covariance[j]
+            @ (reduced_coba[j] - reduced_data[j])
+            for j in range(lmax + 1 - lmin)
+        ]
+    else:
+        return (coba[0, 0, :] - data[0, 0, :]) ** 2 * np.array(inverse_covariance)[
+            :, 0, 0
+        ]
+
+
+def get_chi_correlated_gaussian(data, coba, inverse_covariance):
+    """Computes proper chi-square term for the Gaussian likelihood case."""
+
+    return (
+        (coba[0, 0, :] - data[0, 0, :])
+        @ inverse_covariance
+        @ (coba[0, 0, :] - data[0, 0, :])
+    )
 
 
 __docformat__ = "google"
