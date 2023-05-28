@@ -4,13 +4,14 @@ from mpi4py import MPI
 from cobaya.run import run
 from cobaya.log import LoggedError
 from lilit import LiLit
+from lilit import CAMBres2dict
 
 debug = True
 name = "BB"
 lmax = 500
 
 r = 0.02
-nt = 0.1
+nt = 0.0
 
 exactBB = LiLit(
     name=name,
@@ -21,9 +22,11 @@ exactBB = LiLit(
     experiment="PTEPLiteBIRD",
     nside=128,
     debug=debug,
+    lmin=2,
     lmax=lmax,
-    fsky=0.49,
+    fsky=0.60,
 )
+
 gaussBB = LiLit(
     name=name,
     fields="b",
@@ -33,8 +36,9 @@ gaussBB = LiLit(
     experiment="PTEPLiteBIRD",
     nside=128,
     debug=debug,
+    lmin=2,
     lmax=lmax,
-    fsky=0.49,
+    fsky=0.60,
 )
 
 info = {
@@ -51,13 +55,15 @@ info = {
             "latex": "n_t",
             "prior": {"max": 5, "min": -5},
             "proposal": 0.1,
-            "ref": {"dist": "norm", "loc": nt, "scale": 0.001},
+            # "ref": {"dist": "norm", "loc": nt, "scale": 0.001},
+            "ref": 0.0,
         },
         "r": {
             "latex": "r_{0.01}",
             "prior": {"max": 3, "min": 1e-5},
-            "proposal": 0.0002,
-            "ref": {"dist": "norm", "loc": r, "scale": 0.0005},
+            "proposal": 0.0005,
+            # "ref": {"dist": "norm", "loc": r, "scale": 0.0001},
+            "ref": 0.02,
         },
         "r005": {
             "derived": "lambda r, nt, ns: r * (0.05/0.01)**(nt - ns + 1)",
@@ -69,7 +75,7 @@ info = {
     "output": f"chains/exact{name}_lmax{lmax}",
     "force": True,
     "resume": False,
-    # "debug": debug,
+    # "debug": True,
     "stop-at-error": True,
     "sampler": {
         "mcmc": {
@@ -118,4 +124,4 @@ if not success and rank == 0:
 
 end = time.time()
 
-print(f"ALL DONE IN {round(end-start, 2)} SECONDS!")
+print(f"******** ALL DONE IN {round(end-start, 2)} SECONDS! ********")
