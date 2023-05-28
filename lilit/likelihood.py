@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,12 +31,12 @@ class LiLit(Likelihood):
             The name for the likelihood, used in the output. It is necessary to pass it to LiLit. (default: None).
         fields (list):
             List of fields in the data file (default: None).
+        lmin (int or list):
+            Minimum multipole to consider (default: 2).
         lmax (int or list):
             Maximum multipole to consider (default: None).
         like_approx (str, optional):
-            Type of likelihood to use (default: "exact"). Currently supports "exact" and "gaussian".
-        lmin (int or list):
-            Minimum multipole to consider (default: 2).
+            Type of likelihood to use (default: "exact"). Currently supports "exact" and "gaussian", soon "correlated_gaussian".
         cl_file (str, dict, optional):
             Path to Cl file or dictionary of fiducial spectra (default: None).
         nl_file (str, dict, optional):
@@ -72,6 +72,10 @@ class LiLit(Likelihood):
             List of keywords for the Gaussian likelihood (4-points).
         inverse_covariance (list):
             List of covariances for the Gaussian likelihood case, one for each multipole.
+        lmin (int or list):
+            Minimum multipole to consider.
+        lmins (dict):
+            Dictionary of lmin values.
         lmax (int or list):
             List of lmax values.
         lmaxes (dict):
@@ -80,10 +84,6 @@ class LiLit(Likelihood):
             List of fsky values.
         fskies (dict):
             Dictionary of fsky values.
-        lmin (int or list):
-            Minimum multipole to consider.
-        lmins (dict):
-            Dictionary of lmin values.
         like_approx (str):
             Type of likelihood to use.
         cl_file (str, dict):
@@ -127,9 +127,9 @@ class LiLit(Likelihood):
     def __init__(
         self,
         name: str = None,
-        fields: list(str) = None,
-        lmin: Optional[Union[int, list(int)]] = 2,
-        lmax: Union[int, list(int)] = None,
+        fields: List[str] = None,
+        lmin: Optional[Union[int, List[int]]] = 2,
+        lmax: Union[int, List[int]] = None,
         like: str = "exact",
         cl_file: Optional[Union[dict, str]] = None,
         nl_file: Optional[Union[dict, str]] = None,
@@ -139,8 +139,8 @@ class LiLit(Likelihood):
         r: Optional[float] = None,
         nt: Optional[float] = None,
         pivot_t: Optional[float] = 0.01,
-        fsky: Union[float, list(float)] = 1,
-        excluded_probes: Optional[list(str)] = None,
+        fsky: Union[float, List[float]] = 1,
+        excluded_probes: Optional[List[str]] = None,
         debug: Optional[bool] = None,
     ):
         # Check that the user has provided the name of the likelihood
@@ -197,7 +197,7 @@ class LiLit(Likelihood):
 
         return
 
-    def set_lmin(self, lmin: Union[int, list(int)]):
+    def set_lmin(self, lmin: Union[int, List[int]]):
         """Take lmin parameter and set the corresponding attributes.
 
         This handles automatically the case of a single value or a list of values. Note that the lmin for the cross-correlations is set to the geometrical mean of the lmin of the two fields when the likelihood approximation is not exact. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped. On the other hand, lmin is set to the maximum of the two other probes for the exact likelihood. Indeed, the geometrical mean causes some issues in this case.
@@ -223,7 +223,7 @@ class LiLit(Likelihood):
             self.lmin = lmin
         return
 
-    def set_lmax(self, lmax: Union[int, list(int)]):
+    def set_lmax(self, lmax: Union[int, List[int]]):
         """Take lmax parameter and set the corresponding attributes.
 
         This handles automatically the case of a single value or a list of values. Note that the lmax for the cross-correlations is set to the geometrical mean of the lmax of the two fields when the likelihood approximation is not exact. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped. On the other hand, lmax is set to the minimum of the two other probes for the exact likelihood. Indeed, the geometrical mean causes some issues in this case.
@@ -249,7 +249,7 @@ class LiLit(Likelihood):
             self.lmax = lmax
         return
 
-    def set_fsky(self, fsky: Union[float, list(float)]):
+    def set_fsky(self, fsky: Union[float, List[float]]):
         """Take fsky parameter and set the corresponding attributes.
 
         This handles automatically the case of a single value or a list of values. Note that the fsky for the cross-correlations is set to the geometrical mean of the fsky of the two fields. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped.
@@ -298,7 +298,7 @@ class LiLit(Likelihood):
         planck_path = os.path.join(path, "planck_2018.ini")
         pars = camb.read_ini(planck_path)
 
-        if "bb" in self.keys:  # If we want to include the tensor mode
+        if "bb" in self.keys:
             print(f"\nProducing fiducial spectra for r={self.r} and nt={self.nt}")
             pars.InitPower.set_params(
                 As=2.100549e-9,
@@ -372,7 +372,6 @@ class LiLit(Likelihood):
         depth_p = np.array(instrument["depth_p"])
         depth_i = np.array(instrument["depth_i"])
 
-        # Convert to microK-rad
         depth_p /= hp.nside2resol(self.nside, arcmin=True)
         depth_i /= hp.nside2resol(self.nside, arcmin=True)
         depth_p *= np.sqrt(hp.nside2pixarea(self.nside, degrees=False))
@@ -395,7 +394,6 @@ class LiLit(Likelihood):
 
         pol_factor = np.exp(pol_factor)
 
-        # Calculate the Gaussian beam function for each polarization
         G = []
         for i, arr in enumerate(pol_factor):
             G.append(g * arr[:, np.newaxis])
@@ -576,7 +574,6 @@ class LiLit(Likelihood):
             pars = CAMBdata.Params
             print(pars)
 
-        # Get the Cls from Cobaya
         self.cobaCLS = self.provider.get_Cl(ell_factor=True)
         ell = np.arange(0, self.lmax + 1, 1)
         for key, value in self.cobaCLS.items():
@@ -597,7 +594,6 @@ class LiLit(Likelihood):
             print("\nPrinting the first few values to check that it starts from 0...")
             print(f"Cobaya CLs for {field.upper()} ---> {self.cobaCLS[field][0:5]}")
 
-        # Fill the covariance matrix with the Cls from Cobaya
         self.cobaCOV = cov_filling(
             self.fields,
             self.excluded_probes,
@@ -620,13 +616,11 @@ class LiLit(Likelihood):
             plt.legend()
             plt.show()
 
-        # Add the noise covariance to the covariance matrix filled with the Cls from Cobaya
         self.coba = (
             self.cobaCOV[:, :, self.lmin : self.lmax + 1]
             + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
         )
 
-        # Compute the likelihood
         logp = self.log_likelihood()
 
         if self.debug:

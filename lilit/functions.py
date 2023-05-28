@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.ma import MaskedArray
 from camb import CAMBdata
+from typing import List
 
 __all__ = [
     "get_chi_exact",
@@ -285,7 +286,7 @@ def get_masked_sigma(
     absolute_lmin: int,
     absolute_lmax: int,
     gauss_keys: dict,
-    sigma: list(np.ndarray),
+    sigma: List[np.ndarray],
     excluded_probes: list,
     lmins: dict = {},
     lmaxs: dict = {},
@@ -332,7 +333,7 @@ def get_masked_sigma(
     return np.ma.masked_array(sigma, mask)
 
 
-def inv_sigma(lmin: int, lmax: int, masked_sigma: list(MaskedArray)):
+def inv_sigma(lmin: int, lmax: int, masked_sigma: List[MaskedArray]):
     """Invert the covariance matrix of the Gaussian case.
 
     Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
@@ -443,7 +444,7 @@ def get_chi_gaussian(
     data: np.ndarray,
     coba: np.ndarray,
     mask: np.ndarray,
-    inverse_covariance: list(np.ndarray),
+    inverse_covariance: List[np.ndarray],
     lmin: int,
     lmax: int,
 ):
@@ -495,7 +496,7 @@ def get_chi_gaussian(
 
 
 def get_chi_correlated_gaussian(
-    data: np.ndarray, coba: np.ndarray, inverse_covariance: list(np.ndarray)
+    data: np.ndarray, coba: np.ndarray, inverse_covariance: List[np.ndarray]
 ):
     """Computes proper chi-square term for the Gaussian likelihood case.
 
