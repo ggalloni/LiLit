@@ -73,9 +73,7 @@ As mentioned above, LiLit implements two kinds of likelihood approximations: the
 
 ### Exact likelihood
 Firstly, let me explicitly report the formula used for this approximation, starting from the single field case:
-$$
-\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\frac{C_{\ell}^{\rm obs}}{C_{\ell}^{\rm th}}-\log\left(\frac{C_{\ell}^{\rm obs}}{C_{\ell}^{\rm th}}\right)-1\right]
-$$
+$$\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\frac{C_{\ell}^{\rm obs}}{C_{\ell}^{\rm th}}-\log\left(\frac{C_{\ell}^{\rm obs}}{C_{\ell}^{\rm th}}\right)-1\right]$$
 Instead assuming to have $N$ fields, the corresponding multiple-field formula reads:
 $$
 \log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\text{Tr}\left(\mathcal{C}_{\rm obs}\mathcal{C}^{-1}_{\rm th}\right) - \log\left|\mathcal{C}_{\rm obs}\mathcal{C}^{-1}_{\rm th}\right| - N\right]
