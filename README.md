@@ -122,7 +122,7 @@ The Gaussian approximation is based on the following formula:
 where $\sigma^{2}_{\ell}$ is the variance of the observed power spectrum. In the single-field case, this is given by:
 
 ```math
-\sigma^{2}_{\ell} = \frac{2}{\left(2\ell+1\right)f_{\rm sky}}\left(C_{\ell}^{CMB} + C_{\ell}^{FGs} + \dots + N_{\ell} + \dots \right)^2
+\sigma^{2}_{\ell} = \frac{2}{\left(2\ell+1\right)f_{\rm sky}}\left(C_{\ell}^{\rm obs}\right)^2
 ```
 
 Once again, the coupling between multipoles introduced by the sky cut is not taken into account. Instead, we just introduce a factor $f_{\rm sky}$ to rescale the variance of the observed power spectrum.
