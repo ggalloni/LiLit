@@ -410,7 +410,14 @@ def get_reduced_data_vectors(
     return reduced_data_vector
 
 
-def get_chi_exact(N: int, data: np.ndarray, coba: np.ndarray, lmin: int, lmax: int):
+def get_chi_exact(
+    N: int,
+    data: np.ndarray,
+    coba: np.ndarray,
+    lmin: int,
+    lmax: int,
+    fsky: float,
+):
     """Computes proper chi-square term for the exact likelihood case.
 
     Parameters:
@@ -424,6 +431,8 @@ def get_chi_exact(N: int, data: np.ndarray, coba: np.ndarray, lmin: int, lmax: i
             The minimum multipole to consider.
         lmax (int):
             The maximum multipole to consider.
+        fsky (float):
+            The fraction of the sky if a unique number is provided. Otherwise, it is the geometrical mean of the fraction of the sky for each field pair. In other words an effective fraction of the sky.
     """
     ell = np.arange(lmin, lmax + 1, 1)
     if N != 1:
@@ -431,12 +440,14 @@ def get_chi_exact(N: int, data: np.ndarray, coba: np.ndarray, lmin: int, lmax: i
         reduced_coba = get_reduced_covariances(coba, lmin, lmax)
 
         M_ℓ = list(map(np.linalg.solve, reduced_coba, reduced_data))
-        return (2 * ell + 1) * [
-            np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ
-        ]
+        return (
+            (2 * ell + 1)
+            * fsky
+            * [np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ]
+        )
     else:
         M = data / coba
-        return (2 * ell + 1) * (M - np.log(np.abs(M)) - 1)
+        return (2 * ell + 1) * fsky * (M - np.log(np.abs(M)) - 1)
 
 
 def get_chi_gaussian(
@@ -514,6 +525,42 @@ def get_chi_correlated_gaussian(
         @ inverse_covariance
         @ (coba[0, 0, :] - data[0, 0, :])
     )
+
+
+# def binned_chi_correlated_gaussian(
+#     lmax: int,
+#     delta_ell: int,
+#     data: np.ndarray,
+#     coba: np.ndarray,
+#     inverse_covariance: List[np.ndarray],
+# ):
+#     # NaMaster implementation
+#     import pymaster as nmt
+
+#     scheme = nmt.NmtBin(nlb=delta_ell, lmax=lmax, is_Dell=False)
+
+#     # Spectra must start from ell=0
+#     digitized_coba = scheme.bin_cell(
+#         np.concatenate([[0.0, 0.0], np.array(coba[0, 0, :])])
+#     )
+#     digitized_data = scheme.bin_cell(
+#         np.concatenate([[0.0, 0.0], np.array(data[0, 0, :])])
+#     )
+
+#     # Custom Implementation
+#     bins = np.arange(2, lmax + 2, delta_ell)
+#     ranges = [np.arange(bins[i], bins[i + 1]) - 2 for i in range(len(bins) - 1)]
+#     arr = np.array(coba[0, 0, :])
+#     digitized_coba = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
+#     arr = np.array(data[0, 0, :])
+#     digitized_data = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
+
+#     # Returning the chi-square value
+#     return (
+#         (digitized_coba - digitized_data)
+#         @ inverse_covariance
+#         @ (digitized_coba - digitized_data)
+#     )
 
 
 __docformat__ = "google"

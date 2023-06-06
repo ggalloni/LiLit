@@ -134,6 +134,7 @@ class LiLit(Likelihood):
         cl_file: Optional[Union[dict, str]] = None,
         nl_file: Optional[Union[dict, str]] = None,
         bias_file: Optional[Union[dict, str]] = None,
+        external_covariance: Optional[np.ndarray] = None,
         experiment: Optional[str] = None,
         nside: Optional[int] = None,
         r: Optional[float] = None,
@@ -161,6 +162,11 @@ class LiLit(Likelihood):
         self.cl_file = cl_file
         self.nl_file = nl_file
         self.bias_file = bias_file
+        self.external_covariance = external_covariance
+        if self.like_approx == "correlated_gaussian":
+            assert (
+                self.external_covariance is not None
+            ), "You must provide a covariance matrix for the correlated Gaussian likelihood"
         self.experiment = experiment
         if self.experiment is not None:
             # Check that the user has provided the nside if an experiment is used
@@ -170,7 +176,7 @@ class LiLit(Likelihood):
         self.keys = get_keys(fields=self.fields, debug=self.debug)
         if "bb" in self.keys:
             # Check that the user has provided the tensor-to-scalar ratio if a BB likelihood is used
-            if cl_file is not None:
+            if cl_file is None:
                 assert (
                     r is not None
                 ), "You must provide the tensor-to-scalar ratio r for the fiducial production (defaul is at 0.01 Mpc^-1)"
@@ -509,8 +515,18 @@ class LiLit(Likelihood):
             + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
         )
 
+        if self.like_approx == "exact" and self.fsky is None:
+            effective_fsky = 1
+            for k in self.fskies.keys():
+                effective_fsky *= self.fskies[k]
+            self.fsky = effective_fsky ** (1 / self.N**2)
+
         if self.like_approx == "gaussian":
             self.compute_covariance_Cl()
+
+        if self.like_approx == "correlated_gaussian":
+            # Note that the external covariance must be invertible. This means that the covariance should start from ell = 2.
+            self.inverse_covariance = np.linalg.inv(self.external_covariance)
 
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
@@ -533,6 +549,7 @@ class LiLit(Likelihood):
                     coba=self.coba,
                     lmin=self.lmin,
                     lmax=self.lmax,
+                    fsky=self.fsky,
                 )
             )
         elif self.like_approx == "gaussian":
