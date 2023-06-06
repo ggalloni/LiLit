@@ -73,17 +73,32 @@ As mentioned above, LiLit implements two kinds of likelihood approximations: the
 
 ### Exact likelihood
 Firstly, let me explicitly report the formula used for this approximation, starting from the single field case:
-$$\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\frac{C_{\ell}^{\rm obs}}{C_{\ell}^{\rm th}}-\log\left(\frac{C_{\ell}^{\rm obs}}{C_{\ell}^{\rm th}}\right)-1\right]$$
+
+```math
+\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\frac{C_{\ell}^{\rm obs}}{C_{\ell}^{\rm th}}-\log\left(\frac{C_{\ell}^{\rm obs}}{C_{\ell}^{\rm th}}\right)-1\right]
+```
+
 Instead assuming to have $N$ fields, the corresponding multiple-field formula reads:
-$$\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\text{Tr}\left(\mathcal{C}_{\rm obs}\mathcal{C}^{-1}_{\rm th}\right) - \log\left|\mathcal{C}_{\rm obs}\mathcal{C}^{-1}_{\rm th}\right| - N\right]$$
+
+```math
+\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\text{Tr}\left(\mathcal{C}_{\rm obs}\mathcal{C}^{-1}_{\rm th}\right) - \log\left|\mathcal{C}_{\rm obs}\mathcal{C}^{-1}_{\rm th}\right| - N\right]
+```
+
 where for example
-$$\mathcal{C}_{\rm obs} = \left(\begin{array}{ccc}
+
+```math
+\mathcal{C}_{\rm obs} = \left(\begin{array}{ccc}
                             C_{\ell}^{XX} & C_{\ell}^{XY} & C_{\ell}^{XZ}\\
                             C_{\ell}^{YX} & C_{\ell}^{YY} & C_{\ell}^{YZ}\\
                             C_{\ell}^{ZX} & C_{\ell}^{ZY} & C_{\ell}^{ZZ}
-                            \end{array}\right)$$
+                            \end{array}\right)
+```
+
 Here, each entry may look something like:
-$$C_{\ell}^{XX} = C_{\ell}^{CMB} + C_{\ell}^{FGs} + \dots + N_{\ell}^{X} + \dots $$
+
+```math
+C_{\ell}^{XX} = C_{\ell}^{CMB} + C_{\ell}^{FGs} + \dots + N_{\ell}^{X} + \dots 
+```
 
 The handling of the field-specific $\ell_{\rm min}$ and $\ell_{\rm max}$ is done at the level of the covarainces $\mathcal{C}$. In this case, the multipole range of the cross-correlation between two fields is given by the intersection of the two ranges (I encounter some issues with the geometrical mean of the two ranges, so for now I keep the intersection).
 
@@ -99,22 +114,41 @@ Note that the likelihood expressions above are exact in the full-sky case. In or
 
 ### Gaussian likelihood
 The Gaussian approximation is based on the following formula:
-$$\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\frac{\left(C_{\ell}^{\rm obs} - C_{\ell}^{\rm th}\right)^2}{\sigma^{2}_{\ell}}\right]$$
+
+```math
+\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[\frac{\left(C_{\ell}^{\rm obs} - C_{\ell}^{\rm th}\right)^2}{\sigma^{2}_{\ell}}\right]
+```
+
 where $\sigma^{2}_{\ell}$ is the variance of the observed power spectrum. In the single-field case, this is given by:
-$$\sigma^{2}_{\ell} = \frac{2}{\left(2\ell+1\right)f_{\rm sky}}\left(C_{\ell}^{CMB} + C_{\ell}^{FGs} + \dots + N_{\ell} + \dots \right)^2$$
+
+```math
+\sigma^{2}_{\ell} = \frac{2}{\left(2\ell+1\right)f_{\rm sky}}\left(C_{\ell}^{CMB} + C_{\ell}^{FGs} + \dots + N_{\ell} + \dots \right)^2
+```
+
 Once again, the coupling between multipoles introduced by the sky cut is not taken into account. Instead, we just introduce a factor $f_{\rm sky}$ to rescale the variance of the observed power spectrum.
 
 The multi-field case is slightly more involved. The data vector is obtained from the $\mathcal{C}$ matrices defined above as the upper trinaglular part of the matrix. For example, considering the one explicited above, the data vector would be:
-$$X_\ell = \left(C_{\ell}^{XX}, C_{\ell}^{XY}, C_{\ell}^{XZ}, C_{\ell}^{YY}, C_{\ell}^{YZ}, C_{\ell}^{ZZ}\right)$$
+
+```math
+X_\ell = \left(C_{\ell}^{XX}, C_{\ell}^{XY}, C_{\ell}^{XZ}, C_{\ell}^{YY}, C_{\ell}^{YZ}, C_{\ell}^{ZZ}\right)
+```
+
 Thus, the covariance of this object will be a $6\times6$ matrix (with $N$ fields you get $N(N+1)/2$ different probes). Its expression is given by:
-$$\text{Cov}^{\rm ABCD}_{\ell} = \frac{1}{(2\ell+1)f_{\rm sky}^{AB}f_{\rm sky}^{CD}}\left( \sqrt{f_{\rm sky}^{AC}f_{\rm sky}^{BD}}C_\ell^{AC}C_\ell^{BD} + \sqrt{f_{\rm sky}^{AD}f_{\rm sky}^{BC}}C_\ell^{AD}C_\ell^{BC} \right)$$
+
+```math
+\text{Cov}^{\rm ABCD}_{\ell} = \frac{1}{(2\ell+1)f_{\rm sky}^{AB}f_{\rm sky}^{CD}}\left( \sqrt{f_{\rm sky}^{AC}f_{\rm sky}^{BD}}C_\ell^{AC}C_\ell^{BD} + \sqrt{f_{\rm sky}^{AD}f_{\rm sky}^{BC}}C_\ell^{AD}C_\ell^{BC} \right)
+```
+
 where $A,B,C,D$ are the indices of the fields (e.g. $X, Y, Z$ following the example above).
 Note that the factor $f_{\rm sky}$ for the cross-correlation of two fields is given by the geometrical average $f_{\rm sky}^{XY} = \sqrt{f_{\rm sky}^{XX}f_{\rm sky}^{YY}}$. This approximation holds as soon as the two masked regions do overlap consistently.
 
 In the Gaussian case, the multipole ranges and excluded probes are handled differently w.r.t. the exact case. Firstly, the range of the cross-correlation of two fields is given by the geometrical mean of the two (e.g. $\ell_{\rm max}^{XY} = \sqrt{\ell_{\rm max}^{XX}\ell_{\rm max}^{YY}}$). Then, the code will fill compute the covariance matrix for all the probes in the largest multipole range. Before inverting, it will compute a mask that is swithced on for the multipoles that are outside the range for a given field (or are excluded a priori). This mask will be applied to the covariance matrix before inverting it and masked entries will be removed, ending up with a smaller matrix. The data vector $X_\ell$ will be masked in the same way, so that the matrix multiplication is performed correctly between equal-sized objects.
 
 Finally, the likelihood reads:
-$$\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[X_\ell \times \text{Cov}^{-1}_{\ell}\times X_\ell^{\rm T}  \right]$$
+
+```math
+\log\mathcal{L} = -\frac{1}{2}\sum_{\ell}\left(2\ell+1\right)\left[X_\ell \times \text{Cov}^{-1}_{\ell}\times X_\ell^{\rm T}  \right]
+```
 
 Differently from the exact likelihood case, here each field retains its own $f_{\rm sky}$ factor. This is possible thank to the fact that the different fields are more easily separable in the Gaussian case.
 
@@ -122,7 +156,10 @@ Differently from the exact likelihood case, here each field retains its own $f_{
 
 This likelihood is still in development. At the moment, only the single-field case is implemented. It represent the generalization to account for the correlation between different multipoles. In particular, the covariance matrix must be computed externally and provided to the LiLit class (let me call it $\text{Ext}$). Note that $\ell =0, 1$ must be excluded from the covariance matrix. The code will then proceed to invert the matrix and cumpute the likelihood very similarly to the Gaussian case. This time the likelihood reads:
 
-$$\log\mathcal{L} = -\frac{1}{2}\left[\left(\vec{C^{\rm obs}} - \vec{C^{\rm th}}\right) \times \text{Ext}^{-1} \times \left(\vec{C^{\rm obs}} - \vec{C^{\rm th}}\right)^{\rm T}\right]$$
+```math
+\log\mathcal{L} = -\frac{1}{2}\left[\left(\vec{C^{\rm obs}} - \vec{C^{\rm th}}\right) \times \text{Ext}^{-1} \times \left(\vec{C^{\rm obs}} - \vec{C^{\rm th}}\right)^{\rm T}\right]
+```
+
 where now $\vec{C^{\rm obs}}$ and $\vec{C^{\rm th}}$ are vector along the multipole range. Note that the covariance matrix is not rescaled by $f_{\rm sky}$, since this is already taken into account in the external covariance matrix.
 
 The multi-field case is still to be implemented.
