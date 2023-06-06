@@ -502,117 +502,164 @@
 </span><span id="L-410"><a href="#L-410"><span class="linenos">410</span></a>    <span class="k">return</span> <span class="n">reduced_data_vector</span>
 </span><span id="L-411"><a href="#L-411"><span class="linenos">411</span></a>
 </span><span id="L-412"><a href="#L-412"><span class="linenos">412</span></a>
-</span><span id="L-413"><a href="#L-413"><span class="linenos">413</span></a><span class="k">def</span> <span class="nf">get_chi_exact</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="L-414"><a href="#L-414"><span class="linenos">414</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the exact likelihood case.</span>
-</span><span id="L-415"><a href="#L-415"><span class="linenos">415</span></a>
-</span><span id="L-416"><a href="#L-416"><span class="linenos">416</span></a><span class="sd">    Parameters:</span>
-</span><span id="L-417"><a href="#L-417"><span class="linenos">417</span></a><span class="sd">        N (int):</span>
-</span><span id="L-418"><a href="#L-418"><span class="linenos">418</span></a><span class="sd">            Number of fields.</span>
-</span><span id="L-419"><a href="#L-419"><span class="linenos">419</span></a><span class="sd">        data (ndarray):</span>
-</span><span id="L-420"><a href="#L-420"><span class="linenos">420</span></a><span class="sd">            The covariance matrix of the data.</span>
-</span><span id="L-421"><a href="#L-421"><span class="linenos">421</span></a><span class="sd">        coba (ndarray):</span>
-</span><span id="L-422"><a href="#L-422"><span class="linenos">422</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
-</span><span id="L-423"><a href="#L-423"><span class="linenos">423</span></a><span class="sd">        lmin (int):</span>
-</span><span id="L-424"><a href="#L-424"><span class="linenos">424</span></a><span class="sd">            The minimum multipole to consider.</span>
-</span><span id="L-425"><a href="#L-425"><span class="linenos">425</span></a><span class="sd">        lmax (int):</span>
-</span><span id="L-426"><a href="#L-426"><span class="linenos">426</span></a><span class="sd">            The maximum multipole to consider.</span>
-</span><span id="L-427"><a href="#L-427"><span class="linenos">427</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-428"><a href="#L-428"><span class="linenos">428</span></a>    <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a>    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a>        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
-</span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a>        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">coba</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
-</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a>
-</span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a>        <span class="n">M_ℓ</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">,</span> <span class="n">reduced_coba</span><span class="p">,</span> <span class="n">reduced_data</span><span class="p">))</span>
-</span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a>        <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span>
-</span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">M_ℓ</span>
-</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a>        <span class="p">]</span>
-</span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a>        <span class="n">M</span> <span class="o">=</span> <span class="n">data</span> <span class="o">/</span> <span class="n">coba</span>
-</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a>        <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a>
+</span><span id="L-413"><a href="#L-413"><span class="linenos">413</span></a><span class="k">def</span> <span class="nf">get_chi_exact</span><span class="p">(</span>
+</span><span id="L-414"><a href="#L-414"><span class="linenos">414</span></a>    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="L-415"><a href="#L-415"><span class="linenos">415</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="L-416"><a href="#L-416"><span class="linenos">416</span></a>    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="L-417"><a href="#L-417"><span class="linenos">417</span></a>    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="L-418"><a href="#L-418"><span class="linenos">418</span></a>    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="L-419"><a href="#L-419"><span class="linenos">419</span></a>    <span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="L-420"><a href="#L-420"><span class="linenos">420</span></a><span class="p">):</span>
+</span><span id="L-421"><a href="#L-421"><span class="linenos">421</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the exact likelihood case.</span>
+</span><span id="L-422"><a href="#L-422"><span class="linenos">422</span></a>
+</span><span id="L-423"><a href="#L-423"><span class="linenos">423</span></a><span class="sd">    Parameters:</span>
+</span><span id="L-424"><a href="#L-424"><span class="linenos">424</span></a><span class="sd">        N (int):</span>
+</span><span id="L-425"><a href="#L-425"><span class="linenos">425</span></a><span class="sd">            Number of fields.</span>
+</span><span id="L-426"><a href="#L-426"><span class="linenos">426</span></a><span class="sd">        data (ndarray):</span>
+</span><span id="L-427"><a href="#L-427"><span class="linenos">427</span></a><span class="sd">            The covariance matrix of the data.</span>
+</span><span id="L-428"><a href="#L-428"><span class="linenos">428</span></a><span class="sd">        coba (ndarray):</span>
+</span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
+</span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a><span class="sd">        lmin (int):</span>
+</span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a><span class="sd">            The minimum multipole to consider.</span>
+</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a><span class="sd">        lmax (int):</span>
+</span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a><span class="sd">            The maximum multipole to consider.</span>
+</span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a><span class="sd">        fsky (float):</span>
+</span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a><span class="sd">            The fraction of the sky if a unique number is provided. Otherwise, it is the geometrical mean of the fraction of the sky for each field pair. In other words an effective fraction of the sky.</span>
+</span><span id="L-436"><a href="#L-436"><span class="linenos">436</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a>    <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a>    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a>        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a>        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">coba</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
 </span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a>
-</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a><span class="k">def</span> <span class="nf">get_chi_gaussian</span><span class="p">(</span>
-</span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a>    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a>    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a>    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a>    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-</span><span id="L-448"><a href="#L-448"><span class="linenos">448</span></a>    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a>    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="L-450"><a href="#L-450"><span class="linenos">450</span></a><span class="p">):</span>
-</span><span id="L-451"><a href="#L-451"><span class="linenos">451</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
+</span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a>        <span class="n">M_ℓ</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">,</span> <span class="n">reduced_coba</span><span class="p">,</span> <span class="n">reduced_data</span><span class="p">))</span>
+</span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a>        <span class="k">return</span> <span class="p">(</span>
+</span><span id="L-444"><a href="#L-444"><span class="linenos">444</span></a>            <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-445"><a href="#L-445"><span class="linenos">445</span></a>            <span class="o">*</span> <span class="n">fsky</span>
+</span><span id="L-446"><a href="#L-446"><span class="linenos">446</span></a>            <span class="o">*</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">M_ℓ</span><span class="p">]</span>
+</span><span id="L-447"><a href="#L-447"><span class="linenos">447</span></a>        <span class="p">)</span>
+</span><span id="L-448"><a href="#L-448"><span class="linenos">448</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a>        <span class="n">M</span> <span class="o">=</span> <span class="n">data</span> <span class="o">/</span> <span class="n">coba</span>
+</span><span id="L-450"><a href="#L-450"><span class="linenos">450</span></a>        <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">fsky</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-451"><a href="#L-451"><span class="linenos">451</span></a>
 </span><span id="L-452"><a href="#L-452"><span class="linenos">452</span></a>
-</span><span id="L-453"><a href="#L-453"><span class="linenos">453</span></a><span class="sd">    Parameters:</span>
-</span><span id="L-454"><a href="#L-454"><span class="linenos">454</span></a><span class="sd">        N (int):</span>
-</span><span id="L-455"><a href="#L-455"><span class="linenos">455</span></a><span class="sd">            Number of fields.</span>
-</span><span id="L-456"><a href="#L-456"><span class="linenos">456</span></a><span class="sd">        data (ndarray):</span>
-</span><span id="L-457"><a href="#L-457"><span class="linenos">457</span></a><span class="sd">            The covariance matrix of the data.</span>
-</span><span id="L-458"><a href="#L-458"><span class="linenos">458</span></a><span class="sd">        coba (ndarray):</span>
-</span><span id="L-459"><a href="#L-459"><span class="linenos">459</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
-</span><span id="L-460"><a href="#L-460"><span class="linenos">460</span></a><span class="sd">        mask (ndarray):</span>
-</span><span id="L-461"><a href="#L-461"><span class="linenos">461</span></a><span class="sd">            Mask corresponding to both excluded probes and excluded multipole ranges.</span>
-</span><span id="L-462"><a href="#L-462"><span class="linenos">462</span></a><span class="sd">        inverse_covariance (list(ndarray)):</span>
-</span><span id="L-463"><a href="#L-463"><span class="linenos">463</span></a><span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
-</span><span id="L-464"><a href="#L-464"><span class="linenos">464</span></a><span class="sd">        lmin (int):</span>
-</span><span id="L-465"><a href="#L-465"><span class="linenos">465</span></a><span class="sd">            The minimum multipole to consider.</span>
-</span><span id="L-466"><a href="#L-466"><span class="linenos">466</span></a><span class="sd">        lmax (int):</span>
-</span><span id="L-467"><a href="#L-467"><span class="linenos">467</span></a><span class="sd">            The maximum multipole to consider.</span>
-</span><span id="L-468"><a href="#L-468"><span class="linenos">468</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-469"><a href="#L-469"><span class="linenos">469</span></a>
-</span><span id="L-470"><a href="#L-470"><span class="linenos">470</span></a>    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="L-471"><a href="#L-471"><span class="linenos">471</span></a>        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
-</span><span id="L-472"><a href="#L-472"><span class="linenos">472</span></a>            <span class="n">N</span><span class="p">,</span>
-</span><span id="L-473"><a href="#L-473"><span class="linenos">473</span></a>            <span class="n">coba</span><span class="p">,</span>
-</span><span id="L-474"><a href="#L-474"><span class="linenos">474</span></a>            <span class="n">mask</span><span class="p">,</span>
-</span><span id="L-475"><a href="#L-475"><span class="linenos">475</span></a>            <span class="n">lmin</span><span class="p">,</span>
-</span><span id="L-476"><a href="#L-476"><span class="linenos">476</span></a>            <span class="n">lmax</span><span class="p">,</span>
-</span><span id="L-477"><a href="#L-477"><span class="linenos">477</span></a>        <span class="p">)</span>
-</span><span id="L-478"><a href="#L-478"><span class="linenos">478</span></a>        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
-</span><span id="L-479"><a href="#L-479"><span class="linenos">479</span></a>            <span class="n">N</span><span class="p">,</span>
-</span><span id="L-480"><a href="#L-480"><span class="linenos">480</span></a>            <span class="n">data</span><span class="p">,</span>
-</span><span id="L-481"><a href="#L-481"><span class="linenos">481</span></a>            <span class="n">mask</span><span class="p">,</span>
-</span><span id="L-482"><a href="#L-482"><span class="linenos">482</span></a>            <span class="n">lmin</span><span class="p">,</span>
-</span><span id="L-483"><a href="#L-483"><span class="linenos">483</span></a>            <span class="n">lmax</span><span class="p">,</span>
-</span><span id="L-484"><a href="#L-484"><span class="linenos">484</span></a>        <span class="p">)</span>
-</span><span id="L-485"><a href="#L-485"><span class="linenos">485</span></a>
-</span><span id="L-486"><a href="#L-486"><span class="linenos">486</span></a>        <span class="k">return</span> <span class="p">[</span>
-</span><span id="L-487"><a href="#L-487"><span class="linenos">487</span></a>            <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-</span><span id="L-488"><a href="#L-488"><span class="linenos">488</span></a>            <span class="o">@</span> <span class="n">inverse_covariance</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-</span><span id="L-489"><a href="#L-489"><span class="linenos">489</span></a>            <span class="o">@</span> <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-</span><span id="L-490"><a href="#L-490"><span class="linenos">490</span></a>            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lmin</span><span class="p">)</span>
-</span><span id="L-491"><a href="#L-491"><span class="linenos">491</span></a>        <span class="p">]</span>
-</span><span id="L-492"><a href="#L-492"><span class="linenos">492</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="L-493"><a href="#L-493"><span class="linenos">493</span></a>        <span class="k">return</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverse_covariance</span><span class="p">)[</span>
-</span><span id="L-494"><a href="#L-494"><span class="linenos">494</span></a>            <span class="p">:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-</span><span id="L-495"><a href="#L-495"><span class="linenos">495</span></a>        <span class="p">]</span>
+</span><span id="L-453"><a href="#L-453"><span class="linenos">453</span></a><span class="k">def</span> <span class="nf">get_chi_gaussian</span><span class="p">(</span>
+</span><span id="L-454"><a href="#L-454"><span class="linenos">454</span></a>    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="L-455"><a href="#L-455"><span class="linenos">455</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="L-456"><a href="#L-456"><span class="linenos">456</span></a>    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="L-457"><a href="#L-457"><span class="linenos">457</span></a>    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="L-458"><a href="#L-458"><span class="linenos">458</span></a>    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+</span><span id="L-459"><a href="#L-459"><span class="linenos">459</span></a>    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="L-460"><a href="#L-460"><span class="linenos">460</span></a>    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="L-461"><a href="#L-461"><span class="linenos">461</span></a><span class="p">):</span>
+</span><span id="L-462"><a href="#L-462"><span class="linenos">462</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
+</span><span id="L-463"><a href="#L-463"><span class="linenos">463</span></a>
+</span><span id="L-464"><a href="#L-464"><span class="linenos">464</span></a><span class="sd">    Parameters:</span>
+</span><span id="L-465"><a href="#L-465"><span class="linenos">465</span></a><span class="sd">        N (int):</span>
+</span><span id="L-466"><a href="#L-466"><span class="linenos">466</span></a><span class="sd">            Number of fields.</span>
+</span><span id="L-467"><a href="#L-467"><span class="linenos">467</span></a><span class="sd">        data (ndarray):</span>
+</span><span id="L-468"><a href="#L-468"><span class="linenos">468</span></a><span class="sd">            The covariance matrix of the data.</span>
+</span><span id="L-469"><a href="#L-469"><span class="linenos">469</span></a><span class="sd">        coba (ndarray):</span>
+</span><span id="L-470"><a href="#L-470"><span class="linenos">470</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
+</span><span id="L-471"><a href="#L-471"><span class="linenos">471</span></a><span class="sd">        mask (ndarray):</span>
+</span><span id="L-472"><a href="#L-472"><span class="linenos">472</span></a><span class="sd">            Mask corresponding to both excluded probes and excluded multipole ranges.</span>
+</span><span id="L-473"><a href="#L-473"><span class="linenos">473</span></a><span class="sd">        inverse_covariance (list(ndarray)):</span>
+</span><span id="L-474"><a href="#L-474"><span class="linenos">474</span></a><span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
+</span><span id="L-475"><a href="#L-475"><span class="linenos">475</span></a><span class="sd">        lmin (int):</span>
+</span><span id="L-476"><a href="#L-476"><span class="linenos">476</span></a><span class="sd">            The minimum multipole to consider.</span>
+</span><span id="L-477"><a href="#L-477"><span class="linenos">477</span></a><span class="sd">        lmax (int):</span>
+</span><span id="L-478"><a href="#L-478"><span class="linenos">478</span></a><span class="sd">            The maximum multipole to consider.</span>
+</span><span id="L-479"><a href="#L-479"><span class="linenos">479</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-480"><a href="#L-480"><span class="linenos">480</span></a>
+</span><span id="L-481"><a href="#L-481"><span class="linenos">481</span></a>    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="L-482"><a href="#L-482"><span class="linenos">482</span></a>        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
+</span><span id="L-483"><a href="#L-483"><span class="linenos">483</span></a>            <span class="n">N</span><span class="p">,</span>
+</span><span id="L-484"><a href="#L-484"><span class="linenos">484</span></a>            <span class="n">coba</span><span class="p">,</span>
+</span><span id="L-485"><a href="#L-485"><span class="linenos">485</span></a>            <span class="n">mask</span><span class="p">,</span>
+</span><span id="L-486"><a href="#L-486"><span class="linenos">486</span></a>            <span class="n">lmin</span><span class="p">,</span>
+</span><span id="L-487"><a href="#L-487"><span class="linenos">487</span></a>            <span class="n">lmax</span><span class="p">,</span>
+</span><span id="L-488"><a href="#L-488"><span class="linenos">488</span></a>        <span class="p">)</span>
+</span><span id="L-489"><a href="#L-489"><span class="linenos">489</span></a>        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
+</span><span id="L-490"><a href="#L-490"><span class="linenos">490</span></a>            <span class="n">N</span><span class="p">,</span>
+</span><span id="L-491"><a href="#L-491"><span class="linenos">491</span></a>            <span class="n">data</span><span class="p">,</span>
+</span><span id="L-492"><a href="#L-492"><span class="linenos">492</span></a>            <span class="n">mask</span><span class="p">,</span>
+</span><span id="L-493"><a href="#L-493"><span class="linenos">493</span></a>            <span class="n">lmin</span><span class="p">,</span>
+</span><span id="L-494"><a href="#L-494"><span class="linenos">494</span></a>            <span class="n">lmax</span><span class="p">,</span>
+</span><span id="L-495"><a href="#L-495"><span class="linenos">495</span></a>        <span class="p">)</span>
 </span><span id="L-496"><a href="#L-496"><span class="linenos">496</span></a>
-</span><span id="L-497"><a href="#L-497"><span class="linenos">497</span></a>
-</span><span id="L-498"><a href="#L-498"><span class="linenos">498</span></a><span class="k">def</span> <span class="nf">get_chi_correlated_gaussian</span><span class="p">(</span>
-</span><span id="L-499"><a href="#L-499"><span class="linenos">499</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-</span><span id="L-500"><a href="#L-500"><span class="linenos">500</span></a><span class="p">):</span>
-</span><span id="L-501"><a href="#L-501"><span class="linenos">501</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
-</span><span id="L-502"><a href="#L-502"><span class="linenos">502</span></a>
-</span><span id="L-503"><a href="#L-503"><span class="linenos">503</span></a><span class="sd">    Parameters:</span>
-</span><span id="L-504"><a href="#L-504"><span class="linenos">504</span></a><span class="sd">        data (ndarray):</span>
-</span><span id="L-505"><a href="#L-505"><span class="linenos">505</span></a><span class="sd">            The covariance matrix of the data.</span>
-</span><span id="L-506"><a href="#L-506"><span class="linenos">506</span></a><span class="sd">        coba (ndarray):</span>
-</span><span id="L-507"><a href="#L-507"><span class="linenos">507</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
-</span><span id="L-508"><a href="#L-508"><span class="linenos">508</span></a><span class="sd">        inverse_covariance (list(ndarray)):</span>
-</span><span id="L-509"><a href="#L-509"><span class="linenos">509</span></a><span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
-</span><span id="L-510"><a href="#L-510"><span class="linenos">510</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-511"><a href="#L-511"><span class="linenos">511</span></a>
-</span><span id="L-512"><a href="#L-512"><span class="linenos">512</span></a>    <span class="k">return</span> <span class="p">(</span>
-</span><span id="L-513"><a href="#L-513"><span class="linenos">513</span></a>        <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
-</span><span id="L-514"><a href="#L-514"><span class="linenos">514</span></a>        <span class="o">@</span> <span class="n">inverse_covariance</span>
-</span><span id="L-515"><a href="#L-515"><span class="linenos">515</span></a>        <span class="o">@</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
-</span><span id="L-516"><a href="#L-516"><span class="linenos">516</span></a>    <span class="p">)</span>
-</span><span id="L-517"><a href="#L-517"><span class="linenos">517</span></a>
-</span><span id="L-518"><a href="#L-518"><span class="linenos">518</span></a>
-</span><span id="L-519"><a href="#L-519"><span class="linenos">519</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
-</span><span id="L-520"><a href="#L-520"><span class="linenos">520</span></a><span class="n">__pdoc__</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="L-521"><a href="#L-521"><span class="linenos">521</span></a><span class="n">__pdoc__</span><span class="p">[</span>
-</span><span id="L-522"><a href="#L-522"><span class="linenos">522</span></a>    <span class="s2">&quot;Likelihood&quot;</span>
-</span><span id="L-523"><a href="#L-523"><span class="linenos">523</span></a><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Likelihood class from Cobaya, refer to Cobaya documentation for more information.&quot;</span>
+</span><span id="L-497"><a href="#L-497"><span class="linenos">497</span></a>        <span class="k">return</span> <span class="p">[</span>
+</span><span id="L-498"><a href="#L-498"><span class="linenos">498</span></a>            <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+</span><span id="L-499"><a href="#L-499"><span class="linenos">499</span></a>            <span class="o">@</span> <span class="n">inverse_covariance</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span><span id="L-500"><a href="#L-500"><span class="linenos">500</span></a>            <span class="o">@</span> <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+</span><span id="L-501"><a href="#L-501"><span class="linenos">501</span></a>            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lmin</span><span class="p">)</span>
+</span><span id="L-502"><a href="#L-502"><span class="linenos">502</span></a>        <span class="p">]</span>
+</span><span id="L-503"><a href="#L-503"><span class="linenos">503</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="L-504"><a href="#L-504"><span class="linenos">504</span></a>        <span class="k">return</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverse_covariance</span><span class="p">)[</span>
+</span><span id="L-505"><a href="#L-505"><span class="linenos">505</span></a>            <span class="p">:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span><span id="L-506"><a href="#L-506"><span class="linenos">506</span></a>        <span class="p">]</span>
+</span><span id="L-507"><a href="#L-507"><span class="linenos">507</span></a>
+</span><span id="L-508"><a href="#L-508"><span class="linenos">508</span></a>
+</span><span id="L-509"><a href="#L-509"><span class="linenos">509</span></a><span class="k">def</span> <span class="nf">get_chi_correlated_gaussian</span><span class="p">(</span>
+</span><span id="L-510"><a href="#L-510"><span class="linenos">510</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+</span><span id="L-511"><a href="#L-511"><span class="linenos">511</span></a><span class="p">):</span>
+</span><span id="L-512"><a href="#L-512"><span class="linenos">512</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
+</span><span id="L-513"><a href="#L-513"><span class="linenos">513</span></a>
+</span><span id="L-514"><a href="#L-514"><span class="linenos">514</span></a><span class="sd">    Parameters:</span>
+</span><span id="L-515"><a href="#L-515"><span class="linenos">515</span></a><span class="sd">        data (ndarray):</span>
+</span><span id="L-516"><a href="#L-516"><span class="linenos">516</span></a><span class="sd">            The covariance matrix of the data.</span>
+</span><span id="L-517"><a href="#L-517"><span class="linenos">517</span></a><span class="sd">        coba (ndarray):</span>
+</span><span id="L-518"><a href="#L-518"><span class="linenos">518</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
+</span><span id="L-519"><a href="#L-519"><span class="linenos">519</span></a><span class="sd">        inverse_covariance (list(ndarray)):</span>
+</span><span id="L-520"><a href="#L-520"><span class="linenos">520</span></a><span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
+</span><span id="L-521"><a href="#L-521"><span class="linenos">521</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-522"><a href="#L-522"><span class="linenos">522</span></a>
+</span><span id="L-523"><a href="#L-523"><span class="linenos">523</span></a>    <span class="k">return</span> <span class="p">(</span>
+</span><span id="L-524"><a href="#L-524"><span class="linenos">524</span></a>        <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+</span><span id="L-525"><a href="#L-525"><span class="linenos">525</span></a>        <span class="o">@</span> <span class="n">inverse_covariance</span>
+</span><span id="L-526"><a href="#L-526"><span class="linenos">526</span></a>        <span class="o">@</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+</span><span id="L-527"><a href="#L-527"><span class="linenos">527</span></a>    <span class="p">)</span>
+</span><span id="L-528"><a href="#L-528"><span class="linenos">528</span></a>
+</span><span id="L-529"><a href="#L-529"><span class="linenos">529</span></a>
+</span><span id="L-530"><a href="#L-530"><span class="linenos">530</span></a><span class="c1"># def binned_chi_correlated_gaussian(</span>
+</span><span id="L-531"><a href="#L-531"><span class="linenos">531</span></a><span class="c1">#     lmax: int,</span>
+</span><span id="L-532"><a href="#L-532"><span class="linenos">532</span></a><span class="c1">#     delta_ell: int,</span>
+</span><span id="L-533"><a href="#L-533"><span class="linenos">533</span></a><span class="c1">#     data: np.ndarray,</span>
+</span><span id="L-534"><a href="#L-534"><span class="linenos">534</span></a><span class="c1">#     coba: np.ndarray,</span>
+</span><span id="L-535"><a href="#L-535"><span class="linenos">535</span></a><span class="c1">#     inverse_covariance: List[np.ndarray],</span>
+</span><span id="L-536"><a href="#L-536"><span class="linenos">536</span></a><span class="c1"># ):</span>
+</span><span id="L-537"><a href="#L-537"><span class="linenos">537</span></a><span class="c1">#     # NaMaster implementation</span>
+</span><span id="L-538"><a href="#L-538"><span class="linenos">538</span></a><span class="c1">#     import pymaster as nmt</span>
+</span><span id="L-539"><a href="#L-539"><span class="linenos">539</span></a>
+</span><span id="L-540"><a href="#L-540"><span class="linenos">540</span></a><span class="c1">#     scheme = nmt.NmtBin(nlb=delta_ell, lmax=lmax, is_Dell=False)</span>
+</span><span id="L-541"><a href="#L-541"><span class="linenos">541</span></a>
+</span><span id="L-542"><a href="#L-542"><span class="linenos">542</span></a><span class="c1">#     # Spectra must start from ell=0</span>
+</span><span id="L-543"><a href="#L-543"><span class="linenos">543</span></a><span class="c1">#     digitized_coba = scheme.bin_cell(</span>
+</span><span id="L-544"><a href="#L-544"><span class="linenos">544</span></a><span class="c1">#         np.concatenate([[0.0, 0.0], np.array(coba[0, 0, :])])</span>
+</span><span id="L-545"><a href="#L-545"><span class="linenos">545</span></a><span class="c1">#     )</span>
+</span><span id="L-546"><a href="#L-546"><span class="linenos">546</span></a><span class="c1">#     digitized_data = scheme.bin_cell(</span>
+</span><span id="L-547"><a href="#L-547"><span class="linenos">547</span></a><span class="c1">#         np.concatenate([[0.0, 0.0], np.array(data[0, 0, :])])</span>
+</span><span id="L-548"><a href="#L-548"><span class="linenos">548</span></a><span class="c1">#     )</span>
+</span><span id="L-549"><a href="#L-549"><span class="linenos">549</span></a>
+</span><span id="L-550"><a href="#L-550"><span class="linenos">550</span></a><span class="c1">#     # Custom Implementation</span>
+</span><span id="L-551"><a href="#L-551"><span class="linenos">551</span></a><span class="c1">#     bins = np.arange(2, lmax + 2, delta_ell)</span>
+</span><span id="L-552"><a href="#L-552"><span class="linenos">552</span></a><span class="c1">#     ranges = [np.arange(bins[i], bins[i + 1]) - 2 for i in range(len(bins) - 1)]</span>
+</span><span id="L-553"><a href="#L-553"><span class="linenos">553</span></a><span class="c1">#     arr = np.array(coba[0, 0, :])</span>
+</span><span id="L-554"><a href="#L-554"><span class="linenos">554</span></a><span class="c1">#     digitized_coba = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]</span>
+</span><span id="L-555"><a href="#L-555"><span class="linenos">555</span></a><span class="c1">#     arr = np.array(data[0, 0, :])</span>
+</span><span id="L-556"><a href="#L-556"><span class="linenos">556</span></a><span class="c1">#     digitized_data = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]</span>
+</span><span id="L-557"><a href="#L-557"><span class="linenos">557</span></a>
+</span><span id="L-558"><a href="#L-558"><span class="linenos">558</span></a><span class="c1">#     # Returning the chi-square value</span>
+</span><span id="L-559"><a href="#L-559"><span class="linenos">559</span></a><span class="c1">#     return (</span>
+</span><span id="L-560"><a href="#L-560"><span class="linenos">560</span></a><span class="c1">#         (digitized_coba - digitized_data)</span>
+</span><span id="L-561"><a href="#L-561"><span class="linenos">561</span></a><span class="c1">#         @ inverse_covariance</span>
+</span><span id="L-562"><a href="#L-562"><span class="linenos">562</span></a><span class="c1">#         @ (digitized_coba - digitized_data)</span>
+</span><span id="L-563"><a href="#L-563"><span class="linenos">563</span></a><span class="c1">#     )</span>
+</span><span id="L-564"><a href="#L-564"><span class="linenos">564</span></a>
+</span><span id="L-565"><a href="#L-565"><span class="linenos">565</span></a>
+</span><span id="L-566"><a href="#L-566"><span class="linenos">566</span></a><span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
+</span><span id="L-567"><a href="#L-567"><span class="linenos">567</span></a><span class="n">__pdoc__</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="L-568"><a href="#L-568"><span class="linenos">568</span></a><span class="n">__pdoc__</span><span class="p">[</span>
+</span><span id="L-569"><a href="#L-569"><span class="linenos">569</span></a>    <span class="s2">&quot;Likelihood&quot;</span>
+</span><span id="L-570"><a href="#L-570"><span class="linenos">570</span></a><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Likelihood class from Cobaya, refer to Cobaya documentation for more information.&quot;</span>
 </span></pre></div>
 
 
@@ -622,39 +669,50 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get_chi_exact</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">N</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>,</span><span class="param">	<span class="n">coba</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>,</span><span class="param">	<span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">):</span></span>
+        <span class="name">get_chi_exact</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">N</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">data</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>,</span><span class="param">	<span class="n">coba</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>,</span><span class="param">	<span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="get_chi_exact-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#get_chi_exact"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_chi_exact-414"><a href="#get_chi_exact-414"><span class="linenos">414</span></a><span class="k">def</span> <span class="nf">get_chi_exact</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="get_chi_exact-415"><a href="#get_chi_exact-415"><span class="linenos">415</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the exact likelihood case.</span>
-</span><span id="get_chi_exact-416"><a href="#get_chi_exact-416"><span class="linenos">416</span></a>
-</span><span id="get_chi_exact-417"><a href="#get_chi_exact-417"><span class="linenos">417</span></a><span class="sd">    Parameters:</span>
-</span><span id="get_chi_exact-418"><a href="#get_chi_exact-418"><span class="linenos">418</span></a><span class="sd">        N (int):</span>
-</span><span id="get_chi_exact-419"><a href="#get_chi_exact-419"><span class="linenos">419</span></a><span class="sd">            Number of fields.</span>
-</span><span id="get_chi_exact-420"><a href="#get_chi_exact-420"><span class="linenos">420</span></a><span class="sd">        data (ndarray):</span>
-</span><span id="get_chi_exact-421"><a href="#get_chi_exact-421"><span class="linenos">421</span></a><span class="sd">            The covariance matrix of the data.</span>
-</span><span id="get_chi_exact-422"><a href="#get_chi_exact-422"><span class="linenos">422</span></a><span class="sd">        coba (ndarray):</span>
-</span><span id="get_chi_exact-423"><a href="#get_chi_exact-423"><span class="linenos">423</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
-</span><span id="get_chi_exact-424"><a href="#get_chi_exact-424"><span class="linenos">424</span></a><span class="sd">        lmin (int):</span>
-</span><span id="get_chi_exact-425"><a href="#get_chi_exact-425"><span class="linenos">425</span></a><span class="sd">            The minimum multipole to consider.</span>
-</span><span id="get_chi_exact-426"><a href="#get_chi_exact-426"><span class="linenos">426</span></a><span class="sd">        lmax (int):</span>
-</span><span id="get_chi_exact-427"><a href="#get_chi_exact-427"><span class="linenos">427</span></a><span class="sd">            The maximum multipole to consider.</span>
-</span><span id="get_chi_exact-428"><a href="#get_chi_exact-428"><span class="linenos">428</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="get_chi_exact-429"><a href="#get_chi_exact-429"><span class="linenos">429</span></a>    <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="get_chi_exact-430"><a href="#get_chi_exact-430"><span class="linenos">430</span></a>    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="get_chi_exact-431"><a href="#get_chi_exact-431"><span class="linenos">431</span></a>        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
-</span><span id="get_chi_exact-432"><a href="#get_chi_exact-432"><span class="linenos">432</span></a>        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">coba</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
-</span><span id="get_chi_exact-433"><a href="#get_chi_exact-433"><span class="linenos">433</span></a>
-</span><span id="get_chi_exact-434"><a href="#get_chi_exact-434"><span class="linenos">434</span></a>        <span class="n">M_ℓ</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">,</span> <span class="n">reduced_coba</span><span class="p">,</span> <span class="n">reduced_data</span><span class="p">))</span>
-</span><span id="get_chi_exact-435"><a href="#get_chi_exact-435"><span class="linenos">435</span></a>        <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span>
-</span><span id="get_chi_exact-436"><a href="#get_chi_exact-436"><span class="linenos">436</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">M_ℓ</span>
-</span><span id="get_chi_exact-437"><a href="#get_chi_exact-437"><span class="linenos">437</span></a>        <span class="p">]</span>
-</span><span id="get_chi_exact-438"><a href="#get_chi_exact-438"><span class="linenos">438</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="get_chi_exact-439"><a href="#get_chi_exact-439"><span class="linenos">439</span></a>        <span class="n">M</span> <span class="o">=</span> <span class="n">data</span> <span class="o">/</span> <span class="n">coba</span>
-</span><span id="get_chi_exact-440"><a href="#get_chi_exact-440"><span class="linenos">440</span></a>        <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_chi_exact-414"><a href="#get_chi_exact-414"><span class="linenos">414</span></a><span class="k">def</span> <span class="nf">get_chi_exact</span><span class="p">(</span>
+</span><span id="get_chi_exact-415"><a href="#get_chi_exact-415"><span class="linenos">415</span></a>    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="get_chi_exact-416"><a href="#get_chi_exact-416"><span class="linenos">416</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="get_chi_exact-417"><a href="#get_chi_exact-417"><span class="linenos">417</span></a>    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="get_chi_exact-418"><a href="#get_chi_exact-418"><span class="linenos">418</span></a>    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="get_chi_exact-419"><a href="#get_chi_exact-419"><span class="linenos">419</span></a>    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="get_chi_exact-420"><a href="#get_chi_exact-420"><span class="linenos">420</span></a>    <span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+</span><span id="get_chi_exact-421"><a href="#get_chi_exact-421"><span class="linenos">421</span></a><span class="p">):</span>
+</span><span id="get_chi_exact-422"><a href="#get_chi_exact-422"><span class="linenos">422</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the exact likelihood case.</span>
+</span><span id="get_chi_exact-423"><a href="#get_chi_exact-423"><span class="linenos">423</span></a>
+</span><span id="get_chi_exact-424"><a href="#get_chi_exact-424"><span class="linenos">424</span></a><span class="sd">    Parameters:</span>
+</span><span id="get_chi_exact-425"><a href="#get_chi_exact-425"><span class="linenos">425</span></a><span class="sd">        N (int):</span>
+</span><span id="get_chi_exact-426"><a href="#get_chi_exact-426"><span class="linenos">426</span></a><span class="sd">            Number of fields.</span>
+</span><span id="get_chi_exact-427"><a href="#get_chi_exact-427"><span class="linenos">427</span></a><span class="sd">        data (ndarray):</span>
+</span><span id="get_chi_exact-428"><a href="#get_chi_exact-428"><span class="linenos">428</span></a><span class="sd">            The covariance matrix of the data.</span>
+</span><span id="get_chi_exact-429"><a href="#get_chi_exact-429"><span class="linenos">429</span></a><span class="sd">        coba (ndarray):</span>
+</span><span id="get_chi_exact-430"><a href="#get_chi_exact-430"><span class="linenos">430</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
+</span><span id="get_chi_exact-431"><a href="#get_chi_exact-431"><span class="linenos">431</span></a><span class="sd">        lmin (int):</span>
+</span><span id="get_chi_exact-432"><a href="#get_chi_exact-432"><span class="linenos">432</span></a><span class="sd">            The minimum multipole to consider.</span>
+</span><span id="get_chi_exact-433"><a href="#get_chi_exact-433"><span class="linenos">433</span></a><span class="sd">        lmax (int):</span>
+</span><span id="get_chi_exact-434"><a href="#get_chi_exact-434"><span class="linenos">434</span></a><span class="sd">            The maximum multipole to consider.</span>
+</span><span id="get_chi_exact-435"><a href="#get_chi_exact-435"><span class="linenos">435</span></a><span class="sd">        fsky (float):</span>
+</span><span id="get_chi_exact-436"><a href="#get_chi_exact-436"><span class="linenos">436</span></a><span class="sd">            The fraction of the sky if a unique number is provided. Otherwise, it is the geometrical mean of the fraction of the sky for each field pair. In other words an effective fraction of the sky.</span>
+</span><span id="get_chi_exact-437"><a href="#get_chi_exact-437"><span class="linenos">437</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="get_chi_exact-438"><a href="#get_chi_exact-438"><span class="linenos">438</span></a>    <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="get_chi_exact-439"><a href="#get_chi_exact-439"><span class="linenos">439</span></a>    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="get_chi_exact-440"><a href="#get_chi_exact-440"><span class="linenos">440</span></a>        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+</span><span id="get_chi_exact-441"><a href="#get_chi_exact-441"><span class="linenos">441</span></a>        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">coba</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+</span><span id="get_chi_exact-442"><a href="#get_chi_exact-442"><span class="linenos">442</span></a>
+</span><span id="get_chi_exact-443"><a href="#get_chi_exact-443"><span class="linenos">443</span></a>        <span class="n">M_ℓ</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">,</span> <span class="n">reduced_coba</span><span class="p">,</span> <span class="n">reduced_data</span><span class="p">))</span>
+</span><span id="get_chi_exact-444"><a href="#get_chi_exact-444"><span class="linenos">444</span></a>        <span class="k">return</span> <span class="p">(</span>
+</span><span id="get_chi_exact-445"><a href="#get_chi_exact-445"><span class="linenos">445</span></a>            <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="get_chi_exact-446"><a href="#get_chi_exact-446"><span class="linenos">446</span></a>            <span class="o">*</span> <span class="n">fsky</span>
+</span><span id="get_chi_exact-447"><a href="#get_chi_exact-447"><span class="linenos">447</span></a>            <span class="o">*</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">M_ℓ</span><span class="p">]</span>
+</span><span id="get_chi_exact-448"><a href="#get_chi_exact-448"><span class="linenos">448</span></a>        <span class="p">)</span>
+</span><span id="get_chi_exact-449"><a href="#get_chi_exact-449"><span class="linenos">449</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="get_chi_exact-450"><a href="#get_chi_exact-450"><span class="linenos">450</span></a>        <span class="n">M</span> <span class="o">=</span> <span class="n">data</span> <span class="o">/</span> <span class="n">coba</span>
+</span><span id="get_chi_exact-451"><a href="#get_chi_exact-451"><span class="linenos">451</span></a>        <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">fsky</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -668,6 +726,7 @@
 <li><strong>coba (ndarray):</strong>  The covariance matrix on the MCMC step.</li>
 <li><strong>lmin (int):</strong>  The minimum multipole to consider.</li>
 <li><strong>lmax (int):</strong>  The maximum multipole to consider.</li>
+<li><strong>fsky (float):</strong>  The fraction of the sky if a unique number is provided. Otherwise, it is the geometrical mean of the fraction of the sky for each field pair. In other words an effective fraction of the sky.</li>
 </ul>
 </div>
 
@@ -684,60 +743,60 @@
 
     </div>
     <a class="headerlink" href="#get_chi_gaussian"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_chi_gaussian-443"><a href="#get_chi_gaussian-443"><span class="linenos">443</span></a><span class="k">def</span> <span class="nf">get_chi_gaussian</span><span class="p">(</span>
-</span><span id="get_chi_gaussian-444"><a href="#get_chi_gaussian-444"><span class="linenos">444</span></a>    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-445"><a href="#get_chi_gaussian-445"><span class="linenos">445</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-446"><a href="#get_chi_gaussian-446"><span class="linenos">446</span></a>    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-447"><a href="#get_chi_gaussian-447"><span class="linenos">447</span></a>    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-448"><a href="#get_chi_gaussian-448"><span class="linenos">448</span></a>    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-</span><span id="get_chi_gaussian-449"><a href="#get_chi_gaussian-449"><span class="linenos">449</span></a>    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-450"><a href="#get_chi_gaussian-450"><span class="linenos">450</span></a>    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-451"><a href="#get_chi_gaussian-451"><span class="linenos">451</span></a><span class="p">):</span>
-</span><span id="get_chi_gaussian-452"><a href="#get_chi_gaussian-452"><span class="linenos">452</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
-</span><span id="get_chi_gaussian-453"><a href="#get_chi_gaussian-453"><span class="linenos">453</span></a>
-</span><span id="get_chi_gaussian-454"><a href="#get_chi_gaussian-454"><span class="linenos">454</span></a><span class="sd">    Parameters:</span>
-</span><span id="get_chi_gaussian-455"><a href="#get_chi_gaussian-455"><span class="linenos">455</span></a><span class="sd">        N (int):</span>
-</span><span id="get_chi_gaussian-456"><a href="#get_chi_gaussian-456"><span class="linenos">456</span></a><span class="sd">            Number of fields.</span>
-</span><span id="get_chi_gaussian-457"><a href="#get_chi_gaussian-457"><span class="linenos">457</span></a><span class="sd">        data (ndarray):</span>
-</span><span id="get_chi_gaussian-458"><a href="#get_chi_gaussian-458"><span class="linenos">458</span></a><span class="sd">            The covariance matrix of the data.</span>
-</span><span id="get_chi_gaussian-459"><a href="#get_chi_gaussian-459"><span class="linenos">459</span></a><span class="sd">        coba (ndarray):</span>
-</span><span id="get_chi_gaussian-460"><a href="#get_chi_gaussian-460"><span class="linenos">460</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
-</span><span id="get_chi_gaussian-461"><a href="#get_chi_gaussian-461"><span class="linenos">461</span></a><span class="sd">        mask (ndarray):</span>
-</span><span id="get_chi_gaussian-462"><a href="#get_chi_gaussian-462"><span class="linenos">462</span></a><span class="sd">            Mask corresponding to both excluded probes and excluded multipole ranges.</span>
-</span><span id="get_chi_gaussian-463"><a href="#get_chi_gaussian-463"><span class="linenos">463</span></a><span class="sd">        inverse_covariance (list(ndarray)):</span>
-</span><span id="get_chi_gaussian-464"><a href="#get_chi_gaussian-464"><span class="linenos">464</span></a><span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
-</span><span id="get_chi_gaussian-465"><a href="#get_chi_gaussian-465"><span class="linenos">465</span></a><span class="sd">        lmin (int):</span>
-</span><span id="get_chi_gaussian-466"><a href="#get_chi_gaussian-466"><span class="linenos">466</span></a><span class="sd">            The minimum multipole to consider.</span>
-</span><span id="get_chi_gaussian-467"><a href="#get_chi_gaussian-467"><span class="linenos">467</span></a><span class="sd">        lmax (int):</span>
-</span><span id="get_chi_gaussian-468"><a href="#get_chi_gaussian-468"><span class="linenos">468</span></a><span class="sd">            The maximum multipole to consider.</span>
-</span><span id="get_chi_gaussian-469"><a href="#get_chi_gaussian-469"><span class="linenos">469</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="get_chi_gaussian-470"><a href="#get_chi_gaussian-470"><span class="linenos">470</span></a>
-</span><span id="get_chi_gaussian-471"><a href="#get_chi_gaussian-471"><span class="linenos">471</span></a>    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="get_chi_gaussian-472"><a href="#get_chi_gaussian-472"><span class="linenos">472</span></a>        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
-</span><span id="get_chi_gaussian-473"><a href="#get_chi_gaussian-473"><span class="linenos">473</span></a>            <span class="n">N</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-474"><a href="#get_chi_gaussian-474"><span class="linenos">474</span></a>            <span class="n">coba</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-475"><a href="#get_chi_gaussian-475"><span class="linenos">475</span></a>            <span class="n">mask</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-476"><a href="#get_chi_gaussian-476"><span class="linenos">476</span></a>            <span class="n">lmin</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-477"><a href="#get_chi_gaussian-477"><span class="linenos">477</span></a>            <span class="n">lmax</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-478"><a href="#get_chi_gaussian-478"><span class="linenos">478</span></a>        <span class="p">)</span>
-</span><span id="get_chi_gaussian-479"><a href="#get_chi_gaussian-479"><span class="linenos">479</span></a>        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
-</span><span id="get_chi_gaussian-480"><a href="#get_chi_gaussian-480"><span class="linenos">480</span></a>            <span class="n">N</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-481"><a href="#get_chi_gaussian-481"><span class="linenos">481</span></a>            <span class="n">data</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-482"><a href="#get_chi_gaussian-482"><span class="linenos">482</span></a>            <span class="n">mask</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-483"><a href="#get_chi_gaussian-483"><span class="linenos">483</span></a>            <span class="n">lmin</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-484"><a href="#get_chi_gaussian-484"><span class="linenos">484</span></a>            <span class="n">lmax</span><span class="p">,</span>
-</span><span id="get_chi_gaussian-485"><a href="#get_chi_gaussian-485"><span class="linenos">485</span></a>        <span class="p">)</span>
-</span><span id="get_chi_gaussian-486"><a href="#get_chi_gaussian-486"><span class="linenos">486</span></a>
-</span><span id="get_chi_gaussian-487"><a href="#get_chi_gaussian-487"><span class="linenos">487</span></a>        <span class="k">return</span> <span class="p">[</span>
-</span><span id="get_chi_gaussian-488"><a href="#get_chi_gaussian-488"><span class="linenos">488</span></a>            <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-</span><span id="get_chi_gaussian-489"><a href="#get_chi_gaussian-489"><span class="linenos">489</span></a>            <span class="o">@</span> <span class="n">inverse_covariance</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-</span><span id="get_chi_gaussian-490"><a href="#get_chi_gaussian-490"><span class="linenos">490</span></a>            <span class="o">@</span> <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-</span><span id="get_chi_gaussian-491"><a href="#get_chi_gaussian-491"><span class="linenos">491</span></a>            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lmin</span><span class="p">)</span>
-</span><span id="get_chi_gaussian-492"><a href="#get_chi_gaussian-492"><span class="linenos">492</span></a>        <span class="p">]</span>
-</span><span id="get_chi_gaussian-493"><a href="#get_chi_gaussian-493"><span class="linenos">493</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="get_chi_gaussian-494"><a href="#get_chi_gaussian-494"><span class="linenos">494</span></a>        <span class="k">return</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverse_covariance</span><span class="p">)[</span>
-</span><span id="get_chi_gaussian-495"><a href="#get_chi_gaussian-495"><span class="linenos">495</span></a>            <span class="p">:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-</span><span id="get_chi_gaussian-496"><a href="#get_chi_gaussian-496"><span class="linenos">496</span></a>        <span class="p">]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_chi_gaussian-454"><a href="#get_chi_gaussian-454"><span class="linenos">454</span></a><span class="k">def</span> <span class="nf">get_chi_gaussian</span><span class="p">(</span>
+</span><span id="get_chi_gaussian-455"><a href="#get_chi_gaussian-455"><span class="linenos">455</span></a>    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-456"><a href="#get_chi_gaussian-456"><span class="linenos">456</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-457"><a href="#get_chi_gaussian-457"><span class="linenos">457</span></a>    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-458"><a href="#get_chi_gaussian-458"><span class="linenos">458</span></a>    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-459"><a href="#get_chi_gaussian-459"><span class="linenos">459</span></a>    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+</span><span id="get_chi_gaussian-460"><a href="#get_chi_gaussian-460"><span class="linenos">460</span></a>    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-461"><a href="#get_chi_gaussian-461"><span class="linenos">461</span></a>    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-462"><a href="#get_chi_gaussian-462"><span class="linenos">462</span></a><span class="p">):</span>
+</span><span id="get_chi_gaussian-463"><a href="#get_chi_gaussian-463"><span class="linenos">463</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
+</span><span id="get_chi_gaussian-464"><a href="#get_chi_gaussian-464"><span class="linenos">464</span></a>
+</span><span id="get_chi_gaussian-465"><a href="#get_chi_gaussian-465"><span class="linenos">465</span></a><span class="sd">    Parameters:</span>
+</span><span id="get_chi_gaussian-466"><a href="#get_chi_gaussian-466"><span class="linenos">466</span></a><span class="sd">        N (int):</span>
+</span><span id="get_chi_gaussian-467"><a href="#get_chi_gaussian-467"><span class="linenos">467</span></a><span class="sd">            Number of fields.</span>
+</span><span id="get_chi_gaussian-468"><a href="#get_chi_gaussian-468"><span class="linenos">468</span></a><span class="sd">        data (ndarray):</span>
+</span><span id="get_chi_gaussian-469"><a href="#get_chi_gaussian-469"><span class="linenos">469</span></a><span class="sd">            The covariance matrix of the data.</span>
+</span><span id="get_chi_gaussian-470"><a href="#get_chi_gaussian-470"><span class="linenos">470</span></a><span class="sd">        coba (ndarray):</span>
+</span><span id="get_chi_gaussian-471"><a href="#get_chi_gaussian-471"><span class="linenos">471</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
+</span><span id="get_chi_gaussian-472"><a href="#get_chi_gaussian-472"><span class="linenos">472</span></a><span class="sd">        mask (ndarray):</span>
+</span><span id="get_chi_gaussian-473"><a href="#get_chi_gaussian-473"><span class="linenos">473</span></a><span class="sd">            Mask corresponding to both excluded probes and excluded multipole ranges.</span>
+</span><span id="get_chi_gaussian-474"><a href="#get_chi_gaussian-474"><span class="linenos">474</span></a><span class="sd">        inverse_covariance (list(ndarray)):</span>
+</span><span id="get_chi_gaussian-475"><a href="#get_chi_gaussian-475"><span class="linenos">475</span></a><span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
+</span><span id="get_chi_gaussian-476"><a href="#get_chi_gaussian-476"><span class="linenos">476</span></a><span class="sd">        lmin (int):</span>
+</span><span id="get_chi_gaussian-477"><a href="#get_chi_gaussian-477"><span class="linenos">477</span></a><span class="sd">            The minimum multipole to consider.</span>
+</span><span id="get_chi_gaussian-478"><a href="#get_chi_gaussian-478"><span class="linenos">478</span></a><span class="sd">        lmax (int):</span>
+</span><span id="get_chi_gaussian-479"><a href="#get_chi_gaussian-479"><span class="linenos">479</span></a><span class="sd">            The maximum multipole to consider.</span>
+</span><span id="get_chi_gaussian-480"><a href="#get_chi_gaussian-480"><span class="linenos">480</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="get_chi_gaussian-481"><a href="#get_chi_gaussian-481"><span class="linenos">481</span></a>
+</span><span id="get_chi_gaussian-482"><a href="#get_chi_gaussian-482"><span class="linenos">482</span></a>    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="get_chi_gaussian-483"><a href="#get_chi_gaussian-483"><span class="linenos">483</span></a>        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
+</span><span id="get_chi_gaussian-484"><a href="#get_chi_gaussian-484"><span class="linenos">484</span></a>            <span class="n">N</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-485"><a href="#get_chi_gaussian-485"><span class="linenos">485</span></a>            <span class="n">coba</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-486"><a href="#get_chi_gaussian-486"><span class="linenos">486</span></a>            <span class="n">mask</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-487"><a href="#get_chi_gaussian-487"><span class="linenos">487</span></a>            <span class="n">lmin</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-488"><a href="#get_chi_gaussian-488"><span class="linenos">488</span></a>            <span class="n">lmax</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-489"><a href="#get_chi_gaussian-489"><span class="linenos">489</span></a>        <span class="p">)</span>
+</span><span id="get_chi_gaussian-490"><a href="#get_chi_gaussian-490"><span class="linenos">490</span></a>        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
+</span><span id="get_chi_gaussian-491"><a href="#get_chi_gaussian-491"><span class="linenos">491</span></a>            <span class="n">N</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-492"><a href="#get_chi_gaussian-492"><span class="linenos">492</span></a>            <span class="n">data</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-493"><a href="#get_chi_gaussian-493"><span class="linenos">493</span></a>            <span class="n">mask</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-494"><a href="#get_chi_gaussian-494"><span class="linenos">494</span></a>            <span class="n">lmin</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-495"><a href="#get_chi_gaussian-495"><span class="linenos">495</span></a>            <span class="n">lmax</span><span class="p">,</span>
+</span><span id="get_chi_gaussian-496"><a href="#get_chi_gaussian-496"><span class="linenos">496</span></a>        <span class="p">)</span>
+</span><span id="get_chi_gaussian-497"><a href="#get_chi_gaussian-497"><span class="linenos">497</span></a>
+</span><span id="get_chi_gaussian-498"><a href="#get_chi_gaussian-498"><span class="linenos">498</span></a>        <span class="k">return</span> <span class="p">[</span>
+</span><span id="get_chi_gaussian-499"><a href="#get_chi_gaussian-499"><span class="linenos">499</span></a>            <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+</span><span id="get_chi_gaussian-500"><a href="#get_chi_gaussian-500"><span class="linenos">500</span></a>            <span class="o">@</span> <span class="n">inverse_covariance</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span><span id="get_chi_gaussian-501"><a href="#get_chi_gaussian-501"><span class="linenos">501</span></a>            <span class="o">@</span> <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+</span><span id="get_chi_gaussian-502"><a href="#get_chi_gaussian-502"><span class="linenos">502</span></a>            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lmin</span><span class="p">)</span>
+</span><span id="get_chi_gaussian-503"><a href="#get_chi_gaussian-503"><span class="linenos">503</span></a>        <span class="p">]</span>
+</span><span id="get_chi_gaussian-504"><a href="#get_chi_gaussian-504"><span class="linenos">504</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="get_chi_gaussian-505"><a href="#get_chi_gaussian-505"><span class="linenos">505</span></a>        <span class="k">return</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverse_covariance</span><span class="p">)[</span>
+</span><span id="get_chi_gaussian-506"><a href="#get_chi_gaussian-506"><span class="linenos">506</span></a>            <span class="p">:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span><span id="get_chi_gaussian-507"><a href="#get_chi_gaussian-507"><span class="linenos">507</span></a>        <span class="p">]</span>
 </span></pre></div>
 
 
@@ -769,25 +828,25 @@
 
     </div>
     <a class="headerlink" href="#get_chi_correlated_gaussian"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_chi_correlated_gaussian-499"><a href="#get_chi_correlated_gaussian-499"><span class="linenos">499</span></a><span class="k">def</span> <span class="nf">get_chi_correlated_gaussian</span><span class="p">(</span>
-</span><span id="get_chi_correlated_gaussian-500"><a href="#get_chi_correlated_gaussian-500"><span class="linenos">500</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-</span><span id="get_chi_correlated_gaussian-501"><a href="#get_chi_correlated_gaussian-501"><span class="linenos">501</span></a><span class="p">):</span>
-</span><span id="get_chi_correlated_gaussian-502"><a href="#get_chi_correlated_gaussian-502"><span class="linenos">502</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
-</span><span id="get_chi_correlated_gaussian-503"><a href="#get_chi_correlated_gaussian-503"><span class="linenos">503</span></a>
-</span><span id="get_chi_correlated_gaussian-504"><a href="#get_chi_correlated_gaussian-504"><span class="linenos">504</span></a><span class="sd">    Parameters:</span>
-</span><span id="get_chi_correlated_gaussian-505"><a href="#get_chi_correlated_gaussian-505"><span class="linenos">505</span></a><span class="sd">        data (ndarray):</span>
-</span><span id="get_chi_correlated_gaussian-506"><a href="#get_chi_correlated_gaussian-506"><span class="linenos">506</span></a><span class="sd">            The covariance matrix of the data.</span>
-</span><span id="get_chi_correlated_gaussian-507"><a href="#get_chi_correlated_gaussian-507"><span class="linenos">507</span></a><span class="sd">        coba (ndarray):</span>
-</span><span id="get_chi_correlated_gaussian-508"><a href="#get_chi_correlated_gaussian-508"><span class="linenos">508</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
-</span><span id="get_chi_correlated_gaussian-509"><a href="#get_chi_correlated_gaussian-509"><span class="linenos">509</span></a><span class="sd">        inverse_covariance (list(ndarray)):</span>
-</span><span id="get_chi_correlated_gaussian-510"><a href="#get_chi_correlated_gaussian-510"><span class="linenos">510</span></a><span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
-</span><span id="get_chi_correlated_gaussian-511"><a href="#get_chi_correlated_gaussian-511"><span class="linenos">511</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="get_chi_correlated_gaussian-512"><a href="#get_chi_correlated_gaussian-512"><span class="linenos">512</span></a>
-</span><span id="get_chi_correlated_gaussian-513"><a href="#get_chi_correlated_gaussian-513"><span class="linenos">513</span></a>    <span class="k">return</span> <span class="p">(</span>
-</span><span id="get_chi_correlated_gaussian-514"><a href="#get_chi_correlated_gaussian-514"><span class="linenos">514</span></a>        <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
-</span><span id="get_chi_correlated_gaussian-515"><a href="#get_chi_correlated_gaussian-515"><span class="linenos">515</span></a>        <span class="o">@</span> <span class="n">inverse_covariance</span>
-</span><span id="get_chi_correlated_gaussian-516"><a href="#get_chi_correlated_gaussian-516"><span class="linenos">516</span></a>        <span class="o">@</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
-</span><span id="get_chi_correlated_gaussian-517"><a href="#get_chi_correlated_gaussian-517"><span class="linenos">517</span></a>    <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_chi_correlated_gaussian-510"><a href="#get_chi_correlated_gaussian-510"><span class="linenos">510</span></a><span class="k">def</span> <span class="nf">get_chi_correlated_gaussian</span><span class="p">(</span>
+</span><span id="get_chi_correlated_gaussian-511"><a href="#get_chi_correlated_gaussian-511"><span class="linenos">511</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+</span><span id="get_chi_correlated_gaussian-512"><a href="#get_chi_correlated_gaussian-512"><span class="linenos">512</span></a><span class="p">):</span>
+</span><span id="get_chi_correlated_gaussian-513"><a href="#get_chi_correlated_gaussian-513"><span class="linenos">513</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
+</span><span id="get_chi_correlated_gaussian-514"><a href="#get_chi_correlated_gaussian-514"><span class="linenos">514</span></a>
+</span><span id="get_chi_correlated_gaussian-515"><a href="#get_chi_correlated_gaussian-515"><span class="linenos">515</span></a><span class="sd">    Parameters:</span>
+</span><span id="get_chi_correlated_gaussian-516"><a href="#get_chi_correlated_gaussian-516"><span class="linenos">516</span></a><span class="sd">        data (ndarray):</span>
+</span><span id="get_chi_correlated_gaussian-517"><a href="#get_chi_correlated_gaussian-517"><span class="linenos">517</span></a><span class="sd">            The covariance matrix of the data.</span>
+</span><span id="get_chi_correlated_gaussian-518"><a href="#get_chi_correlated_gaussian-518"><span class="linenos">518</span></a><span class="sd">        coba (ndarray):</span>
+</span><span id="get_chi_correlated_gaussian-519"><a href="#get_chi_correlated_gaussian-519"><span class="linenos">519</span></a><span class="sd">            The covariance matrix on the MCMC step.</span>
+</span><span id="get_chi_correlated_gaussian-520"><a href="#get_chi_correlated_gaussian-520"><span class="linenos">520</span></a><span class="sd">        inverse_covariance (list(ndarray)):</span>
+</span><span id="get_chi_correlated_gaussian-521"><a href="#get_chi_correlated_gaussian-521"><span class="linenos">521</span></a><span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
+</span><span id="get_chi_correlated_gaussian-522"><a href="#get_chi_correlated_gaussian-522"><span class="linenos">522</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="get_chi_correlated_gaussian-523"><a href="#get_chi_correlated_gaussian-523"><span class="linenos">523</span></a>
+</span><span id="get_chi_correlated_gaussian-524"><a href="#get_chi_correlated_gaussian-524"><span class="linenos">524</span></a>    <span class="k">return</span> <span class="p">(</span>
+</span><span id="get_chi_correlated_gaussian-525"><a href="#get_chi_correlated_gaussian-525"><span class="linenos">525</span></a>        <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+</span><span id="get_chi_correlated_gaussian-526"><a href="#get_chi_correlated_gaussian-526"><span class="linenos">526</span></a>        <span class="o">@</span> <span class="n">inverse_covariance</span>
+</span><span id="get_chi_correlated_gaussian-527"><a href="#get_chi_correlated_gaussian-527"><span class="linenos">527</span></a>        <span class="o">@</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+</span><span id="get_chi_correlated_gaussian-528"><a href="#get_chi_correlated_gaussian-528"><span class="linenos">528</span></a>    <span class="p">)</span>
 </span></pre></div>
 
 
