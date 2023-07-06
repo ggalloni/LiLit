@@ -9,9 +9,10 @@ from cobaya.likelihood import Likelihood
 from .functions import (
     CAMBres2dict,
     cov_filling,
+    get_chi_correlated_gaussian,
     get_chi_exact,
     get_chi_gaussian,
-    get_chi_correlated_gaussian,
+    get_chi_HL,
     get_Gauss_keys,
     get_keys,
     get_masked_sigma,
@@ -159,6 +160,9 @@ class LiLit(Likelihood):
         self.N = len(fields)
         self.like_approx = like
         self.excluded_probes = excluded_probes
+        if excluded_probes is not None:
+            for probe in excluded_probes:
+                self.excluded_probes.append(probe[::-1])
         self.cl_file = cl_file
         self.nl_file = nl_file
         self.bias_file = bias_file
@@ -196,7 +200,7 @@ class LiLit(Likelihood):
 
         Note: the correlated Gaussian is supported for a single field, not multiple ones.
         """
-        self.supported = ["exact", "gaussian", "correlated_gaussian"]
+        self.supported = ["exact", "gaussian", "correlated_gaussian", "HL"]
         assert (
             self.like_approx in self.supported
         ), f"The likelihood approximation you specified, {self.like_approx}, is not supported!"
@@ -524,7 +528,7 @@ class LiLit(Likelihood):
         if self.like_approx == "gaussian":
             self.compute_covariance_Cl()
 
-        if self.like_approx == "correlated_gaussian":
+        if self.like_approx == "correlated_gaussian" or self.like_approx == "HL":
             # Note that the external covariance must be invertible. This means that the covariance should start from ell = 2.
             self.inverse_covariance = np.linalg.inv(self.external_covariance)
 
@@ -574,6 +578,14 @@ class LiLit(Likelihood):
                     inverse_covariance=self.inverse_covariance,
                     # lmin=self.lmin,
                     # lmax=self.lmax,
+                )
+            )
+        elif self.like_approx == "HL":
+            logp_ℓ = -0.5 * np.array(
+                get_chi_HL(
+                    data=self.data,
+                    coba=self.coba,
+                    inverse_covariance=self.inverse_covariance,
                 )
             )
         else:

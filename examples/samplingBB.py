@@ -60,7 +60,7 @@ info = {
         },
         "r": {
             "latex": "r_{0.01}",
-            "prior": {"max": 3, "min": 1e-5},
+            "prior": {"max": 3, "min": 0},
             "proposal": 0.0005,
             # "ref": {"dist": "norm", "loc": r, "scale": 0.0001},
             "ref": 0.02,
@@ -97,7 +97,7 @@ info = {
                 "num_nu_massless": 2.046,
                 "share_delta_neff": True,
                 "YHe": 0.2454006,
-                "pivot_tensor": 0.01,
+                "pivot_tensor": 0.05,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
             },
