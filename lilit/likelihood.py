@@ -135,6 +135,8 @@ class LiLit(Likelihood):
         cl_file: Optional[Union[dict, str]] = None,
         nl_file: Optional[Union[dict, str]] = None,
         bias_file: Optional[Union[dict, str]] = None,
+        fidu_guess_file: Optional[Union[dict, str]] = None,
+        offset_file: Optional[Union[dict, str]] = None,
         external_covariance: Optional[np.ndarray] = None,
         experiment: Optional[str] = None,
         nside: Optional[int] = None,
@@ -166,11 +168,17 @@ class LiLit(Likelihood):
         self.cl_file = cl_file
         self.nl_file = nl_file
         self.bias_file = bias_file
+        self.fidu_guess_file = fidu_guess_file
+        self.offset_file = offset_file
         self.external_covariance = external_covariance
         if self.like_approx == "correlated_gaussian":
             assert (
                 self.external_covariance is not None
             ), "You must provide a covariance matrix for the correlated Gaussian likelihood"
+        if self.like_approx == "HL":
+            assert (
+                self.fidu_guess_file is not None
+            ), "You must provide a fiducial spectrum for the H&L likelihood"
         self.experiment = experiment
         if self.experiment is not None:
             # Check that the user has provided the nside if an experiment is used
@@ -441,6 +449,38 @@ class LiLit(Likelihood):
         with open(self.bias, "rb") as pickle_file:
             return pickle.load(pickle_file)
 
+    def get_fidu_guess_spectra(self):
+        """Store the input spectra for a fiducial guess on the spectrum of data.
+
+        The bias spectra stored here will be add to the fiducial power spectra, but not to the ones prodeced by Cobaya. In this way, one can study the case in which something is causing a bias in the spectra reconstruction (e.g. foregrounds, systematics and such).
+        """
+
+        if isinstance(self.fidu_guess_file, dict):
+            return self.fidu_guess_file
+        elif not self.fidu_guess_file.endswith(".pkl"):
+            print(
+                "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+            )
+            raise TypeError
+        with open(self.fidu_guess_file, "rb") as pickle_file:
+            return pickle.load(pickle_file)
+
+    def get_offset_spectra(self):
+        """Store the input spectra for the offset (H&L approximation).
+
+        The bias spectra stored here will be add to the fiducial power spectra, but not to the ones prodeced by Cobaya. In this way, one can study the case in which something is causing a bias in the spectra reconstruction (e.g. foregrounds, systematics and such).
+        """
+
+        if isinstance(self.offset_file, dict):
+            return self.offset_file
+        elif not self.offset_file.endswith(".pkl"):
+            print(
+                "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+            )
+            raise TypeError
+        with open(self.offset_file, "rb") as pickle_file:
+            return pickle.load(pickle_file)
+
     def compute_covariance_Cl(self):
         "Compute the covariance matrix of the Cl."
         self.gauss_keys = get_Gauss_keys(n=self.N, keys=self.keys, debug=self.debug)
@@ -532,6 +572,36 @@ class LiLit(Likelihood):
             # Note that the external covariance must be invertible. This means that the covariance should start from ell = 2.
             self.inverse_covariance = np.linalg.inv(self.external_covariance)
 
+        if self.like_approx == "HL":
+            self.fidu_guessCLS = self.get_fidu_guess_spectra()
+            self.guessCOV = cov_filling(
+                fields=self.fields,
+                excluded_probes=self.excluded_probes,
+                absolute_lmin=self.lmin,
+                absolute_lmax=self.lmax,
+                cov_dict=self.fidu_guessCLS,
+                lmins=self.lmins,
+                lmaxs=self.lmaxs,
+            )
+            self.guess = (
+                self.guessCOV[:, :, self.lmin : self.lmax + 1]
+                + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
+            )
+            if self.offset_file is not None:
+                self.offsetCLS = self.get_offset_spectra()
+                self.offsetCOV = cov_filling(
+                    fields=self.fields,
+                    excluded_probes=self.excluded_probes,
+                    absolute_lmin=self.lmin,
+                    absolute_lmax=self.lmax,
+                    cov_dict=self.offsetCLS,
+                    lmins=self.lmins,
+                    lmaxs=self.lmaxs,
+                )
+                self.offset = self.offsetCOV[:, :, self.lmin : self.lmax + 1]
+            else:
+                self.offset = np.zeros_like(self.guess)
+
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
         requirements = {}
@@ -585,6 +655,8 @@ class LiLit(Likelihood):
                 get_chi_HL(
                     data=self.data,
                     coba=self.coba,
+                    fidu=self.guess,
+                    offset=self.offset,
                     inverse_covariance=self.inverse_covariance,
                 )
             )
