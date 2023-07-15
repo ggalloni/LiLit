@@ -546,7 +546,11 @@ def get_chi_HL(
     """
 
     M = np.array((data[0, 0, :] + offset[0, 0, :]) / (coba[0, 0, :] + offset[0, 0, :]))
-    g = np.sign(M - 1) * np.sqrt(2 * (M - np.log(M) - 1))
+    g = (
+        np.sign(M)
+        * np.sign(np.abs(M) - 1)
+        * np.sqrt(2 * (np.abs(M) - np.log(np.abs(M)) - 1))
+    )
 
     return (
         (g * (fidu[0, 0, :] + offset[0, 0, :]))
