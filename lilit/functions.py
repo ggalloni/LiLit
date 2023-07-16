@@ -7,6 +7,8 @@ __all__ = [
     "get_chi_exact",
     "get_chi_gaussian",
     "get_chi_correlated_gaussian",
+    "get_chi_HL",
+    "get_chi_LoLLiPoP",
     "get_keys",
     "get_Gauss_keys",
     "get_reduced_covariances",
@@ -528,6 +530,34 @@ def get_chi_correlated_gaussian(
 
 
 def get_chi_HL(
+    data: np.ndarray,
+    coba: np.ndarray,
+    fidu: np.ndarray,
+    offset: np.ndarray,
+    inverse_covariance: List[np.ndarray],
+):
+    """Computes proper chi-square term for the Hamimeche & Lewis likelihood case.
+
+    Parameters:
+        data (ndarray):
+            The covariance matrix of the data.
+        coba (ndarray):
+            The covariance matrix on the MCMC step.
+        inverse_covariance (list(ndarray)):
+            Inverse of the covaraince matrices for each multipole.
+    """
+
+    M = np.array((data[0, 0, :] + offset[0, 0, :]) / (coba[0, 0, :] + offset[0, 0, :]))
+    g = np.sign(M - 1) * np.sqrt(2 * (M - np.log(M) - 1))
+
+    return (
+        (g * (fidu[0, 0, :] + offset[0, 0, :]))
+        @ inverse_covariance
+        @ ((fidu[0, 0, :] + offset[0, 0, :]) * g)
+    )
+
+
+def get_chi_LoLLiPoP(
     data: np.ndarray,
     coba: np.ndarray,
     fidu: np.ndarray,

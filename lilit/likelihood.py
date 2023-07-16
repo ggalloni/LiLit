@@ -13,6 +13,7 @@ from .functions import (
     get_chi_exact,
     get_chi_gaussian,
     get_chi_HL,
+    get_chi_LoLLiPoP,
     get_Gauss_keys,
     get_keys,
     get_masked_sigma,
@@ -175,7 +176,7 @@ class LiLit(Likelihood):
             assert (
                 self.external_covariance is not None
             ), "You must provide a covariance matrix for the correlated Gaussian likelihood"
-        if self.like_approx == "HL":
+        if self.like_approx == "HL" or self.like_approx == "lollipop":
             assert (
                 self.fidu_guess_file is not None
             ), "You must provide a fiducial spectrum for the H&L likelihood"
@@ -208,10 +209,10 @@ class LiLit(Likelihood):
 
         Note: the correlated Gaussian is supported for a single field, not multiple ones.
         """
-        self.supported = ["exact", "gaussian", "correlated_gaussian", "HL"]
+        self.supported = ["exact", "gaussian", "correlated_gaussian", "HL", "lollipop"]
         assert (
             self.like_approx in self.supported
-        ), f"The likelihood approximation you specified, {self.like_approx}, is not supported!"
+        ), f"The likelihood approximation you specified, {self.like_approx}, is not supported! Available options are {self.supported}"
 
         return
 
@@ -568,11 +569,15 @@ class LiLit(Likelihood):
         if self.like_approx == "gaussian":
             self.compute_covariance_Cl()
 
-        if self.like_approx == "correlated_gaussian" or self.like_approx == "HL":
+        if (
+            self.like_approx == "correlated_gaussian"
+            or self.like_approx == "HL"
+            or self.like_approx == "lollipop"
+        ):
             # Note that the external covariance must be invertible. This means that the covariance should start from ell = 2.
             self.inverse_covariance = np.linalg.inv(self.external_covariance)
 
-        if self.like_approx == "HL":
+        if self.like_approx == "HL" or self.like_approx == "lollipop":
             self.fidu_guessCLS = self.get_fidu_guess_spectra()
             self.guessCOV = cov_filling(
                 fields=self.fields,
@@ -641,18 +646,24 @@ class LiLit(Likelihood):
         elif self.like_approx == "correlated_gaussian":
             logp_ℓ = -0.5 * np.array(
                 get_chi_correlated_gaussian(
-                    # N=self.N,
                     data=self.data,
                     coba=self.coba,
-                    # mask=self.mask,
                     inverse_covariance=self.inverse_covariance,
-                    # lmin=self.lmin,
-                    # lmax=self.lmax,
                 )
             )
         elif self.like_approx == "HL":
             logp_ℓ = -0.5 * np.array(
                 get_chi_HL(
+                    data=self.data,
+                    coba=self.coba,
+                    fidu=self.guess,
+                    offset=self.offset,
+                    inverse_covariance=self.inverse_covariance,
+                )
+            )
+        elif self.like_approx == "lollipop":
+            logp_ℓ = -0.5 * np.array(
+                get_chi_LoLLiPoP(
                     data=self.data,
                     coba=self.coba,
                     fidu=self.guess,
