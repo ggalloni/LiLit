@@ -448,8 +448,16 @@ def get_chi_exact(
             * [np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ]
         )
     else:
-        M = data[0, 0, :] / coba[0, 0, :]
-        return (2 * ell + 1) * fsky * (M - np.log(M) - 1)
+        return (
+            (2 * ell + 1)
+            * fsky
+            * (
+                data[0, 0, :] / coba[0, 0, :]
+                + np.log(coba[0, 0, :])
+                - (2 * ell - 1) / (2 * ell + 1) * np.log(data[0, 0, :])
+                - 1
+            )
+        )
 
 
 def get_chi_gaussian(
