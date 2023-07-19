@@ -453,8 +453,7 @@ def get_chi_exact(
             * fsky
             * (
                 data[0, 0, :] / coba[0, 0, :]
-                + np.log(coba[0, 0, :])
-                - (2 * ell - 1) / (2 * ell + 1) * np.log(data[0, 0, :])
+                - np.log(data[0, 0, :] / coba[0, 0, :])
                 - 1
             )
         )
