@@ -440,14 +440,14 @@ class LiLit(Likelihood):
         The bias spectra stored here will be add to the fiducial power spectra, but not to the ones prodeced by Cobaya. In this way, one can study the case in which something is causing a bias in the spectra reconstruction (e.g. foregrounds, systematics and such).
         """
 
-        if isinstance(self.bias, dict):
-            return self.bias
-        elif not self.bias.endswith(".pkl"):
+        if isinstance(self.bias_file, dict):
+            return self.bias_file
+        elif not self.bias_file.endswith(".pkl"):
             print(
                 "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
             )
             raise TypeError
-        with open(self.bias, "rb") as pickle_file:
+        with open(self.bias_file, "rb") as pickle_file:
             return pickle.load(pickle_file)
 
     def get_fidu_guess_spectra(self):
