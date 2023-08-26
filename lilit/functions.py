@@ -7,6 +7,8 @@ __all__ = [
     "get_chi_exact",
     "get_chi_gaussian",
     "get_chi_correlated_gaussian",
+    "get_chi_HL",
+    "get_chi_LoLLiPoP",
     "get_keys",
     "get_Gauss_keys",
     "get_reduced_covariances",
@@ -446,8 +448,15 @@ def get_chi_exact(
             * [np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ]
         )
     else:
-        M = data / coba
-        return (2 * ell + 1) * fsky * (M - np.log(np.abs(M)) - 1)
+        return (
+            (2 * ell + 1)
+            * fsky
+            * (
+                data[0, 0, :] / coba[0, 0, :]
+                - np.log(data[0, 0, :] / coba[0, 0, :])
+                - 1
+            )
+        )
 
 
 def get_chi_gaussian(
@@ -527,12 +536,72 @@ def get_chi_correlated_gaussian(
     )
 
 
-# def binned_chi_correlated_gaussian(
-#     lmax: int,
-#     delta_ell: int,
+def get_chi_HL(
+    data: np.ndarray,
+    coba: np.ndarray,
+    fidu: np.ndarray,
+    offset: np.ndarray,
+    inverse_covariance: List[np.ndarray],
+):
+    """Computes proper chi-square term for the Hamimeche & Lewis likelihood case.
+
+    Parameters:
+        data (ndarray):
+            The covariance matrix of the data.
+        coba (ndarray):
+            The covariance matrix on the MCMC step.
+        inverse_covariance (list(ndarray)):
+            Inverse of the covaraince matrices for each multipole.
+    """
+
+    M = np.array((data[0, 0, :] + offset[0, 0, :]) / (coba[0, 0, :] + offset[0, 0, :]))
+    g = np.sign(M - 1) * np.sqrt(2 * (M - np.log(M) - 1))
+
+    return (
+        (g * (fidu[0, 0, :] + offset[0, 0, :]))
+        @ inverse_covariance
+        @ ((fidu[0, 0, :] + offset[0, 0, :]) * g)
+    )
+
+
+def get_chi_LoLLiPoP(
+    data: np.ndarray,
+    coba: np.ndarray,
+    fidu: np.ndarray,
+    offset: np.ndarray,
+    inverse_covariance: List[np.ndarray],
+):
+    """Computes proper chi-square term for the Hamimeche & Lewis likelihood case.
+
+    Parameters:
+        data (ndarray):
+            The covariance matrix of the data.
+        coba (ndarray):
+            The covariance matrix on the MCMC step.
+        inverse_covariance (list(ndarray)):
+            Inverse of the covaraince matrices for each multipole.
+    """
+
+    M = np.array((data[0, 0, :] + offset[0, 0, :]) / (coba[0, 0, :] + offset[0, 0, :]))
+    g = (
+        np.sign(M)
+        * np.sign(np.abs(M) - 1)
+        * np.sqrt(2 * (np.abs(M) - np.log(np.abs(M)) - 1))
+    )
+
+    return (
+        (g * (fidu[0, 0, :] + offset[0, 0, :]))
+        @ inverse_covariance
+        @ ((fidu[0, 0, :] + offset[0, 0, :]) * g)
+    )
+
+
+# def get_chi_binned_correlated_gaussian(
 #     data: np.ndarray,
 #     coba: np.ndarray,
 #     inverse_covariance: List[np.ndarray],
+#     lmax: int = 128,
+#     delta_ell: int = 10,
 # ):
 #     # NaMaster implementation
 #     import pymaster as nmt
@@ -547,13 +616,13 @@ def get_chi_correlated_gaussian(
 #         np.concatenate([[0.0, 0.0], np.array(data[0, 0, :])])
 #     )
 
-#     # Custom Implementation
-#     bins = np.arange(2, lmax + 2, delta_ell)
-#     ranges = [np.arange(bins[i], bins[i + 1]) - 2 for i in range(len(bins) - 1)]
-#     arr = np.array(coba[0, 0, :])
-#     digitized_coba = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
-#     arr = np.array(data[0, 0, :])
-#     digitized_data = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
+#     # # Custom Implementation
+#     # bins = np.arange(2, lmax + 2, delta_ell)
+#     # ranges = [np.arange(bins[i], bins[i + 1]) - 2 for i in range(len(bins) - 1)]
+#     # arr = np.array(coba[0, 0, :])
+#     # digitized_coba = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
+#     # arr = np.array(data[0, 0, :])
+#     # digitized_data = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
 
 #     # Returning the chi-square value
 #     return (
