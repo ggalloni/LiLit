@@ -514,11 +514,16 @@ def get_chi_gaussian(
         ]
     else:
         M = coba[0, 0, :] - data[0, 0, :]
+        inverse_covariance = np.array(inverse_covariance)[:, 0, 0]
         if bins:
             M = np.concatenate((np.zeros(2), M))
             M = bins.bin_spectra(np.array([M, M, M]))[1]
+            inverse_covariance = np.concatenate((np.zeros(2), inverse_covariance))
+            inverse_covariance = bins.bin_spectra(
+                np.array([inverse_covariance, inverse_covariance, inverse_covariance])
+            )[1]
 
-        return M**2 * np.array(inverse_covariance)[:, 0, 0]
+        return M**2 * inverse_covariance
 
 
 def get_chi_correlated_gaussian(

@@ -9,5 +9,5 @@ from .likelihood import LiLit
 from .functions import *
 
 __author__ = "Giacomo Galloni"
-__version__ = "1.2.7"
+__version__ = "1.2.9"
 __docformat__ = "numpy"
