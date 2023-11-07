@@ -576,6 +576,10 @@ class LiLit(Likelihood):
 
         if self.like_approx == "gaussian":
             self.compute_covariance_Cl()
+            if self.bins is not None:
+                self.inverse_covariance = self.bins.bin_covariance(
+                    clcov=self.inverse_covariance
+                )
 
         if (
             self.like_approx == "correlated_gaussian"

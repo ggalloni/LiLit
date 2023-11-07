@@ -5,7 +5,6 @@ from typing import List
 from .binning import Bins
 
 __all__ = [
-    "get_binning",
     "get_chi_exact",
     "get_chi_gaussian",
     "get_chi_correlated_gaussian",
@@ -451,20 +450,15 @@ def get_chi_exact(
             * [np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ]
         )
     else:
-        M = (
-            (2 * ell + 1)
-            * fsky
-            * (
-                data[0, 0, :] / coba[0, 0, :]
-                - np.log(data[0, 0, :] / coba[0, 0, :])
-                - 1
-            )
-        )
+        M = data[0, 0, :] / coba[0, 0, :] - np.log(data[0, 0, :] / coba[0, 0, :]) - 1
         if bins:
+            dl = bins.dl
+            ell = np.concatenate((np.zeros(2), ell))
+            ell = bins.bin_spectra(np.array([ell, ell, ell]))[1]
             M = np.concatenate((np.zeros(2), M))
             M = bins.bin_spectra(np.array([M, M, M]))[1]
 
-        return M
+        return (2 * ell + 1) * dl * fsky * M
 
 
 def get_chi_gaussian(
@@ -625,42 +619,6 @@ def get_chi_LoLLiPoP(
     )
 
     return (g * reference_spectrum) @ inverse_covariance @ (reference_spectrum * g)
-
-
-# def get_chi_binned_correlated_gaussian(
-#     data: np.ndarray,
-#     coba: np.ndarray,
-#     inverse_covariance: List[np.ndarray],
-#     lmax: int = 128,
-#     delta_ell: int = 10,
-# ):
-#     # NaMaster implementation
-#     import pymaster as nmt
-
-#     scheme = nmt.NmtBin(nlb=delta_ell, lmax=lmax, is_Dell=False)
-
-#     # Spectra must start from ell=0
-#     digitized_coba = scheme.bin_cell(
-#         np.concatenate([[0.0, 0.0], np.array(coba[0, 0, :])])
-#     )
-#     digitized_data = scheme.bin_cell(
-#         np.concatenate([[0.0, 0.0], np.array(data[0, 0, :])])
-#     )
-
-#     # # Custom Implementation
-#     # bins = np.arange(2, lmax + 2, delta_ell)
-#     # ranges = [np.arange(bins[i], bins[i + 1]) - 2 for i in range(len(bins) - 1)]
-#     # arr = np.array(coba[0, 0, :])
-#     # digitized_coba = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
-#     # arr = np.array(data[0, 0, :])
-#     # digitized_data = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
-
-#     # Returning the chi-square value
-#     return (
-#         (digitized_coba - digitized_data)
-#         @ inverse_covariance
-#         @ (digitized_coba - digitized_data)
-#     )
 
 
 __docformat__ = "google"
