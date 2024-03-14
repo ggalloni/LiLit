@@ -457,9 +457,8 @@ def get_chi_exact(
             ell = bins.bin_spectra(np.array([ell, ell, ell]))[1]
             M = np.concatenate((np.zeros(2), M))
             M = bins.bin_spectra(np.array([M, M, M]))[1]
-
-        return (2 * ell + 1) * dl * fsky * M
-
+            return (2 * ell + 1) * fsky * M * dl
+        return (2 * ell + 1) * fsky * M
 
 def get_chi_gaussian(
     N: int,
