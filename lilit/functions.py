@@ -460,8 +460,6 @@ def get_chi_exact(
             return (2 * ell + 1) * fsky * M * dl
         return (2 * ell + 1) * fsky * M
 
-            return (2 * ell + 1) * fsky * M * dl
-        return (2 * ell + 1) * fsky * M
 
 def get_chi_gaussian(
     N: int,
