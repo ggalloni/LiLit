@@ -169,7 +169,7 @@ def cov_filling(
             if excluded_probes is not None and key in excluded_probes:
                 cov = np.zeros(lmax + 1)
 
-            res[i, j, lmin : lmax + 1] = cov[lmin : lmax + 1]
+            res[i, j, lmin: lmax + 1] = cov[lmin: lmax + 1]
             res[j, i] = res[i, j]
 
     return res
@@ -198,7 +198,7 @@ def find_spectrum(lmin: int, lmax: int, input_dict: dict, key: str):
     else:
         cov = input_dict.get(key[::-1], np.zeros(lmax + 1))
 
-    res[lmin : lmax + 1] = cov[lmin : lmax + 1]
+    res[lmin: lmax + 1] = cov[lmin: lmax + 1]
 
     return res
 
@@ -457,8 +457,8 @@ def get_chi_exact(
             ell = bins.bin_spectra(np.array([ell, ell, ell]))[1]
             M = np.concatenate((np.zeros(2), M))
             M = bins.bin_spectra(np.array([M, M, M]))[1]
-
-        return (2 * ell + 1) * dl * fsky * M
+            return (2 * ell + 1) * fsky * M * dl
+        return (2 * ell + 1) * fsky * M
 
 
 def get_chi_gaussian(
