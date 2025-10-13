@@ -169,8 +169,11 @@ class LiLit(Likelihood):
         self.like_approx = like
         self.excluded_probes = excluded_probes
         if excluded_probes is not None:
+            # Create a copy to avoid modifying the list we're iterating over
+            self.excluded_probes = list(excluded_probes)
             for probe in excluded_probes:
                 self.excluded_probes.append(probe[::-1])
+            self.excluded_probes = list(set(self.excluded_probes))
         self.cl_file = cl_file
         self.nl_file = nl_file
         self.bias_file = bias_file
@@ -185,6 +188,9 @@ class LiLit(Likelihood):
         if self.like_approx == "HL" or self.like_approx == "lollipop":
             assert self.fidu_guess_file is not None, (
                 "You must provide a fiducial spectrum for the H&L likelihood"
+            )
+            assert self.external_covariance is not None, (
+                "You must provide a covariance matrix for the H&L/LoLLiPoP likelihood"
             )
         self.experiment = experiment
         if self.experiment is not None:
@@ -635,7 +641,20 @@ class LiLit(Likelihood):
         ):
             # Note that the external covariance must be invertible. This means that
             # the covariance should start from ell = 2.
-            self.inverse_covariance = np.linalg.inv(self.external_covariance)
+            try:
+                self.inverse_covariance = np.linalg.inv(self.external_covariance)
+            except np.linalg.LinAlgError as e:
+                raise ValueError(
+                    f"Cannot invert external covariance matrix for {self.like_approx} "
+                    f"likelihood. The matrix must be square, non-singular, and positive "
+                    f"definite. Original error: {e}"
+                ) from e
+            except Exception as e:
+                raise ValueError(
+                    f"Error processing external covariance matrix: {e}. "
+                    f"Please check that the matrix has the correct shape and contains "
+                    f"valid numerical values."
+                ) from e
 
         if self.like_approx == "HL" or self.like_approx == "lollipop":
             self.fidu_guessCLS = self.get_fidu_guess_spectra()
