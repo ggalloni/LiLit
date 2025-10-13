@@ -5,8 +5,8 @@ A Python package encoding the likelihood for LiteBIRD.
 .. include:: ../README.md
 """
 
-from .likelihood import LiLit
 from .functions import *
+from .likelihood import LiLit
 
 __author__ = "Giacomo Galloni"
 __version__ = "1.2.5"

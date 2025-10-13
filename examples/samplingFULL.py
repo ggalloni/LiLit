@@ -1,10 +1,13 @@
 """Sample all the primary observables."""
+
 import time
-from mpi4py import MPI
-from cobaya.run import run
-from cobaya.log import LoggedError
-from lilit import LiLit
+
 import numpy as np
+from cobaya.log import LoggedError
+from cobaya.run import run
+from mpi4py import MPI
+
+from lilit import LiLit
 
 debug = False
 
@@ -128,10 +131,15 @@ info = {
                 "bbn_predictor": "PArthENoPE_880.2_standard.dat",
                 "halofit_version": "mead",
                 "lens_potential_accuracy": 1,
-                "NonLinear": "NonLinear_both",  # This is necessary to be concordant with Planck2018 fiducial spectra
+                # Necessary to be concordant with Planck2018 fiducial spectra
+                "NonLinear": "NonLinear_both",
                 "max_l": 2700,  # This is necessary to get accurate lensing B-modes
-                "WantTransfer": True,  # This is necessary to be concordant with Planck2018 fiducial spectra
-                "Transfer.high_precision": True,  # This is necessary to be concordant with Planck2018 fiducial spectra (this will impact negatively on the performance, so you might want to switch it off. However, remember to chanfe the fiducial accordingly.)
+                # Necessary to be concordant with Planck2018 fiducial spectra
+                "WantTransfer": True,
+                # Necessary to be concordant with Planck2018 fiducial spectra
+                # (this will impact negatively on the performance, so you might want to
+                # switch it off. However, remember to change the fiducial accordingly.)
+                "Transfer.high_precision": True,
                 "parameterization": 2,
                 "num_nu_massless": 2.046,
                 "share_delta_neff": True,
@@ -139,7 +147,8 @@ info = {
                 "pivot_tensor": 0.01,
                 "num_massive_neutrinos": 1,
                 "theta_H0_range": [20, 100],
-                # "Accuracy.AccuracyBoost": 2, # This helps getting an extra squeeze on the accordance of Cobaya and Fiducial spectra
+                # "Accuracy.AccuracyBoost": 2, # This helps getting an extra squeeze on
+                # the accordance of Cobaya and Fiducial spectra
             },
         },
     },
@@ -166,4 +175,4 @@ if not success and rank == 0:
 
 end = time.time()
 
-print(f"ALL DONE IN {round(end-start, 2)} SECONDS!")
+print(f"ALL DONE IN {round(end - start, 2)} SECONDS!")
