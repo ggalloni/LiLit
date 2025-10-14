@@ -5,14 +5,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cobaya.likelihood import Likelihood
 
+from .core import ChiSquareCalculator, ChiSquareMethod
 from .functions import (
     CAMBres2dict,
     cov_filling,
-    get_chi_correlated_gaussian,
-    get_chi_exact,
-    get_chi_gaussian,
-    get_chi_HL,
-    get_chi_LoLLiPoP,
     get_Gauss_keys,
     get_keys,
     get_masked_sigma,
@@ -167,6 +163,7 @@ class LiLit(Likelihood):
         self.fields = fields
         self.N = len(fields)
         self.like_approx = like
+        self.chi_method = ChiSquareMethod(like.lower())
         self.excluded_probes = excluded_probes
         if excluded_probes is not None:
             # Create a copy to avoid modifying the list we're iterating over
@@ -700,67 +697,33 @@ class LiLit(Likelihood):
             )
         return requirements
 
+    def get_likelihood_kwargs(self):
+        """Defines the keyword arguments to pass to the likelihood function."""
+        return {
+            "fields": self.fields,
+            "lmin": self.lmin,
+            "lmax": self.lmax,
+            "fsky": self.fsky,
+            "fskies": self.fskies,
+            "like_approx": self.like_approx,
+            "chi_method": self.chi_method,
+            "excluded_probes": self.excluded_probes,
+            "debug": self.debug,
+            "N": self.N,
+            "inverse_covariance": getattr(self, "inverse_covariance", None),
+            "mask": getattr(self, "mask", None),
+            "offset": getattr(self, "offset", None),
+            "fidu": getattr(self, "guess", None),
+        }
+
     def log_likelihood(self):
         """Convert into log likelihood and sum over multipoles."""
-        if self.like_approx == "exact":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_exact(
-                    N=self.N,
-                    data=self.data,
-                    coba=self.coba,
-                    lmin=self.lmin,
-                    lmax=self.lmax,
-                    fsky=self.fsky,
-                )
-            )
-        elif self.like_approx == "gaussian":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_gaussian(
-                    N=self.N,
-                    data=self.data,
-                    coba=self.coba,
-                    mask=self.mask,
-                    inverse_covariance=self.inverse_covariance,
-                    lmin=self.lmin,
-                    lmax=self.lmax,
-                )
-            )
-        elif self.like_approx == "correlated_gaussian":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_correlated_gaussian(
-                    data=self.data,
-                    coba=self.coba,
-                    inverse_covariance=self.inverse_covariance,
-                )
-            )
-        elif self.like_approx == "HL":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_HL(
-                    data=self.data,
-                    coba=self.coba,
-                    fidu=self.guess,
-                    offset=self.offset,
-                    inverse_covariance=self.inverse_covariance,
-                )
-            )
-        elif self.like_approx == "lollipop":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_LoLLiPoP(
-                    data=self.data,
-                    coba=self.coba,
-                    fidu=self.guess,
-                    offset=self.offset,
-                    inverse_covariance=self.inverse_covariance,
-                )
-            )
-        else:
-            print(
-                "You requested some likelihood approximation "
-                f"(i.e. {self.like_approx}) which is not supported!"
-            )
-            raise KeyError
 
-        return np.sum(logp_ℓ)
+        kwargs = self.get_likelihood_kwargs()
+        chi_squared = ChiSquareCalculator.calculate(
+            method=self.chi_method, data=self.data, coba=self.coba, **kwargs
+        )
+        return np.sum(-0.5 * chi_squared)
 
     def logp(self, **params_values):
         """Gets the log likelihood and pass it to Cobaya to carry on the MCMC process."""
