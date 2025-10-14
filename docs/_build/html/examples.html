@@ -6,20 +6,20 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Examples &mdash; LiLit 1.2.5 documentation</title>
+  <title>Examples &mdash; LiLit 1.2.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=36f53d34"></script>
+      <script src="_static/documentation_options.js?v=e917149c"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="api/modules.html" />
+    <link rel="next" title="Likelihood Theory" href="theory.html" />
     <link rel="prev" title="Quick Start Guide" href="quickstart.html" /> 
 </head>
 
@@ -68,6 +68,32 @@
 <li class="toctree-l2"><a class="reference internal" href="#custom-fiducial-spectra">Custom Fiducial Spectra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-an-mcmc-analysis">Running an MCMC Analysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-different-sky-fractions-per-field">Using Different Sky Fractions per Field</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory and Implementation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Likelihood Theory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#single-field-case">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#multi-field-case">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#implementation-details">Implementation Details</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#id1">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#id2">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#implementation-differences-from-exact-case">Implementation Differences from Exact Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#correlated-gaussian-likelihood">Correlated Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#formulation">Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#sky-cut-approximations">Sky Cut Approximations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#references">References</a></li>
 </ul>
 </li>
 </ul>
@@ -383,7 +409,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="quickstart.html" class="btn btn-neutral float-left" title="Quick Start Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api/modules.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="theory.html" class="btn btn-neutral float-right" title="Likelihood Theory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
