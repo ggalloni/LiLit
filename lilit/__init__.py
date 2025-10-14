@@ -2,7 +2,9 @@
 
 A Python package encoding the likelihood for LiteBIRD.
 
-.. include:: ../README.md
+LiLit provides forecasting likelihoods for LiteBIRD, implemented to be used in a 
+Cobaya context. This package aims to ease the creation of a common framework among 
+different LiteBIRD researchers.
 """
 
 from .functions import *
