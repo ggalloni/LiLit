@@ -1,6 +1,6 @@
 [project]
 name = "lilit"
-dynamic = ['version']
+version = "1.2.0"
 authors = [
     { name = "Giacomo Galloni", email = "giacomo.galloni@unife.it" }
 ]
