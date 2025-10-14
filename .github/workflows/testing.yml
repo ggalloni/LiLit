@@ -46,13 +46,6 @@ jobs:
             python-version: '3.11'
             tags: []
 
-          - os: windows-latest
-            python-version: '3.11'
-            tags: []
-            env:
-              PYTHONIOENCODING: utf-8
-              PYTHONUTF8: 1
-
     if: ${{ needs.check-skip.outputs.skip != 'true' }}
 
     steps:
@@ -81,7 +74,7 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('uv.lock') }}
 
-      - name: Install SOLikeT dependencies and likelihoods
+      - name: Install LiLit dependencies
         run: |
           uv sync --all-extras --dev --locked
 
