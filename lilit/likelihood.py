@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cobaya.likelihood import Likelihood
 
+from .binning import get_binning
+
 from .functions import (
     CAMBres2dict,
     cov_filling,
@@ -146,6 +148,7 @@ class LiLit(Likelihood):
         pivot_t: Optional[float] = 0.01,
         fsky: Union[float, List[float]] = 1,
         excluded_probes: Optional[List[str]] = None,
+        want_binning: Optional[bool] = False,
         debug: Optional[bool] = None,
     ):
         # Check that the user has provided the name of the likelihood
@@ -185,6 +188,7 @@ class LiLit(Likelihood):
             # Check that the user has provided the nside if an experiment is used
             assert nside is not None, "You must provide an nside to compute the noise"
             self.nside = nside
+        self.want_binning = want_binning
         self.debug = debug
         self.keys = get_keys(fields=self.fields, debug=self.debug)
         if "bb" in self.keys:
@@ -560,6 +564,10 @@ class LiLit(Likelihood):
             + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
         )
 
+        self.bins = None
+        if self.want_binning:
+            self.bins = get_binning(lmax=self.lmax, delta_ell=10, transition=35)
+
         if self.like_approx == "exact" and self.fsky is None:
             effective_fsky = 1
             for k in self.fskies.keys():
@@ -629,6 +637,7 @@ class LiLit(Likelihood):
                     lmin=self.lmin,
                     lmax=self.lmax,
                     fsky=self.fsky,
+                    bins=self.bins,
                 )
             )
         elif self.like_approx == "gaussian":
@@ -641,6 +650,7 @@ class LiLit(Likelihood):
                     inverse_covariance=self.inverse_covariance,
                     lmin=self.lmin,
                     lmax=self.lmax,
+                    bins=self.bins,
                 )
             )
         elif self.like_approx == "correlated_gaussian":
@@ -649,6 +659,7 @@ class LiLit(Likelihood):
                     data=self.data,
                     coba=self.coba,
                     inverse_covariance=self.inverse_covariance,
+                    bins=self.bins,
                 )
             )
         elif self.like_approx == "HL":
@@ -659,6 +670,7 @@ class LiLit(Likelihood):
                     fidu=self.guess,
                     offset=self.offset,
                     inverse_covariance=self.inverse_covariance,
+                    bins=self.bins,
                 )
             )
         elif self.like_approx == "lollipop":
@@ -669,6 +681,7 @@ class LiLit(Likelihood):
                     fidu=self.guess,
                     offset=self.offset,
                     inverse_covariance=self.inverse_covariance,
+                    bins=self.bins,
                 )
             )
         else:

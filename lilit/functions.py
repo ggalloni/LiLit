@@ -2,6 +2,7 @@ import numpy as np
 from numpy.ma import MaskedArray
 from camb import CAMBdata
 from typing import List
+from .binning import Bins
 
 __all__ = [
     "get_chi_exact",
@@ -168,7 +169,7 @@ def cov_filling(
             if excluded_probes is not None and key in excluded_probes:
                 cov = np.zeros(lmax + 1)
 
-            res[i, j, lmin : lmax + 1] = cov[lmin : lmax + 1]
+            res[i, j, lmin: lmax + 1] = cov[lmin: lmax + 1]
             res[j, i] = res[i, j]
 
     return res
@@ -197,7 +198,7 @@ def find_spectrum(lmin: int, lmax: int, input_dict: dict, key: str):
     else:
         cov = input_dict.get(key[::-1], np.zeros(lmax + 1))
 
-    res[lmin : lmax + 1] = cov[lmin : lmax + 1]
+    res[lmin: lmax + 1] = cov[lmin: lmax + 1]
 
     return res
 
@@ -419,6 +420,7 @@ def get_chi_exact(
     lmin: int,
     lmax: int,
     fsky: float,
+    bins: Bins,
 ):
     """Computes proper chi-square term for the exact likelihood case.
 
@@ -448,15 +450,15 @@ def get_chi_exact(
             * [np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ]
         )
     else:
-        return (
-            (2 * ell + 1)
-            * fsky
-            * (
-                data[0, 0, :] / coba[0, 0, :]
-                - np.log(data[0, 0, :] / coba[0, 0, :])
-                - 1
-            )
-        )
+        M = data[0, 0, :] / coba[0, 0, :] - np.log(data[0, 0, :] / coba[0, 0, :]) - 1
+        if bins:
+            dl = bins.dl
+            ell = np.concatenate((np.zeros(2), ell))
+            ell = bins.bin_spectra(np.array([ell, ell, ell]))[1]
+            M = np.concatenate((np.zeros(2), M))
+            M = bins.bin_spectra(np.array([M, M, M]))[1]
+            return (2 * ell + 1) * fsky * M * dl
+        return (2 * ell + 1) * fsky * M
 
 
 def get_chi_gaussian(
@@ -467,6 +469,7 @@ def get_chi_gaussian(
     inverse_covariance: List[np.ndarray],
     lmin: int,
     lmax: int,
+    bins: Bins,
 ):
     """Computes proper chi-square term for the Gaussian likelihood case.
 
@@ -510,13 +513,24 @@ def get_chi_gaussian(
             for j in range(lmax + 1 - lmin)
         ]
     else:
-        return (coba[0, 0, :] - data[0, 0, :]) ** 2 * np.array(inverse_covariance)[
-            :, 0, 0
-        ]
+        M = coba[0, 0, :] - data[0, 0, :]
+        inverse_covariance = np.array(inverse_covariance)[:, 0, 0]
+        if bins:
+            M = np.concatenate((np.zeros(2), M))
+            M = bins.bin_spectra(np.array([M, M, M]))[1]
+            inverse_covariance = np.concatenate((np.zeros(2), inverse_covariance))
+            inverse_covariance = bins.bin_spectra(
+                np.array([inverse_covariance, inverse_covariance, inverse_covariance])
+            )[1]
+
+        return M**2 * inverse_covariance
 
 
 def get_chi_correlated_gaussian(
-    data: np.ndarray, coba: np.ndarray, inverse_covariance: List[np.ndarray]
+    data: np.ndarray,
+    coba: np.ndarray,
+    inverse_covariance: List[np.ndarray],
+    bins: Bins,
 ):
     """Computes proper chi-square term for the Gaussian likelihood case.
 
@@ -529,11 +543,13 @@ def get_chi_correlated_gaussian(
             Inverse of the covaraince matrices for each multipole.
     """
 
-    return (
-        (coba[0, 0, :] - data[0, 0, :])
-        @ inverse_covariance
-        @ (coba[0, 0, :] - data[0, 0, :])
-    )
+    M = coba[0, 0, :] - data[0, 0, :]
+
+    if bins:
+        M = np.concatenate((np.zeros(2), M))
+        M = bins.bin_spectra(np.array([M, M, M]))[1]
+
+    return M @ inverse_covariance @ M
 
 
 def get_chi_HL(
@@ -542,6 +558,7 @@ def get_chi_HL(
     fidu: np.ndarray,
     offset: np.ndarray,
     inverse_covariance: List[np.ndarray],
+    bins: Bins,
 ):
     """Computes proper chi-square term for the Hamimeche & Lewis likelihood case.
 
@@ -555,13 +572,19 @@ def get_chi_HL(
     """
 
     M = np.array((data[0, 0, :] + offset[0, 0, :]) / (coba[0, 0, :] + offset[0, 0, :]))
+
+    reference_spectrum = fidu[0, 0, :] + offset[0, 0, :]
+    if bins:
+        M = np.concatenate((np.zeros(2), M))
+        M = bins.bin_spectra(np.array([M, M, M]))[1]
+        reference_spectrum = np.concatenate((np.zeros(2), reference_spectrum))
+        reference_spectrum = bins.bin_spectra(
+            np.array([reference_spectrum, reference_spectrum, reference_spectrum])
+        )[1]
+
     g = np.sign(M - 1) * np.sqrt(2 * (M - np.log(M) - 1))
 
-    return (
-        (g * (fidu[0, 0, :] + offset[0, 0, :]))
-        @ inverse_covariance
-        @ ((fidu[0, 0, :] + offset[0, 0, :]) * g)
-    )
+    return (g * reference_spectrum) @ inverse_covariance @ (reference_spectrum * g)
 
 
 def get_chi_LoLLiPoP(
@@ -570,6 +593,7 @@ def get_chi_LoLLiPoP(
     fidu: np.ndarray,
     offset: np.ndarray,
     inverse_covariance: List[np.ndarray],
+    bins: Bins,
 ):
     """Computes proper chi-square term for the Hamimeche & Lewis likelihood case.
 
@@ -583,53 +607,23 @@ def get_chi_LoLLiPoP(
     """
 
     M = np.array((data[0, 0, :] + offset[0, 0, :]) / (coba[0, 0, :] + offset[0, 0, :]))
+
+    reference_spectrum = fidu[0, 0, :] + offset[0, 0, :]
+    if bins:
+        M = np.concatenate((np.zeros(2), M))
+        M = bins.bin_spectra(np.array([M, M, M]))[1]
+        reference_spectrum = np.concatenate((np.zeros(2), reference_spectrum))
+        reference_spectrum = bins.bin_spectra(
+            np.array([reference_spectrum, reference_spectrum, reference_spectrum])
+        )[1]
+
     g = (
         np.sign(M)
         * np.sign(np.abs(M) - 1)
         * np.sqrt(2 * (np.abs(M) - np.log(np.abs(M)) - 1))
     )
 
-    return (
-        (g * (fidu[0, 0, :] + offset[0, 0, :]))
-        @ inverse_covariance
-        @ ((fidu[0, 0, :] + offset[0, 0, :]) * g)
-    )
-
-
-# def get_chi_binned_correlated_gaussian(
-#     data: np.ndarray,
-#     coba: np.ndarray,
-#     inverse_covariance: List[np.ndarray],
-#     lmax: int = 128,
-#     delta_ell: int = 10,
-# ):
-#     # NaMaster implementation
-#     import pymaster as nmt
-
-#     scheme = nmt.NmtBin(nlb=delta_ell, lmax=lmax, is_Dell=False)
-
-#     # Spectra must start from ell=0
-#     digitized_coba = scheme.bin_cell(
-#         np.concatenate([[0.0, 0.0], np.array(coba[0, 0, :])])
-#     )
-#     digitized_data = scheme.bin_cell(
-#         np.concatenate([[0.0, 0.0], np.array(data[0, 0, :])])
-#     )
-
-#     # # Custom Implementation
-#     # bins = np.arange(2, lmax + 2, delta_ell)
-#     # ranges = [np.arange(bins[i], bins[i + 1]) - 2 for i in range(len(bins) - 1)]
-#     # arr = np.array(coba[0, 0, :])
-#     # digitized_coba = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
-#     # arr = np.array(data[0, 0, :])
-#     # digitized_data = [arr[ranges[i]].mean() for i in range(0, len(bins) - 1)]
-
-#     # Returning the chi-square value
-#     return (
-#         (digitized_coba - digitized_data)
-#         @ inverse_covariance
-#         @ (digitized_coba - digitized_data)
-#     )
+    return (g * reference_spectrum) @ inverse_covariance @ (reference_spectrum * g)
 
 
 __docformat__ = "google"
