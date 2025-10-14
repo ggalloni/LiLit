@@ -1,14 +1,17 @@
-import os
-import pickle
-
 import matplotlib.pyplot as plt
 import numpy as np
 from cobaya.likelihood import Likelihood
 
 from .binning import get_binning
 from .core import ChiSquareCalculator, ChiSquareMethod
-from .functions import (
-    CAMBres2dict,
+from .data import (
+    BiasSpectraLoader,
+    FiducialSpectraLoader,
+    FiduGuessSpectraLoader,
+    NoiseSpectraLoader,
+    OffsetSpectraLoader,
+)
+from .math import (
     cov_filling,
     get_Gauss_keys,
     get_keys,
@@ -199,6 +202,12 @@ class LiLit(Likelihood):
         self.want_binning = want_binning
         self.debug = debug
         self.keys = get_keys(fields=self.fields, debug=self.debug)
+
+        # Always set these attributes, even if not using BB
+        self.r = r
+        self.nt = nt
+        self.pivot_t = pivot_t
+
         if "bb" in self.keys:
             # Check that the user has provided the tensor-to-scalar ratio if a BB
             # likelihood is used
@@ -207,9 +216,6 @@ class LiLit(Likelihood):
                     "You must provide the tensor-to-scalar ratio r for the fiducial "
                     "production (default is at 0.01 Mpc^-1)"
                 )
-            self.r = r
-            self.nt = nt
-            self.pivot_t = pivot_t
 
         self.check_supported_approximations()
         self.set_lmin(lmin)
@@ -337,53 +343,16 @@ class LiLit(Likelihood):
         provide a tilt, this will follow the standard single-field consistency
         relation. If instead you provide a custom file, stores that.
         """
-
-        if self.cl_file is not None:
-            if isinstance(self.cl_file, dict):
-                return self.cl_file
-            elif not self.cl_file.endswith(".pkl"):
-                print(
-                    "The file provided is not a pickle file. You should provide a pickle "
-                    "file containing a dictionary with keys such as 'tt', 'ee', 'te', "
-                    "'bb' and 'tb'."
-                )
-                raise TypeError
-            with open(self.cl_file, "rb") as pickle_file:
-                return pickle.load(pickle_file)
-        try:
-            import camb
-        except ImportError:
-            print("CAMB seems to be not installed. Check the requirements.")
-
-        path = os.path.dirname(os.path.abspath(__file__))
-        planck_path = os.path.join(path, "planck_2018.ini")
-        pars = camb.read_ini(planck_path)
-
-        if "bb" in self.keys:
-            print(f"\nProducing fiducial spectra for r={self.r} and nt={self.nt}")
-            pars.InitPower.set_params(
-                As=2.100549e-9,
-                ns=0.9660499,
-                r=self.r,
-                nt=self.nt,
-                pivot_tensor=self.pivot_t,
-                pivot_scalar=0.05,
-                parameterization=2,
-            )
-            pars.WantTensors = True
-            pars.Accuracy.AccurateBB = True
-        pars.DoLensing = True
-
-        if self.debug:
-            print(pars)
-
-        results = camb.get_results(pars)
-        res = results.get_cmb_power_spectra(
-            CMB_unit="muK",
+        loader = FiducialSpectraLoader(
+            cl_file=self.cl_file,
+            keys=self.keys,
             lmax=self.lmax,
-            raw_cl=False,
+            r=self.r,
+            nt=self.nt,
+            pivot_t=self.pivot_t,
+            debug=self.debug,
         )
-        return CAMBres2dict(res, self.keys)
+        return loader.load()
 
     def get_noise_spectra(self):
         """Produce noise power spectra or read the input ones.
@@ -396,93 +365,13 @@ class LiLit(Likelihood):
         noise weighting severely underestimates the amount of noise. If instead you
         provide the proper custom file, this method stores that.
         """
-        if self.nl_file is not None:
-            if isinstance(self.nl_file, dict):
-                return self.nl_file
-            elif not self.nl_file.endswith(".pkl"):
-                print(
-                    "The file provided for the noise is not a pickle file. You should "
-                    "provide a pickle file containing a dictionary with keys such as "
-                    "'tt', 'ee', 'te', 'bb' and 'tb'."
-                )
-                raise TypeError
-            with open(self.nl_file, "rb") as pickle_file:
-                return pickle.load(pickle_file)
-
-        print(
-            "***WARNING***: the inverse noise weighting performed here severely "
-            "underestimates the actual noise level of LiteBIRD. You should provide an "
-            "input noise power spectrum with a more realistic noise."
+        loader = NoiseSpectraLoader(
+            nl_file=self.nl_file,
+            experiment=self.experiment,
+            lmax=self.lmax,
+            nside=self.nside,
         )
-
-        try:
-            import healpy as hp
-            import yaml
-            from yaml.loader import SafeLoader
-        except ImportError:
-            print("YAML or Healpy seems to be not installed. Check the requirements.")
-
-        assert self.experiment is not None, (
-            "You must specify the experiment you want to consider"
-        )
-        print(f"\nComputing noise for {self.experiment}")
-
-        path = os.path.dirname(os.path.abspath(__file__))
-        experiments_path = os.path.join(path, "experiments.yaml")
-        with open(experiments_path) as f:
-            data = yaml.load(f, Loader=SafeLoader)
-
-        instrument = data[self.experiment]
-
-        fwhms = np.array(instrument["fwhm"])
-
-        freqs = np.array(instrument["frequency"])
-
-        depth_p = np.array(instrument["depth_p"])
-        depth_i = np.array(instrument["depth_i"])
-
-        depth_p /= hp.nside2resol(self.nside, arcmin=True)
-        depth_i /= hp.nside2resol(self.nside, arcmin=True)
-        depth_p *= np.sqrt(hp.nside2pixarea(self.nside, degrees=False))
-        depth_i *= np.sqrt(hp.nside2pixarea(self.nside, degrees=False))
-
-        n_freq = len(freqs)
-
-        ell = np.arange(0, self.lmax + 1, 1)
-
-        keys = ["tt", "ee", "bb"]
-
-        sigma = np.radians(fwhms / 60.0) / np.sqrt(8.0 * np.log(2.0))
-        sigma2 = sigma**2
-
-        g = np.exp(ell * (ell + 1) * sigma2[:, np.newaxis])
-
-        pol_factor = np.array(
-            [np.zeros(sigma2.shape), 2 * sigma2, 2 * sigma2, sigma2],
-        )
-
-        pol_factor = np.exp(pol_factor)
-
-        G = []
-        for i, arr in enumerate(pol_factor):
-            G.append(g * arr[:, np.newaxis])
-        g = np.array(G)
-
-        res = {key: np.zeros((n_freq, self.lmax + 1)) for key in keys}
-
-        res["tt"] = 1 / (g[0, :, :] * depth_i[:, np.newaxis] ** 2)
-        res["ee"] = 1 / (g[3, :, :] * depth_p[:, np.newaxis] ** 2)
-        res["bb"] = 1 / (g[3, :, :] * depth_p[:, np.newaxis] ** 2)
-
-        res["tt"] = ell * (ell + 1) / (np.sum(res["tt"], axis=0)) / 2 / np.pi
-        res["ee"] = ell * (ell + 1) / (np.sum(res["ee"], axis=0)) / 2 / np.pi
-        res["bb"] = ell * (ell + 1) / (np.sum(res["bb"], axis=0)) / 2 / np.pi
-
-        res["tt"][:2] = [0, 0]
-        res["ee"][:2] = [0, 0]
-        res["bb"][:2] = [0, 0]
-
-        return res
+        return loader.load()
 
     def get_bias_spectra(self):
         """Store the input spectra for the bias.
@@ -492,60 +381,30 @@ class LiLit(Likelihood):
         something is causing a bias in the spectra reconstruction (e.g. foregrounds,
         systematics and such).
         """
-
-        if isinstance(self.bias_file, dict):
-            return self.bias_file
-        elif not self.bias_file.endswith(".pkl"):
-            print(
-                "The file provided is not a pickle file. You should provide a pickle "
-                "file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' "
-                "and 'tb'."
-            )
-            raise TypeError
-        with open(self.bias_file, "rb") as pickle_file:
-            return pickle.load(pickle_file)
+        loader = BiasSpectraLoader(bias_file=self.bias_file)
+        return loader.load()
 
     def get_fidu_guess_spectra(self):
         """Store the input spectra for a fiducial guess on the spectrum of data.
 
         The bias spectra stored here will be add to the fiducial power spectra, but not
-        to the ones prodeced by Cobaya. In this way, one can study the case in which
+        to the ones produced by Cobaya. In this way, one can study the case in which
         something is causing a bias in the spectra reconstruction (e.g. foregrounds,
         systematics and such).
         """
-
-        if isinstance(self.fidu_guess_file, dict):
-            return self.fidu_guess_file
-        elif not self.fidu_guess_file.endswith(".pkl"):
-            print(
-                "The file provided is not a pickle file. You should provide a pickle "
-                "file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' "
-                "and 'tb'."
-            )
-            raise TypeError
-        with open(self.fidu_guess_file, "rb") as pickle_file:
-            return pickle.load(pickle_file)
+        loader = FiduGuessSpectraLoader(fidu_guess_file=self.fidu_guess_file)
+        return loader.load()
 
     def get_offset_spectra(self):
         """Store the input spectra for the offset (H&L approximation).
 
         The bias spectra stored here will be add to the fiducial power spectra, but not
-        to the ones prodeced by Cobaya. In this way, one can study the case in which
+        to the ones produced by Cobaya. In this way, one can study the case in which
         something is causing a bias in the spectra reconstruction (e.g. foregrounds,
         systematics and such).
         """
-
-        if isinstance(self.offset_file, dict):
-            return self.offset_file
-        elif not self.offset_file.endswith(".pkl"):
-            print(
-                "The file provided is not a pickle file. You should provide a pickle "
-                "file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' "
-                "and 'tb'."
-            )
-            raise TypeError
-        with open(self.offset_file, "rb") as pickle_file:
-            return pickle.load(pickle_file)
+        loader = OffsetSpectraLoader(offset_file=self.offset_file)
+        return loader.load()
 
     def compute_covariance_Cl(self):
         "Compute the covariance matrix of the Cl."
@@ -567,7 +426,7 @@ class LiLit(Likelihood):
             absolute_lmin=self.lmin,
             absolute_lmax=self.lmax,
             gauss_keys=self.gauss_keys,
-            sigma=sigma2,
+            sigma_array=sigma2,
             excluded_probes=self.excluded_probes,
             lmins=self.lmins,
             lmaxs=self.lmaxs,

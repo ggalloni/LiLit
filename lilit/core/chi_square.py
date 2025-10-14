@@ -158,7 +158,7 @@ class ChiSquareCalculator:
             ]
         else:
             diff = coba[0, 0, :] - data[0, 0, :]
-            return diff ** 2 * np.array(inverse_covariance)[:, 0, 0]
+            return diff**2 * np.array(inverse_covariance)[:, 0, 0]
 
     @staticmethod
     def _calculate_correlated_gaussian(

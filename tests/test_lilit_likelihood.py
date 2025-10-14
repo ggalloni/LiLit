@@ -85,7 +85,7 @@ class TestLiLitInitialization:
         )
 
         # excluded_probes should include both original and reversed probes
-        expected = set(["tb", "eb", "bt", "be"])
+        expected = {"tb", "eb", "bt", "be"}
         assert set(lilit.excluded_probes) == expected
         assert lilit.N == 3
 
