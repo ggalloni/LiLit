@@ -1,0 +1,1128 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lilit.likelihood &mdash; LiLit 1.2.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e917149c"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            LiLit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation and quickstart</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#development-installation">Development Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#working-with-different-field-combinations">Working with Different Field Combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../quickstart.html#temperature-only">Temperature Only</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../quickstart.html#temperature-polarization">Temperature + Polarization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../quickstart.html#b-modes-only">B-modes Only</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#integration-with-cobaya">Integration with Cobaya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#basic-example-temperature-and-polarization">Basic Example: Temperature and Polarization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#b-mode-analysis-with-tensor-modes">B-mode Analysis with Tensor Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#custom-fiducial-spectra">Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#running-an-mcmc-analysis">Running an MCMC Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#using-different-sky-fractions-per-field">Using Different Sky Fractions per Field</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory and Implementation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Likelihood Theory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#single-field-case">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#multi-field-case">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#implementation-details">Implementation Details</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#id1">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#id2">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#implementation-differences-from-exact-case">Implementation Differences from Exact Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#correlated-gaussian-likelihood">Correlated Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#formulation">Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#sky-cut-approximations">Sky Cut Approximations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/lilit.html">lilit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/lilit.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/lilit.html#module-lilit.functions">lilit.functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_keys"><code class="docutils literal notranslate"><span class="pre">get_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_Gauss_keys"><code class="docutils literal notranslate"><span class="pre">get_Gauss_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_reduced_covariances"><code class="docutils literal notranslate"><span class="pre">get_reduced_covariances()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_reduced_data_vectors"><code class="docutils literal notranslate"><span class="pre">get_reduced_data_vectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.cov_filling"><code class="docutils literal notranslate"><span class="pre">cov_filling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.find_spectrum"><code class="docutils literal notranslate"><span class="pre">find_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.sigma"><code class="docutils literal notranslate"><span class="pre">sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.inv_sigma"><code class="docutils literal notranslate"><span class="pre">inv_sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.CAMBres2dict"><code class="docutils literal notranslate"><span class="pre">CAMBres2dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.txt2dict"><code class="docutils literal notranslate"><span class="pre">txt2dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/lilit.html#module-lilit.likelihood">lilit.likelihood module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.likelihood.LiLit"><code class="docutils literal notranslate"><span class="pre">LiLit</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/lilit.html#module-lilit.core.chi_square">lilit.core.chi_square module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.ChiSquareCalculator"><code class="docutils literal notranslate"><span class="pre">ChiSquareCalculator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.ChiSquareMethod"><code class="docutils literal notranslate"><span class="pre">ChiSquareMethod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Integration with Cobaya</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cobaya_integration.html">Integration with Cobaya</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#basic-cobaya-configuration">Basic Cobaya Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#working-with-camb">Working with CAMB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#working-with-class">Working with CLASS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#parameter-definitions">Parameter Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#combining-multiple-likelihoods">Combining Multiple Likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#custom-sampler-settings">Custom Sampler Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#output-configuration">Output Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#running-from-python">Running from Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#using-the-model-interface">Using the Model Interface</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced Topics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../custom_likelihoods.html">Likelihood Approximations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../custom_likelihoods.html#using-the-exact-likelihood">Using the Exact Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../custom_likelihoods.html#using-the-gaussian-likelihood">Using the Gaussian Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#field-specific-multipole-ranges">Field-Specific Multipole Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#excluding-specific-probes">Excluding Specific Probes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#sky-coverage-effects">Sky Coverage Effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#debug-mode">Debug Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#when-to-use-each-approximation">When to Use Each Approximation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../noise_models.html">Noise Models and Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#default-noise-placeholder">Default Noise Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#providing-custom-noise-spectra">Providing Custom Noise Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../noise_models.html#expected-noise-file-format">Expected Noise File Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#default-fiducial-spectra">Default Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#custom-fiducial-spectra">Custom Fiducial Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../noise_models.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#noise-requirements-for-litebird">Noise Requirements for LiteBIRD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#multipole-dependent-sky-coverage">Multipole-Dependent Sky Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#note-on-sky-cut-approximation">Note on Sky Cut Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../fiducial_spectra.html">Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#default-planck-2018-best-fit">Default: Planck 2018 Best-Fit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../fiducial_spectra.html#for-b-mode-analysis">For B-mode Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#generating-spectra-with-camb">Generating Spectra with CAMB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../fiducial_spectra.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#modifying-default-parameters">Modifying Default Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#lensed-vs-unlensed-spectra">Lensed vs Unlensed Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#field-combinations">Field Combinations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#installation-issues">Installation Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#likelihood-setup-issues">Likelihood Setup Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#cobaya-integration-issues">Cobaya Integration Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#performance-issues">Performance Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#numerical-issues">Numerical Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#common-error-messages">Common Error Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LiLit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">lilit.likelihood</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lilit.likelihood</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cobaya.likelihood</span><span class="w"> </span><span class="kn">import</span> <span class="n">Likelihood</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChiSquareCalculator</span><span class="p">,</span> <span class="n">ChiSquareMethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_binning</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.functions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CAMBres2dict</span><span class="p">,</span>
+    <span class="n">cov_filling</span><span class="p">,</span>
+    <span class="n">get_Gauss_keys</span><span class="p">,</span>
+    <span class="n">get_keys</span><span class="p">,</span>
+    <span class="n">get_masked_sigma</span><span class="p">,</span>
+    <span class="n">inv_sigma</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="LiLit">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LiLit</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defining the Likelihood for LiteBIRD (LiLit).</span>
+
+<span class="sd">    Within LiLit, the most relevant study cases of LiteBIRD (T, E, B) are already tested</span>
+<span class="sd">    and working. So, if you need to work with those, you should not need to look into</span>
+<span class="sd">    the actual definition of the likelihood function, since you can promptly start</span>
+<span class="sd">    running your MCMCs. Despite this, you should provide to the likelihood some file</span>
+<span class="sd">    where to find the proper LiteBIRD noise power spectra, given that LiLit is</span>
+<span class="sd">    implementing a simple inverse noise weighting just as a place-holder for something</span>
+<span class="sd">    more realistic. As regards lensing, LiLit will need you to pass the reconstruction</span>
+<span class="sd">    noise, since its computation is not coded, thus there is no place-holder for lensing.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        name (str):</span>
+<span class="sd">            The name for the likelihood, used in the output. It is necessary to pass it</span>
+<span class="sd">            to LiLit. (default: None).</span>
+<span class="sd">        fields (list):</span>
+<span class="sd">            List of fields in the data file (default: None).</span>
+<span class="sd">        lmin (int or list):</span>
+<span class="sd">            Minimum multipole to consider (default: 2).</span>
+<span class="sd">        lmax (int or list):</span>
+<span class="sd">            Maximum multipole to consider (default: None).</span>
+<span class="sd">        like_approx (str, optional):</span>
+<span class="sd">            Type of likelihood to use (default: &quot;exact&quot;). Currently supports &quot;exact&quot;</span>
+<span class="sd">            and &quot;gaussian&quot;, soon &quot;correlated_gaussian&quot;.</span>
+<span class="sd">        cl_file (str, dict, optional):</span>
+<span class="sd">            Path to Cl file or dictionary of fiducial spectra (default: None).</span>
+<span class="sd">        nl_file (str, dict, optional):</span>
+<span class="sd">            Path to noise file or dictionary of noise spectra (default: None).</span>
+<span class="sd">        bias_file (str, dict, optional):</span>
+<span class="sd">            Path to bias file or dictionary of bias spectra (default: None).</span>
+<span class="sd">        experiment (str, optional):</span>
+<span class="sd">            Name of experiment (default: None).</span>
+<span class="sd">        nside (int, optional):</span>
+<span class="sd">            Nside of the map (default: None).</span>
+<span class="sd">        r (float, optional):</span>
+<span class="sd">            Tensor-to-scalar ratio (default: None).</span>
+<span class="sd">        nt (float, optional):</span>
+<span class="sd">            Tensor spectral tilt (default: None).</span>
+<span class="sd">        pivot_t (float, optional):</span>
+<span class="sd">            Pivot scale of the tensor primordial power spectrum (default: 0.01).</span>
+<span class="sd">        fsky (float or list):</span>
+<span class="sd">            Sky fraction (default: 1).</span>
+<span class="sd">        excluded_probes (list, optional):</span>
+<span class="sd">            List of probes to exclude (default: None).</span>
+<span class="sd">        debug (bool, optional):</span>
+<span class="sd">            If True, produces more verbose output (default: None).</span>
+
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        fields (list):</span>
+<span class="sd">            List of fields in the data file.</span>
+<span class="sd">        N (int):</span>
+<span class="sd">            Number of fields.</span>
+<span class="sd">        keys (list):</span>
+<span class="sd">            List of keywords for the dictionaries.</span>
+<span class="sd">        gauss_keys (list):</span>
+<span class="sd">            List of keywords for the Gaussian likelihood (4-points).</span>
+<span class="sd">        inverse_covariance (list):</span>
+<span class="sd">            List of covariances for the Gaussian likelihood case, one for each multipole.</span>
+<span class="sd">        lmin (int or list):</span>
+<span class="sd">            Minimum multipole to consider.</span>
+<span class="sd">        lmins (dict):</span>
+<span class="sd">            Dictionary of lmin values.</span>
+<span class="sd">        lmax (int or list):</span>
+<span class="sd">            List of lmax values.</span>
+<span class="sd">        lmaxes (dict):</span>
+<span class="sd">            Dictionary of lmax values.</span>
+<span class="sd">        fsky (int or list):</span>
+<span class="sd">            List of fsky values.</span>
+<span class="sd">        fskies (dict):</span>
+<span class="sd">            Dictionary of fsky values.</span>
+<span class="sd">        like_approx (str):</span>
+<span class="sd">            Type of likelihood to use.</span>
+<span class="sd">        cl_file (str, dict):</span>
+<span class="sd">            Path to Cl file or dictionary of fiducial spectra.</span>
+<span class="sd">        nl_file (str, dict):</span>
+<span class="sd">            Path to noise file or dictionary of the noise spectra.</span>
+<span class="sd">        bias_file (str, dict):</span>
+<span class="sd">            Path to bias file or dictionary of the bias spectra.</span>
+<span class="sd">        fiduCLS (dict):</span>
+<span class="sd">            Dictionary of fiducial Cls.</span>
+<span class="sd">        noiseCLS (dict):</span>
+<span class="sd">            Dictionary of noise Cls.</span>
+<span class="sd">        biasCLS (dict):</span>
+<span class="sd">            Dictionary of bias Cls.</span>
+<span class="sd">        fiduCOV (np.ndarray):</span>
+<span class="sd">            Fiducial covariance matrix obtained from the corresponding dictionary.</span>
+<span class="sd">        noiseCOV (np.ndarray):</span>
+<span class="sd">            Noise covariance matrix obtained from the corresponding dictionary.</span>
+<span class="sd">        cobaCLS (dict):</span>
+<span class="sd">            Dictionary of Cobaya Cls.</span>
+<span class="sd">        cobaCOV (np.ndarray):</span>
+<span class="sd">            Cobaya covariance matrix obtained from the corresponding dictionary.</span>
+<span class="sd">        data (np.ndarray):</span>
+<span class="sd">            Data vector obtained by summing fiduCOV + noiseCOV + biasCOV.</span>
+<span class="sd">        coba (np.ndarray):</span>
+<span class="sd">            Cobaya vector obtained by summing cobaCOV + noiseCOV.</span>
+<span class="sd">        experiment (str):</span>
+<span class="sd">            Name of experiment.</span>
+<span class="sd">        nside (int):</span>
+<span class="sd">            Nside of the map.</span>
+<span class="sd">        r (float):</span>
+<span class="sd">            Tensor-to-scalar ratio.</span>
+<span class="sd">        nt (float):</span>
+<span class="sd">            Tensor spectral tilt.</span>
+<span class="sd">        pivot_t (float):</span>
+<span class="sd">            Pivot scale of the tensor primordial power spectrum.</span>
+<span class="sd">        debug (bool):</span>
+<span class="sd">            If True, produces more output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LiLit.__init__">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">like</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;exact&quot;</span><span class="p">,</span>
+        <span class="n">cl_file</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nl_file</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bias_file</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fidu_guess_file</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">offset_file</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">external_covariance</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nside</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pivot_t</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">excluded_probes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">want_binning</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># Check that the user has provided the name of the likelihood</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;You must provide the name of the likelihood (e.g. &#39;BB&#39; or &#39;TTTEEE&#39;)&quot;</span>
+        <span class="p">)</span>
+        <span class="c1"># Check that the user has provided the fields</span>
+        <span class="k">assert</span> <span class="n">fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;You must provide the fields (e.g. &#39;b&#39; or [&#39;t&#39;, &#39;e&#39;])&quot;</span>
+        <span class="c1"># Check that the user has provided the maximum multipole</span>
+        <span class="k">assert</span> <span class="n">lmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;You must provide the lmax (e.g. 300)&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">=</span> <span class="n">like</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chi_method</span> <span class="o">=</span> <span class="n">ChiSquareMethod</span><span class="p">(</span><span class="n">like</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span> <span class="o">=</span> <span class="n">excluded_probes</span>
+        <span class="k">if</span> <span class="n">excluded_probes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Create a copy to avoid modifying the list we&#39;re iterating over</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">excluded_probes</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">probe</span> <span class="ow">in</span> <span class="n">excluded_probes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">probe</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cl_file</span> <span class="o">=</span> <span class="n">cl_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nl_file</span> <span class="o">=</span> <span class="n">nl_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bias_file</span> <span class="o">=</span> <span class="n">bias_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fidu_guess_file</span> <span class="o">=</span> <span class="n">fidu_guess_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset_file</span> <span class="o">=</span> <span class="n">offset_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">external_covariance</span> <span class="o">=</span> <span class="n">external_covariance</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;correlated_gaussian&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_covariance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;You must provide a covariance matrix for the correlated Gaussian &quot;</span>
+                <span class="s2">&quot;likelihood&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;HL&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;lollipop&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">fidu_guess_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;You must provide a fiducial spectrum for the H&amp;L likelihood&quot;</span>
+            <span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">external_covariance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;You must provide a covariance matrix for the H&amp;L/LoLLiPoP likelihood&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Check that the user has provided the nside if an experiment is used</span>
+            <span class="k">assert</span> <span class="n">nside</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;You must provide an nside to compute the noise&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nside</span> <span class="o">=</span> <span class="n">nside</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">want_binning</span> <span class="o">=</span> <span class="n">want_binning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keys</span> <span class="o">=</span> <span class="n">get_keys</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;bb&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">:</span>
+            <span class="c1"># Check that the user has provided the tensor-to-scalar ratio if a BB</span>
+            <span class="c1"># likelihood is used</span>
+            <span class="k">if</span> <span class="n">cl_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+                    <span class="s2">&quot;You must provide the tensor-to-scalar ratio r for the fiducial &quot;</span>
+                    <span class="s2">&quot;production (default is at 0.01 Mpc^-1)&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">r</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nt</span> <span class="o">=</span> <span class="n">nt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pivot_t</span> <span class="o">=</span> <span class="n">pivot_t</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_supported_approximations</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lmin</span><span class="p">(</span><span class="n">lmin</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_lmax</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_fsky</span><span class="p">(</span><span class="n">fsky</span><span class="p">)</span>
+
+        <span class="n">Likelihood</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiLit.check_supported_approximations">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.check_supported_approximations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_supported_approximations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that the requested likelihood approximation is actually supported.</span>
+
+<span class="sd">        Note: the correlated Gaussian is supported for a single field, not multiple ones.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;exact&quot;</span><span class="p">,</span> <span class="s2">&quot;gaussian&quot;</span><span class="p">,</span> <span class="s2">&quot;correlated_gaussian&quot;</span><span class="p">,</span> <span class="s2">&quot;HL&quot;</span><span class="p">,</span> <span class="s2">&quot;lollipop&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The likelihood approximation you specified, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span><span class="si">}</span><span class="s2">, is not &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;supported! Available options are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">supported</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="LiLit.set_lmin">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.set_lmin">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_lmin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take lmin parameter and set the corresponding attributes.</span>
+
+<span class="sd">        This handles automatically the case of a single value or a list of values. Note</span>
+<span class="sd">        that the lmin for the cross-correlations is set to the geometrical mean of the</span>
+<span class="sd">        lmin of the two fields when the likelihood approximation is not exact. This</span>
+<span class="sd">        approximation has been tested and found to be accurate, at least assuming that</span>
+<span class="sd">        the two masks of the two considered multipoles are very overlapped. On the</span>
+<span class="sd">        other hand, lmin is set to the maximum of the two other probes for the exact</span>
+<span class="sd">        likelihood. Indeed, the geometrical mean causes some issues in this case.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            lmin (int or list):</span>
+<span class="sd">                Value or list of values of lmin.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lmins</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lmin</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;If you provide multiple lmin, they must match the number of requested &quot;</span>
+                <span class="s2">&quot;fields with the same order&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">lmin</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lmin</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">!=</span> <span class="s2">&quot;exact&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lmin</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">lmin</span><span class="p">[</span><span class="n">j</span><span class="p">])))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">[</span><span class="n">key</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lmin</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="o">=</span> <span class="n">lmin</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="LiLit.set_lmax">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.set_lmax">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_lmax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take lmax parameter and set the corresponding attributes.</span>
+
+<span class="sd">        This handles automatically the case of a single value or a list of values. Note</span>
+<span class="sd">        that the lmax for the cross-correlations is set to the geometrical mean of the</span>
+<span class="sd">        lmax of the two fields when the likelihood approximation is not exact. This</span>
+<span class="sd">        approximation has been tested and found to be accurate, at least assuming that</span>
+<span class="sd">        the two masks of the two considered multipoles are very overlapped. On the</span>
+<span class="sd">        other hand, lmax is set to the minimum of the two other probes for the exact</span>
+<span class="sd">        likelihood. Indeed, the geometrical mean causes some issues in this case.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            lmax (int or list):</span>
+<span class="sd">                Value or list of values of lmax.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lmax</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;If you provide multiple lmax, they must match the number of requested &quot;</span>
+                <span class="s2">&quot;fields with the same order&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">lmax</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lmax</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">!=</span> <span class="s2">&quot;exact&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lmax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">lmax</span><span class="p">[</span><span class="n">j</span><span class="p">])))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">[</span><span class="n">key</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">=</span> <span class="n">lmax</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="LiLit.set_fsky">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.set_fsky">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_fsky</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take fsky parameter and set the corresponding attributes.</span>
+
+<span class="sd">        This handles automatically the case of a single value or a list of values. Note</span>
+<span class="sd">        that the fsky for the cross-correlations is set to the geometrical mean of the</span>
+<span class="sd">        fsky of the two fields. This approximation has been tested and found to be</span>
+<span class="sd">        accurate, at least assuming that the two masks of the two considered multipoles</span>
+<span class="sd">        are very overlapped.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            fsky (float or list):</span>
+<span class="sd">                Value or list of values of fsky.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fskies</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fsky</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fsky</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;If you provide multiple fsky, they must match the number of requested &quot;</span>
+                <span class="s2">&quot;fields with the same order&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fskies</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">fsky</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">fsky</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fskies</span><span class="p">[</span><span class="n">key</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">fsky</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">fsky</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fsky</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fsky</span> <span class="o">=</span> <span class="n">fsky</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="LiLit.get_fiducial_spectra">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.get_fiducial_spectra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fiducial_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce fiducial spectra or read the input ones.</span>
+
+<span class="sd">        If the user has not provided a Cl file, this function will produce the fiducial</span>
+<span class="sd">        power spectra starting from the CAMB inifile for Planck2018. The extra keywords</span>
+<span class="sd">        defined will maximize the accordance between the fiducial Cls and the ones</span>
+<span class="sd">        obtained from Cobaya. If B-modes are requested, the tensor-to-scalar ratio and</span>
+<span class="sd">        the spectral tilt will be set to the requested values. Note that if you do not</span>
+<span class="sd">        provide a tilt, this will follow the standard single-field consistency</span>
+<span class="sd">        relation. If instead you provide a custom file, stores that.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cl_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cl_file</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cl_file</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cl_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.pkl&quot;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;The file provided is not a pickle file. You should provide a pickle &quot;</span>
+                    <span class="s2">&quot;file containing a dictionary with keys such as &#39;tt&#39;, &#39;ee&#39;, &#39;te&#39;, &quot;</span>
+                    <span class="s2">&quot;&#39;bb&#39; and &#39;tb&#39;.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cl_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pickle_file</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pickle_file</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">camb</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CAMB seems to be not installed. Check the requirements.&quot;</span><span class="p">)</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="n">planck_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;planck_2018.ini&quot;</span><span class="p">)</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="n">camb</span><span class="o">.</span><span class="n">read_ini</span><span class="p">(</span><span class="n">planck_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;bb&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Producing fiducial spectra for r=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="si">}</span><span class="s2"> and nt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pars</span><span class="o">.</span><span class="n">InitPower</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
+                <span class="n">As</span><span class="o">=</span><span class="mf">2.100549e-9</span><span class="p">,</span>
+                <span class="n">ns</span><span class="o">=</span><span class="mf">0.9660499</span><span class="p">,</span>
+                <span class="n">r</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span>
+                <span class="n">nt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nt</span><span class="p">,</span>
+                <span class="n">pivot_tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pivot_t</span><span class="p">,</span>
+                <span class="n">pivot_scalar</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                <span class="n">parameterization</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">pars</span><span class="o">.</span><span class="n">WantTensors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">pars</span><span class="o">.</span><span class="n">Accuracy</span><span class="o">.</span><span class="n">AccurateBB</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">pars</span><span class="o">.</span><span class="n">DoLensing</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">camb</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get_cmb_power_spectra</span><span class="p">(</span>
+            <span class="n">CMB_unit</span><span class="o">=</span><span class="s2">&quot;muK&quot;</span><span class="p">,</span>
+            <span class="n">lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+            <span class="n">raw_cl</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">CAMBres2dict</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiLit.get_noise_spectra">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.get_noise_spectra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_noise_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce noise power spectra or read the input ones.</span>
+
+<span class="sd">        If the user has not provided a noise file, this function will produce the noise</span>
+<span class="sd">        power spectra for a given experiment with inverse noise weighting of white</span>
+<span class="sd">        noise in each channel (TT, EE, BB). Note that you may want to have a look at</span>
+<span class="sd">        the procedure since it is merely a place-holder. Indeed, you should provide a</span>
+<span class="sd">        more realistic file from which to read the noise spectra, given that inverse</span>
+<span class="sd">        noise weighting severely underestimates the amount of noise. If instead you</span>
+<span class="sd">        provide the proper custom file, this method stores that.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nl_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nl_file</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nl_file</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">nl_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.pkl&quot;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;The file provided for the noise is not a pickle file. You should &quot;</span>
+                    <span class="s2">&quot;provide a pickle file containing a dictionary with keys such as &quot;</span>
+                    <span class="s2">&quot;&#39;tt&#39;, &#39;ee&#39;, &#39;te&#39;, &#39;bb&#39; and &#39;tb&#39;.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nl_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pickle_file</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pickle_file</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;***WARNING***: the inverse noise weighting performed here severely &quot;</span>
+            <span class="s2">&quot;underestimates the actual noise level of LiteBIRD. You should provide an &quot;</span>
+            <span class="s2">&quot;input noise power spectrum with a more realistic noise.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">healpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">hp</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">yaml.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">SafeLoader</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;YAML or Healpy seems to be not installed. Check the requirements.&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;You must specify the experiment you want to consider&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Computing noise for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="n">experiments_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;experiments.yaml&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">experiments_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">SafeLoader</span><span class="p">)</span>
+
+        <span class="n">instrument</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">]</span>
+
+        <span class="n">fwhms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">instrument</span><span class="p">[</span><span class="s2">&quot;fwhm&quot;</span><span class="p">])</span>
+
+        <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">instrument</span><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">])</span>
+
+        <span class="n">depth_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">instrument</span><span class="p">[</span><span class="s2">&quot;depth_p&quot;</span><span class="p">])</span>
+        <span class="n">depth_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">instrument</span><span class="p">[</span><span class="s2">&quot;depth_i&quot;</span><span class="p">])</span>
+
+        <span class="n">depth_p</span> <span class="o">/=</span> <span class="n">hp</span><span class="o">.</span><span class="n">nside2resol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nside</span><span class="p">,</span> <span class="n">arcmin</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">depth_i</span> <span class="o">/=</span> <span class="n">hp</span><span class="o">.</span><span class="n">nside2resol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nside</span><span class="p">,</span> <span class="n">arcmin</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">depth_p</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">nside2pixarea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nside</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="n">depth_i</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">hp</span><span class="o">.</span><span class="n">nside2pixarea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nside</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="n">n_freq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+
+        <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tt&quot;</span><span class="p">,</span> <span class="s2">&quot;ee&quot;</span><span class="p">,</span> <span class="s2">&quot;bb&quot;</span><span class="p">]</span>
+
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">fwhms</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))</span>
+        <span class="n">sigma2</span> <span class="o">=</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">ell</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma2</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+
+        <span class="n">pol_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">sigma2</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sigma2</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sigma2</span><span class="p">,</span> <span class="n">sigma2</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">pol_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">pol_factor</span><span class="p">)</span>
+
+        <span class="n">G</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pol_factor</span><span class="p">):</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">arr</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
+
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;tt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">depth_i</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ee&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">depth_p</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">depth_p</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;tt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ell</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;tt&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ee&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ell</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;ee&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bb&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ell</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;bb&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;tt&quot;</span><span class="p">][:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ee&quot;</span><span class="p">][:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bb&quot;</span><span class="p">][:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="LiLit.get_bias_spectra">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.get_bias_spectra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bias_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store the input spectra for the bias.</span>
+
+<span class="sd">        The bias spectra stored here will be add to the fiducial power spectra, but not</span>
+<span class="sd">        to the ones prodeced by Cobaya. In this way, one can study the case in which</span>
+<span class="sd">        something is causing a bias in the spectra reconstruction (e.g. foregrounds,</span>
+<span class="sd">        systematics and such).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_file</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_file</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.pkl&quot;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;The file provided is not a pickle file. You should provide a pickle &quot;</span>
+                <span class="s2">&quot;file containing a dictionary with keys such as &#39;tt&#39;, &#39;ee&#39;, &#39;te&#39;, &#39;bb&#39; &quot;</span>
+                <span class="s2">&quot;and &#39;tb&#39;.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pickle_file</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pickle_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiLit.get_fidu_guess_spectra">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.get_fidu_guess_spectra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fidu_guess_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store the input spectra for a fiducial guess on the spectrum of data.</span>
+
+<span class="sd">        The bias spectra stored here will be add to the fiducial power spectra, but not</span>
+<span class="sd">        to the ones prodeced by Cobaya. In this way, one can study the case in which</span>
+<span class="sd">        something is causing a bias in the spectra reconstruction (e.g. foregrounds,</span>
+<span class="sd">        systematics and such).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fidu_guess_file</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fidu_guess_file</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fidu_guess_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.pkl&quot;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;The file provided is not a pickle file. You should provide a pickle &quot;</span>
+                <span class="s2">&quot;file containing a dictionary with keys such as &#39;tt&#39;, &#39;ee&#39;, &#39;te&#39;, &#39;bb&#39; &quot;</span>
+                <span class="s2">&quot;and &#39;tb&#39;.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fidu_guess_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pickle_file</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pickle_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiLit.get_offset_spectra">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.get_offset_spectra">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_offset_spectra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store the input spectra for the offset (H&amp;L approximation).</span>
+
+<span class="sd">        The bias spectra stored here will be add to the fiducial power spectra, but not</span>
+<span class="sd">        to the ones prodeced by Cobaya. In this way, one can study the case in which</span>
+<span class="sd">        something is causing a bias in the spectra reconstruction (e.g. foregrounds,</span>
+<span class="sd">        systematics and such).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset_file</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_file</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.pkl&quot;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;The file provided is not a pickle file. You should provide a pickle &quot;</span>
+                <span class="s2">&quot;file containing a dictionary with keys such as &#39;tt&#39;, &#39;ee&#39;, &#39;te&#39;, &#39;bb&#39; &quot;</span>
+                <span class="s2">&quot;and &#39;tb&#39;.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pickle_file</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pickle_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiLit.compute_covariance_Cl">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.compute_covariance_Cl">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_covariance_Cl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Compute the covariance matrix of the Cl.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gauss_keys</span> <span class="o">=</span> <span class="n">get_Gauss_keys</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
+
+        <span class="n">sigma2</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span>
+            <span class="n">lmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span>
+            <span class="n">lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+            <span class="n">gauss_keys</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gauss_keys</span><span class="p">,</span>
+            <span class="n">fiduDICT</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span><span class="p">,</span>
+            <span class="n">noiseDICT</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">noiseCLS</span><span class="p">,</span>
+            <span class="n">fsky</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fsky</span><span class="p">,</span>
+            <span class="n">fskies</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fskies</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">masked_sigma2</span> <span class="o">=</span> <span class="n">get_masked_sigma</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span>
+            <span class="n">absolute_lmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span>
+            <span class="n">absolute_lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+            <span class="n">gauss_keys</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gauss_keys</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="o">=</span><span class="n">sigma2</span><span class="p">,</span>
+            <span class="n">excluded_probes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="p">,</span>
+            <span class="n">lmins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">,</span>
+            <span class="n">lmaxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">inverse_covariance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">inv_sigma</span><span class="p">(</span>
+            <span class="n">lmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span> <span class="n">masked_sigma</span><span class="o">=</span><span class="n">masked_sigma2</span>
+        <span class="p">)</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="LiLit.initialize">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.initialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the fiducial spectra and the noise power spectra.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fiducial_spectra</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noiseCLS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_noise_spectra</span><span class="p">()</span>
+
+        <span class="c1"># If a bias is provided, this biases the fiducial spectra</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">biasCLS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bias_spectra</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">biasCLS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span><span class="p">)</span>
+            <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fiduCOV</span> <span class="o">=</span> <span class="n">cov_filling</span><span class="p">(</span>
+            <span class="n">fields</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+            <span class="n">excluded_probes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="p">,</span>
+            <span class="n">absolute_lmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span>
+            <span class="n">absolute_lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+            <span class="n">cov_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span><span class="p">,</span>
+            <span class="n">lmins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">,</span>
+            <span class="n">lmaxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noiseCOV</span> <span class="o">=</span> <span class="n">cov_filling</span><span class="p">(</span>
+            <span class="n">fields</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+            <span class="n">excluded_probes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="p">,</span>
+            <span class="n">absolute_lmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span>
+            <span class="n">absolute_lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+            <span class="n">cov_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">noiseCLS</span><span class="p">,</span>
+            <span class="n">lmins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">,</span>
+            <span class="n">lmaxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keys of fiducial CLs ---&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keys of noise CLs ---&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">noiseCLS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Printing the first few values to check that it starts from 0...&quot;</span><span class="p">)</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fiducial CLs for </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> ---&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fiduCLS</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noiseCLS</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Noise CLs for </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> ---&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">noiseCLS</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fiduCOV</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiseCOV</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">want_binning</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span> <span class="n">get_binning</span><span class="p">(</span><span class="n">lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span> <span class="n">delta_ell</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">transition</span><span class="o">=</span><span class="mi">35</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;exact&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fsky</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">effective_fsky</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fskies</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">effective_fsky</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fskies</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fsky</span> <span class="o">=</span> <span class="n">effective_fsky</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;gaussian&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_covariance_Cl</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;correlated_gaussian&quot;</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;HL&quot;</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;lollipop&quot;</span>
+        <span class="p">):</span>
+            <span class="c1"># Note that the external covariance must be invertible. This means that</span>
+            <span class="c1"># the covariance should start from ell = 2.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inverse_covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">external_covariance</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Cannot invert external covariance matrix for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;likelihood. The matrix must be square, non-singular, and positive &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;definite. Original error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error processing external covariance matrix: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Please check that the matrix has the correct shape and contains &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;valid numerical values.&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;HL&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span> <span class="o">==</span> <span class="s2">&quot;lollipop&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fidu_guessCLS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fidu_guess_spectra</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">guessCOV</span> <span class="o">=</span> <span class="n">cov_filling</span><span class="p">(</span>
+                <span class="n">fields</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+                <span class="n">excluded_probes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="p">,</span>
+                <span class="n">absolute_lmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span>
+                <span class="n">absolute_lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+                <span class="n">cov_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fidu_guessCLS</span><span class="p">,</span>
+                <span class="n">lmins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">,</span>
+                <span class="n">lmaxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">guess</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">guessCOV</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiseCOV</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">offsetCLS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_offset_spectra</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">offsetCOV</span> <span class="o">=</span> <span class="n">cov_filling</span><span class="p">(</span>
+                    <span class="n">fields</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+                    <span class="n">excluded_probes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="p">,</span>
+                    <span class="n">absolute_lmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span>
+                    <span class="n">absolute_lmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+                    <span class="n">cov_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">offsetCLS</span><span class="p">,</span>
+                    <span class="n">lmins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">,</span>
+                    <span class="n">lmaxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsetCOV</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guess</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiLit.get_requirements">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.get_requirements">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Defines requirements of the likelihood, specifying quantities calculated by</span>
+<span class="sd">        a theory code are needed. Note that you may want to change the overall keyword</span>
+<span class="sd">        from &#39;Cl&#39; to &#39;unlensed_Cl&#39; if you want to work without considering lensing.&quot;&quot;&quot;</span>
+        <span class="n">requirements</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">requirements</span><span class="p">[</span><span class="s2">&quot;Cl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">cl</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="n">requirements</span><span class="p">[</span><span class="s2">&quot;CAMBdata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">You requested that Cobaya provides to the likelihood the &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;following items: </span><span class="si">{</span><span class="n">requirements</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">requirements</span></div>
+
+
+<div class="viewcode-block" id="LiLit.get_likelihood_kwargs">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.get_likelihood_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_likelihood_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Defines the keyword arguments to pass to the likelihood function.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+            <span class="s2">&quot;lmin&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span>
+            <span class="s2">&quot;lmax&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+            <span class="s2">&quot;fsky&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fsky</span><span class="p">,</span>
+            <span class="s2">&quot;fskies&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fskies</span><span class="p">,</span>
+            <span class="s2">&quot;like_approx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">like_approx</span><span class="p">,</span>
+            <span class="s2">&quot;chi_method&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_method</span><span class="p">,</span>
+            <span class="s2">&quot;excluded_probes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="p">,</span>
+            <span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span>
+            <span class="s2">&quot;inverse_covariance&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;inverse_covariance&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s2">&quot;mask&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;mask&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s2">&quot;fidu&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;guess&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s2">&quot;bins&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="LiLit.log_likelihood">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.log_likelihood">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert into log likelihood and sum over multipoles.&quot;&quot;&quot;</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_likelihood_kwargs</span><span class="p">()</span>
+        <span class="n">chi_squared</span> <span class="o">=</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_method</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">coba</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coba</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">chi_squared</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LiLit.logp">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.likelihood.LiLit.logp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params_values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the log likelihood and pass it to Cobaya to carry on the MCMC process.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="n">CAMBdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">get_CAMBdata</span><span class="p">()</span>
+            <span class="n">pars</span> <span class="o">=</span> <span class="n">CAMBdata</span><span class="o">.</span><span class="n">Params</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cobaCLS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">get_Cl</span><span class="p">(</span><span class="n">ell_factor</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobaCLS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;pp&quot;</span><span class="p">:</span>
+                <span class="n">value</span><span class="p">[</span><span class="mi">2</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">value</span><span class="p">[</span><span class="mi">2</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">ell</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">2</span><span class="p">:]</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;p&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="n">value</span><span class="p">[</span><span class="mi">2</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">value</span><span class="p">[</span><span class="mi">2</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ell</span> <span class="o">*</span> <span class="p">(</span><span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">2</span><span class="p">:]</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cobaCLS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keys of Cobaya CLs ---&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cobaCLS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">field</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cobaCLS</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Printing the first few values to check that it starts from 0...&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cobaya CLs for </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> ---&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cobaCLS</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cobaCOV</span> <span class="o">=</span> <span class="n">cov_filling</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">excluded_probes</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cobaCLS</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmins</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmaxs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">obs1</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">obs2</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fiduCOV</span><span class="p">[</span><span class="n">obs1</span><span class="p">,</span> <span class="n">obs2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Fiducial CLs&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cobaCOV</span><span class="p">[</span><span class="n">obs1</span><span class="p">,</span> <span class="n">obs2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Cobaya CLs&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiseCOV</span><span class="p">[</span><span class="n">obs1</span><span class="p">,</span> <span class="n">obs2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Noise CLs&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coba</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cobaCOV</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiseCOV</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmin</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">logp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log-posterior --&gt;  </span><span class="si">{</span><span class="n">logp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">exit</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">logp</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LiLit&quot;</span><span class="p">]</span>
+
+<span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
+<span class="n">__pdoc__</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">__pdoc__</span><span class="p">[</span><span class="s2">&quot;Likelihood&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Likelihood class from Cobaya, refer to Cobaya documentation for more information.&quot;</span>
+<span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Giacomo Galloni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

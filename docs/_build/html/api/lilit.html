@@ -1,0 +1,1214 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lilit package &mdash; LiLit 1.2.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=e917149c"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Integration with Cobaya" href="../cobaya_integration.html" />
+    <link rel="prev" title="API Reference" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            LiLit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation and quickstart</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#development-installation">Development Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#working-with-different-field-combinations">Working with Different Field Combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#temperature-only">Temperature Only</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#temperature-polarization">Temperature + Polarization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#b-modes-only">B-modes Only</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#integration-with-cobaya">Integration with Cobaya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#basic-example-temperature-and-polarization">Basic Example: Temperature and Polarization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#b-mode-analysis-with-tensor-modes">B-mode Analysis with Tensor Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#custom-fiducial-spectra">Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#running-an-mcmc-analysis">Running an MCMC Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#using-different-sky-fractions-per-field">Using Different Sky Fractions per Field</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory and Implementation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Likelihood Theory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../theory.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory.html#single-field-case">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory.html#multi-field-case">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory.html#implementation-details">Implementation Details</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../theory.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory.html#id1">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory.html#id2">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory.html#implementation-differences-from-exact-case">Implementation Differences from Exact Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../theory.html#correlated-gaussian-likelihood">Correlated Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../theory.html#formulation">Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../theory.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../theory.html#sky-cut-approximations">Sky Cut Approximations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">lilit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-lilit.functions">lilit.functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_keys"><code class="docutils literal notranslate"><span class="pre">get_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_Gauss_keys"><code class="docutils literal notranslate"><span class="pre">get_Gauss_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_reduced_covariances"><code class="docutils literal notranslate"><span class="pre">get_reduced_covariances()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.get_reduced_data_vectors"><code class="docutils literal notranslate"><span class="pre">get_reduced_data_vectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.cov_filling"><code class="docutils literal notranslate"><span class="pre">cov_filling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.find_spectrum"><code class="docutils literal notranslate"><span class="pre">find_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.sigma"><code class="docutils literal notranslate"><span class="pre">sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.inv_sigma"><code class="docutils literal notranslate"><span class="pre">inv_sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.CAMBres2dict"><code class="docutils literal notranslate"><span class="pre">CAMBres2dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.functions.txt2dict"><code class="docutils literal notranslate"><span class="pre">txt2dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-lilit.likelihood">lilit.likelihood module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.likelihood.LiLit"><code class="docutils literal notranslate"><span class="pre">LiLit</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-lilit.core.chi_square">lilit.core.chi_square module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.core.chi_square.ChiSquareCalculator"><code class="docutils literal notranslate"><span class="pre">ChiSquareCalculator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.core.chi_square.ChiSquareMethod"><code class="docutils literal notranslate"><span class="pre">ChiSquareMethod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.core.chi_square.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.core.chi_square.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.core.chi_square.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.core.chi_square.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lilit.core.chi_square.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Integration with Cobaya</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cobaya_integration.html">Integration with Cobaya</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#basic-cobaya-configuration">Basic Cobaya Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#working-with-camb">Working with CAMB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#working-with-class">Working with CLASS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#parameter-definitions">Parameter Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#combining-multiple-likelihoods">Combining Multiple Likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#custom-sampler-settings">Custom Sampler Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#output-configuration">Output Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#running-from-python">Running from Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cobaya_integration.html#using-the-model-interface">Using the Model Interface</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced Topics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../custom_likelihoods.html">Likelihood Approximations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../custom_likelihoods.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../custom_likelihoods.html#using-the-exact-likelihood">Using the Exact Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../custom_likelihoods.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../custom_likelihoods.html#using-the-gaussian-likelihood">Using the Gaussian Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../custom_likelihoods.html#field-specific-multipole-ranges">Field-Specific Multipole Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../custom_likelihoods.html#excluding-specific-probes">Excluding Specific Probes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../custom_likelihoods.html#sky-coverage-effects">Sky Coverage Effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../custom_likelihoods.html#debug-mode">Debug Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../custom_likelihoods.html#when-to-use-each-approximation">When to Use Each Approximation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../noise_models.html">Noise Models and Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../noise_models.html#default-noise-placeholder">Default Noise Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../noise_models.html#providing-custom-noise-spectra">Providing Custom Noise Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../noise_models.html#expected-noise-file-format">Expected Noise File Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../noise_models.html#default-fiducial-spectra">Default Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../noise_models.html#custom-fiducial-spectra">Custom Fiducial Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../noise_models.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../noise_models.html#noise-requirements-for-litebird">Noise Requirements for LiteBIRD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../noise_models.html#multipole-dependent-sky-coverage">Multipole-Dependent Sky Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../noise_models.html#note-on-sky-cut-approximation">Note on Sky Cut Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../noise_models.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../fiducial_spectra.html">Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../fiducial_spectra.html#default-planck-2018-best-fit">Default: Planck 2018 Best-Fit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fiducial_spectra.html#for-b-mode-analysis">For B-mode Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fiducial_spectra.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fiducial_spectra.html#generating-spectra-with-camb">Generating Spectra with CAMB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../fiducial_spectra.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fiducial_spectra.html#modifying-default-parameters">Modifying Default Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fiducial_spectra.html#lensed-vs-unlensed-spectra">Lensed vs Unlensed Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fiducial_spectra.html#field-combinations">Field Combinations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fiducial_spectra.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#installation-issues">Installation Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#likelihood-setup-issues">Likelihood Setup Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#cobaya-integration-issues">Cobaya Integration Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#performance-issues">Performance Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#numerical-issues">Numerical Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#common-error-messages">Common Error Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LiLit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">API Reference</a></li>
+      <li class="breadcrumb-item active">lilit package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/lilit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-lilit">
+<span id="lilit-package"></span><h1>lilit package<a class="headerlink" href="#module-lilit" title="Link to this heading"></a></h1>
+<p># Welcome to LiLit!</p>
+<p>A Python package encoding the likelihood for LiteBIRD.</p>
+<p>LiLit provides forecasting likelihoods for LiteBIRD, implemented to be used in a
+Cobaya context. This package aims to ease the creation of a common framework among
+different LiteBIRD researchers.</p>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-lilit.functions">
+<span id="lilit-functions-module"></span><h2>lilit.functions module<a class="headerlink" href="#module-lilit.functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_chi_exact">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_chi_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsky</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_chi_exact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_chi_exact" title="Link to this definition"></a></dt>
+<dd><p>Computes proper chi-square term for the exact likelihood case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of fields.</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em>) – The covariance matrix of the data.</p></li>
+<li><p><strong>coba</strong> (<em>ndarray</em>) – The covariance matrix on the MCMC step.</p></li>
+<li><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum multipole to consider.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum multipole to consider.</p></li>
+<li><p><strong>fsky</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The fraction of the sky if a unique number is provided. Otherwise, it is
+the geometrical mean of the fraction of the sky for each field pair. In
+other words an effective fraction of the sky.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_chi_gaussian">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_chi_gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_covariance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_chi_gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_chi_gaussian" title="Link to this definition"></a></dt>
+<dd><p>Computes proper chi-square term for the Gaussian likelihood case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of fields.</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em>) – The covariance matrix of the data.</p></li>
+<li><p><strong>coba</strong> (<em>ndarray</em>) – The covariance matrix on the MCMC step.</p></li>
+<li><p><strong>mask</strong> (<em>ndarray</em>) – Mask corresponding to both excluded probes and excluded multipole ranges.</p></li>
+<li><p><strong>inverse_covariance</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>(</em><em>ndarray</em><em>)</em>) – Inverse of the covaraince matrices for each multipole.</p></li>
+<li><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum multipole to consider.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum multipole to consider.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_chi_correlated_gaussian">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_chi_correlated_gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_covariance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_chi_correlated_gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_chi_correlated_gaussian" title="Link to this definition"></a></dt>
+<dd><p>Computes proper chi-square term for the Gaussian likelihood case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em>) – The covariance matrix of the data.</p></li>
+<li><p><strong>coba</strong> (<em>ndarray</em>) – The covariance matrix on the MCMC step.</p></li>
+<li><p><strong>inverse_covariance</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>(</em><em>ndarray</em><em>)</em>) – Inverse of the covaraince matrices for each multipole.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_chi_HL">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_chi_HL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fidu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_covariance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_chi_HL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_chi_HL" title="Link to this definition"></a></dt>
+<dd><p>Computes proper chi-square term for the Hamimeche &amp; Lewis likelihood case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em>) – The covariance matrix of the data.</p></li>
+<li><p><strong>coba</strong> (<em>ndarray</em>) – The covariance matrix on the MCMC step.</p></li>
+<li><p><strong>inverse_covariance</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>(</em><em>ndarray</em><em>)</em>) – Inverse of the covaraince matrices for each multipole.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_chi_LoLLiPoP">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_chi_LoLLiPoP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fidu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_covariance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_chi_LoLLiPoP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_chi_LoLLiPoP" title="Link to this definition"></a></dt>
+<dd><p>Computes proper chi-square term for the Hamimeche &amp; Lewis likelihood case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em>) – The covariance matrix of the data.</p></li>
+<li><p><strong>coba</strong> (<em>ndarray</em>) – The covariance matrix on the MCMC step.</p></li>
+<li><p><strong>inverse_covariance</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>(</em><em>ndarray</em><em>)</em>) – Inverse of the covaraince matrices for each multipole.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_keys">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_keys" title="Link to this definition"></a></dt>
+<dd><p>Extracts the keys that has to be used as a function of the requested fields. These
+will be the usual 2-points, e.g., tt, te, ee, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – List of fields</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, print out the requested keys</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_Gauss_keys">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_Gauss_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_Gauss_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_Gauss_keys" title="Link to this definition"></a></dt>
+<dd><p>Find the proper dictionary keys for the requested fields.</p>
+<p>Extracts the keys that has to be used as a function of the requested fields for the
+Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so
+the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of fields.</p></li>
+<li><p><strong>keys</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – List of keys to use for the computation.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If set, print the keys that are used, by default False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_reduced_covariances">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_reduced_covariances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">covariance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_reduced_covariances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_reduced_covariances" title="Link to this definition"></a></dt>
+<dd><p>Reduce the dimension of the covariance matrices given that they might be
+singular for some multipole ranges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>covariance</strong> (<em>ndarray</em>) – The covariance matrix.</p></li>
+<li><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum multipole to consider.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum multipole to consider.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.get_reduced_data_vectors">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">get_reduced_data_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#get_reduced_data_vectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.get_reduced_data_vectors" title="Link to this definition"></a></dt>
+<dd><p>Reduce the dimension of the data vectors given that some probe might not be
+defined in some multipole ranges or it might be excluded by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of fields.</p></li>
+<li><p><strong>covariance</strong> (<em>ndarray</em>) – The covariance matrix.</p></li>
+<li><p><strong>mask</strong> (<em>ndarray</em>) – The mask matrix.</p></li>
+<li><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum multipole to consider.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum multipole to consider.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.cov_filling">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">cov_filling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_probes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmaxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#cov_filling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.cov_filling" title="Link to this definition"></a></dt>
+<dd><p>Fill covariance matrix with appropriate spectra.</p>
+<p>Computes the covariance matrix once given a dictionary. Returns the covariance
+matrix of the considered fields, in a shape equal to (num_fields x num_fields x
+lmax). Note that if more than one lmax, or lmin, is specified, there will be null
+values in the matrices, making them singular. This will be handled in another
+method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The list of fields to consider.</p></li>
+<li><p><strong>excluded_probes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – The list of probes to exclude.</p></li>
+<li><p><strong>absolute_lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum multipole to consider.</p></li>
+<li><p><strong>absolute_lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum multipole to consider.</p></li>
+<li><p><strong>cov_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The input dictionary of spectra.</p></li>
+<li><p><strong>lmins</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The dictionary of minimum multipole to consider for each field pair.</p></li>
+<li><p><strong>lmaxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – The dictionary of maximum multipole to consider for each field pair.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.find_spectrum">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">find_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#find_spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.find_spectrum" title="Link to this definition"></a></dt>
+<dd><p>Find a spectrum in a given dictionary.</p>
+<p>Returns the corresponding power sepctrum for a given key. If the key is not found,
+it will try to find the reverse key. Otherwise it will fill the array with zeros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum multipole to consider.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum multipole to consider.</p></li>
+<li><p><strong>input_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary where you want to search for keys.</p></li>
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Key to search for.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.sigma">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauss_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fiduDICT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noiseDICT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fskies</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#sigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.sigma" title="Link to this definition"></a></dt>
+<dd><p>Define the covariance matrix for the Gaussian case.</p>
+<p>In case of Gaussian likelihood, this returns the covariance matrix needed for the
+computation of the chi2. Note that the inversion is done in a separate funciton.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of fields.</p></li>
+<li><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum multipole to consider.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum multipole to consider.</p></li>
+<li><p><strong>keys</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Keys for the covariance elements.</p></li>
+<li><p><strong>fiduDICT</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary with the fiducial spectra.</p></li>
+<li><p><strong>noiseDICT</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary with the noise spectra.</p></li>
+<li><p><strong>fsky</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The fraction of sky to consider. If not specified, it means that the
+fraction of sky is different for each field pair.</p></li>
+<li><p><strong>fskies</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – The dictionary of fraction of sky to consider for each field pair.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.inv_sigma">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">inv_sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masked_sigma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#inv_sigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.inv_sigma" title="Link to this definition"></a></dt>
+<dd><p>Invert the covariance matrix of the Gaussian case.</p>
+<p>Inverts the previously calculated sigma ndarray. Note that some elements may be
+null, thus the covariance may be singular. If so, this also reduces the dimension
+of the matrix by deleting the corresponding row and column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The minimum multipole to consider.</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The maximum multipole to consider.</p></li>
+<li><p><strong>masked_sigma</strong> (<em>np.ma.masked_array</em>) – Previously computed and masked covariance matrix (not inverted).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.CAMBres2dict">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">CAMBres2dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camb_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#CAMBres2dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.CAMBres2dict" title="Link to this definition"></a></dt>
+<dd><p>Takes the CAMB result product from get_cmb_power_spectra and convert it to a
+dictionary with the proper keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>camb_results</strong> (<em>CAMBdata</em>) – CAMB result product from the method get_cmb_power_spectra.</p></li>
+<li><p><strong>probes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Keys for the spectra dictionary we want to save.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.functions.txt2dict">
+<span class="sig-prename descclassname"><span class="pre">lilit.functions.</span></span><span class="sig-name descname"><span class="pre">txt2dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">txt</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping_probe2colnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_ellfactor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/functions.html#txt2dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.functions.txt2dict" title="Link to this definition"></a></dt>
+<dd><p>Takes a txt file and convert it to a dictionary. This requires a way to map the
+columns to the keys. Also, it is possible to apply an ell factor to the Cls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>txt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Path to txt file containing the spectra as columns.</p></li>
+<li><p><strong>mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary containing the mapping. Keywords will become the new keywords and
+values represent the index of the corresponding column.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-lilit.likelihood">
+<span id="lilit-likelihood-module"></span><h2>lilit.likelihood module<a class="headerlink" href="#module-lilit.likelihood" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lilit.likelihood.</span></span><span class="sig-name descname"><span class="pre">LiLit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">like</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'exact'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nl_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fidu_guess_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_covariance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nside</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pivot_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_probes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">want_binning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Likelihood</span></code></p>
+<p>Class defining the Likelihood for LiteBIRD (LiLit).</p>
+<p>Within LiLit, the most relevant study cases of LiteBIRD (T, E, B) are already tested
+and working. So, if you need to work with those, you should not need to look into
+the actual definition of the likelihood function, since you can promptly start
+running your MCMCs. Despite this, you should provide to the likelihood some file
+where to find the proper LiteBIRD noise power spectra, given that LiLit is
+implementing a simple inverse noise weighting just as a place-holder for something
+more realistic. As regards lensing, LiLit will need you to pass the reconstruction
+noise, since its computation is not coded, thus there is no place-holder for lensing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The name for the likelihood, used in the output. It is necessary to pass it
+to LiLit. (default: None).</p></li>
+<li><p><strong>fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – List of fields in the data file (default: None).</p></li>
+<li><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Minimum multipole to consider (default: 2).</p></li>
+<li><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Maximum multipole to consider (default: None).</p></li>
+<li><p><strong>like_approx</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Type of likelihood to use (default: “exact”). Currently supports “exact”
+and “gaussian”, soon “correlated_gaussian”.</p></li>
+<li><p><strong>cl_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Path to Cl file or dictionary of fiducial spectra (default: None).</p></li>
+<li><p><strong>nl_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Path to noise file or dictionary of noise spectra (default: None).</p></li>
+<li><p><strong>bias_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Path to bias file or dictionary of bias spectra (default: None).</p></li>
+<li><p><strong>experiment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Name of experiment (default: None).</p></li>
+<li><p><strong>nside</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Nside of the map (default: None).</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Tensor-to-scalar ratio (default: None).</p></li>
+<li><p><strong>nt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Tensor spectral tilt (default: None).</p></li>
+<li><p><strong>pivot_t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Pivot scale of the tensor primordial power spectrum (default: 0.01).</p></li>
+<li><p><strong>fsky</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Sky fraction (default: 1).</p></li>
+<li><p><strong>excluded_probes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><em>optional</em>) – List of probes to exclude (default: None).</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, produces more verbose output (default: None).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.fields" title="Link to this definition"></a></dt>
+<dd><p>List of fields in the data file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.N">
+<span class="sig-name descname"><span class="pre">N</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.N" title="Link to this definition"></a></dt>
+<dd><p>Number of fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.keys" title="Link to this definition"></a></dt>
+<dd><p>List of keywords for the dictionaries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.gauss_keys">
+<span class="sig-name descname"><span class="pre">gauss_keys</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.gauss_keys" title="Link to this definition"></a></dt>
+<dd><p>List of keywords for the Gaussian likelihood (4-points).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.inverse_covariance">
+<span class="sig-name descname"><span class="pre">inverse_covariance</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.inverse_covariance" title="Link to this definition"></a></dt>
+<dd><p>List of covariances for the Gaussian likelihood case, one for each multipole.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.lmin">
+<span class="sig-name descname"><span class="pre">lmin</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.lmin" title="Link to this definition"></a></dt>
+<dd><p>Minimum multipole to consider.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.lmins">
+<span class="sig-name descname"><span class="pre">lmins</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.lmins" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of lmin values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.lmax">
+<span class="sig-name descname"><span class="pre">lmax</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.lmax" title="Link to this definition"></a></dt>
+<dd><p>List of lmax values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.lmaxes">
+<span class="sig-name descname"><span class="pre">lmaxes</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.lmaxes" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of lmax values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.fsky">
+<span class="sig-name descname"><span class="pre">fsky</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.fsky" title="Link to this definition"></a></dt>
+<dd><p>List of fsky values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.fskies">
+<span class="sig-name descname"><span class="pre">fskies</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.fskies" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of fsky values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.like_approx">
+<span class="sig-name descname"><span class="pre">like_approx</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.like_approx" title="Link to this definition"></a></dt>
+<dd><p>Type of likelihood to use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.cl_file">
+<span class="sig-name descname"><span class="pre">cl_file</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.cl_file" title="Link to this definition"></a></dt>
+<dd><p>Path to Cl file or dictionary of fiducial spectra.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.nl_file">
+<span class="sig-name descname"><span class="pre">nl_file</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.nl_file" title="Link to this definition"></a></dt>
+<dd><p>Path to noise file or dictionary of the noise spectra.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.bias_file">
+<span class="sig-name descname"><span class="pre">bias_file</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.bias_file" title="Link to this definition"></a></dt>
+<dd><p>Path to bias file or dictionary of the bias spectra.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.fiduCLS">
+<span class="sig-name descname"><span class="pre">fiduCLS</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.fiduCLS" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of fiducial Cls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.noiseCLS">
+<span class="sig-name descname"><span class="pre">noiseCLS</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.noiseCLS" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of noise Cls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.biasCLS">
+<span class="sig-name descname"><span class="pre">biasCLS</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.biasCLS" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of bias Cls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.fiduCOV">
+<span class="sig-name descname"><span class="pre">fiduCOV</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.fiduCOV" title="Link to this definition"></a></dt>
+<dd><p>Fiducial covariance matrix obtained from the corresponding dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.noiseCOV">
+<span class="sig-name descname"><span class="pre">noiseCOV</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.noiseCOV" title="Link to this definition"></a></dt>
+<dd><p>Noise covariance matrix obtained from the corresponding dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.cobaCLS">
+<span class="sig-name descname"><span class="pre">cobaCLS</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.cobaCLS" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of Cobaya Cls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.cobaCOV">
+<span class="sig-name descname"><span class="pre">cobaCOV</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.cobaCOV" title="Link to this definition"></a></dt>
+<dd><p>Cobaya covariance matrix obtained from the corresponding dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.data" title="Link to this definition"></a></dt>
+<dd><p>Data vector obtained by summing fiduCOV + noiseCOV + biasCOV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.coba">
+<span class="sig-name descname"><span class="pre">coba</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.coba" title="Link to this definition"></a></dt>
+<dd><p>Cobaya vector obtained by summing cobaCOV + noiseCOV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.experiment">
+<span class="sig-name descname"><span class="pre">experiment</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.experiment" title="Link to this definition"></a></dt>
+<dd><p>Name of experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.nside">
+<span class="sig-name descname"><span class="pre">nside</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.nside" title="Link to this definition"></a></dt>
+<dd><p>Nside of the map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.r">
+<span class="sig-name descname"><span class="pre">r</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.r" title="Link to this definition"></a></dt>
+<dd><p>Tensor-to-scalar ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.nt">
+<span class="sig-name descname"><span class="pre">nt</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.nt" title="Link to this definition"></a></dt>
+<dd><p>Tensor spectral tilt.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.pivot_t">
+<span class="sig-name descname"><span class="pre">pivot_t</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.pivot_t" title="Link to this definition"></a></dt>
+<dd><p>Pivot scale of the tensor primordial power spectrum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><a class="headerlink" href="#lilit.likelihood.LiLit.debug" title="Link to this definition"></a></dt>
+<dd><p>If True, produces more output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">like</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'exact'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nl_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fidu_guess_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_covariance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nside</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pivot_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsky</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded_probes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">want_binning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.check_supported_approximations">
+<span class="sig-name descname"><span class="pre">check_supported_approximations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.check_supported_approximations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.check_supported_approximations" title="Link to this definition"></a></dt>
+<dd><p>Check that the requested likelihood approximation is actually supported.</p>
+<p>Note: the correlated Gaussian is supported for a single field, not multiple ones.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.set_lmin">
+<span class="sig-name descname"><span class="pre">set_lmin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.set_lmin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.set_lmin" title="Link to this definition"></a></dt>
+<dd><p>Take lmin parameter and set the corresponding attributes.</p>
+<p>This handles automatically the case of a single value or a list of values. Note
+that the lmin for the cross-correlations is set to the geometrical mean of the
+lmin of the two fields when the likelihood approximation is not exact. This
+approximation has been tested and found to be accurate, at least assuming that
+the two masks of the two considered multipoles are very overlapped. On the
+other hand, lmin is set to the maximum of the two other probes for the exact
+likelihood. Indeed, the geometrical mean causes some issues in this case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lmin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Value or list of values of lmin.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.set_lmax">
+<span class="sig-name descname"><span class="pre">set_lmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.set_lmax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.set_lmax" title="Link to this definition"></a></dt>
+<dd><p>Take lmax parameter and set the corresponding attributes.</p>
+<p>This handles automatically the case of a single value or a list of values. Note
+that the lmax for the cross-correlations is set to the geometrical mean of the
+lmax of the two fields when the likelihood approximation is not exact. This
+approximation has been tested and found to be accurate, at least assuming that
+the two masks of the two considered multipoles are very overlapped. On the
+other hand, lmax is set to the minimum of the two other probes for the exact
+likelihood. Indeed, the geometrical mean causes some issues in this case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lmax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Value or list of values of lmax.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.set_fsky">
+<span class="sig-name descname"><span class="pre">set_fsky</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fsky</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.set_fsky"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.set_fsky" title="Link to this definition"></a></dt>
+<dd><p>Take fsky parameter and set the corresponding attributes.</p>
+<p>This handles automatically the case of a single value or a list of values. Note
+that the fsky for the cross-correlations is set to the geometrical mean of the
+fsky of the two fields. This approximation has been tested and found to be
+accurate, at least assuming that the two masks of the two considered multipoles
+are very overlapped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fsky</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a>) – Value or list of values of fsky.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.get_fiducial_spectra">
+<span class="sig-name descname"><span class="pre">get_fiducial_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.get_fiducial_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.get_fiducial_spectra" title="Link to this definition"></a></dt>
+<dd><p>Produce fiducial spectra or read the input ones.</p>
+<p>If the user has not provided a Cl file, this function will produce the fiducial
+power spectra starting from the CAMB inifile for Planck2018. The extra keywords
+defined will maximize the accordance between the fiducial Cls and the ones
+obtained from Cobaya. If B-modes are requested, the tensor-to-scalar ratio and
+the spectral tilt will be set to the requested values. Note that if you do not
+provide a tilt, this will follow the standard single-field consistency
+relation. If instead you provide a custom file, stores that.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.get_noise_spectra">
+<span class="sig-name descname"><span class="pre">get_noise_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.get_noise_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.get_noise_spectra" title="Link to this definition"></a></dt>
+<dd><p>Produce noise power spectra or read the input ones.</p>
+<p>If the user has not provided a noise file, this function will produce the noise
+power spectra for a given experiment with inverse noise weighting of white
+noise in each channel (TT, EE, BB). Note that you may want to have a look at
+the procedure since it is merely a place-holder. Indeed, you should provide a
+more realistic file from which to read the noise spectra, given that inverse
+noise weighting severely underestimates the amount of noise. If instead you
+provide the proper custom file, this method stores that.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.get_bias_spectra">
+<span class="sig-name descname"><span class="pre">get_bias_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.get_bias_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.get_bias_spectra" title="Link to this definition"></a></dt>
+<dd><p>Store the input spectra for the bias.</p>
+<p>The bias spectra stored here will be add to the fiducial power spectra, but not
+to the ones prodeced by Cobaya. In this way, one can study the case in which
+something is causing a bias in the spectra reconstruction (e.g. foregrounds,
+systematics and such).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.get_fidu_guess_spectra">
+<span class="sig-name descname"><span class="pre">get_fidu_guess_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.get_fidu_guess_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.get_fidu_guess_spectra" title="Link to this definition"></a></dt>
+<dd><p>Store the input spectra for a fiducial guess on the spectrum of data.</p>
+<p>The bias spectra stored here will be add to the fiducial power spectra, but not
+to the ones prodeced by Cobaya. In this way, one can study the case in which
+something is causing a bias in the spectra reconstruction (e.g. foregrounds,
+systematics and such).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.get_offset_spectra">
+<span class="sig-name descname"><span class="pre">get_offset_spectra</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.get_offset_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.get_offset_spectra" title="Link to this definition"></a></dt>
+<dd><p>Store the input spectra for the offset (H&amp;L approximation).</p>
+<p>The bias spectra stored here will be add to the fiducial power spectra, but not
+to the ones prodeced by Cobaya. In this way, one can study the case in which
+something is causing a bias in the spectra reconstruction (e.g. foregrounds,
+systematics and such).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.compute_covariance_Cl">
+<span class="sig-name descname"><span class="pre">compute_covariance_Cl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.compute_covariance_Cl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.compute_covariance_Cl" title="Link to this definition"></a></dt>
+<dd><p>Compute the covariance matrix of the Cl.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.initialize" title="Link to this definition"></a></dt>
+<dd><p>Initializes the fiducial spectra and the noise power spectra.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.get_requirements">
+<span class="sig-name descname"><span class="pre">get_requirements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.get_requirements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.get_requirements" title="Link to this definition"></a></dt>
+<dd><p>Defines requirements of the likelihood, specifying quantities calculated by
+a theory code are needed. Note that you may want to change the overall keyword
+from ‘Cl’ to ‘unlensed_Cl’ if you want to work without considering lensing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.get_likelihood_kwargs">
+<span class="sig-name descname"><span class="pre">get_likelihood_kwargs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.get_likelihood_kwargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.get_likelihood_kwargs" title="Link to this definition"></a></dt>
+<dd><p>Defines the keyword arguments to pass to the likelihood function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.log_likelihood">
+<span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.log_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.log_likelihood" title="Link to this definition"></a></dt>
+<dd><p>Convert into log likelihood and sum over multipoles.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.likelihood.LiLit.logp">
+<span class="sig-name descname"><span class="pre">logp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/likelihood.html#LiLit.logp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.likelihood.LiLit.logp" title="Link to this definition"></a></dt>
+<dd><p>Gets the log likelihood and pass it to Cobaya to carry on the MCMC process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-lilit.core.chi_square">
+<span id="lilit-core-chi-square-module"></span><h2>lilit.core.chi_square module<a class="headerlink" href="#module-lilit.core.chi_square" title="Link to this heading"></a></h2>
+<p>Chi-square calculations for LiLit likelihood computations.</p>
+<p>This module provides a unified interface for different chi-square calculation methods
+used in cosmological likelihood analysis, including exact, Gaussian, Hamimeche &amp; Lewis,
+and LoLLiPoP approximations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="lilit.core.chi_square.ChiSquareCalculator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lilit.core.chi_square.</span></span><span class="sig-name descname"><span class="pre">ChiSquareCalculator</span></span><a class="reference internal" href="../_modules/lilit/core/chi_square.html#ChiSquareCalculator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.core.chi_square.ChiSquareCalculator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Unified interface for chi-square calculations in likelihood analysis.</p>
+<p>This class provides a factory pattern for different chi-square calculation methods,
+making it easy to switch between approximations and maintain consistent interfaces.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lilit.core.chi_square.ChiSquareCalculator.calculate">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/core/chi_square.html#ChiSquareCalculator.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.core.chi_square.ChiSquareCalculator.calculate" title="Link to this definition"></a></dt>
+<dd><p>Calculate chi-square using the specified method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<a class="reference internal" href="#lilit.core.chi_square.ChiSquareMethod" title="lilit.core.chi_square.ChiSquareMethod"><em>ChiSquareMethod</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The chi-square calculation method to use.</p></li>
+<li><p><strong>data</strong> (<em>ndarray</em>) – The covariance matrix of the data.</p></li>
+<li><p><strong>coba</strong> (<em>ndarray</em>) – The covariance matrix on the MCMC step.</p></li>
+<li><p><strong>**kwargs</strong> – Method-specific parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Chi-square values, format depends on method.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If method is not supported or required parameters are missing.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lilit.core.chi_square.ChiSquareMethod">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lilit.core.chi_square.</span></span><span class="sig-name descname"><span class="pre">ChiSquareMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/core/chi_square.html#ChiSquareMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.core.chi_square.ChiSquareMethod" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Available chi-square calculation methods.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.core.chi_square.ChiSquareMethod.EXACT">
+<span class="sig-name descname"><span class="pre">EXACT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'exact'</span></em><a class="headerlink" href="#lilit.core.chi_square.ChiSquareMethod.EXACT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.core.chi_square.ChiSquareMethod.GAUSSIAN">
+<span class="sig-name descname"><span class="pre">GAUSSIAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gaussian'</span></em><a class="headerlink" href="#lilit.core.chi_square.ChiSquareMethod.GAUSSIAN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.core.chi_square.ChiSquareMethod.CORRELATED_GAUSSIAN">
+<span class="sig-name descname"><span class="pre">CORRELATED_GAUSSIAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'correlated_gaussian'</span></em><a class="headerlink" href="#lilit.core.chi_square.ChiSquareMethod.CORRELATED_GAUSSIAN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.core.chi_square.ChiSquareMethod.HAMIMECHE_LEWIS">
+<span class="sig-name descname"><span class="pre">HAMIMECHE_LEWIS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hl'</span></em><a class="headerlink" href="#lilit.core.chi_square.ChiSquareMethod.HAMIMECHE_LEWIS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lilit.core.chi_square.ChiSquareMethod.LOLLIPOP">
+<span class="sig-name descname"><span class="pre">LOLLIPOP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lollipop'</span></em><a class="headerlink" href="#lilit.core.chi_square.ChiSquareMethod.LOLLIPOP" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.core.chi_square.get_chi_exact">
+<span class="sig-prename descclassname"><span class="pre">lilit.core.chi_square.</span></span><span class="sig-name descname"><span class="pre">get_chi_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsky</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/core/chi_square.html#get_chi_exact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.core.chi_square.get_chi_exact" title="Link to this definition"></a></dt>
+<dd><p>Legacy wrapper for exact chi-square calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.core.chi_square.get_chi_gaussian">
+<span class="sig-prename descclassname"><span class="pre">lilit.core.chi_square.</span></span><span class="sig-name descname"><span class="pre">get_chi_gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_covariance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/core/chi_square.html#get_chi_gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.core.chi_square.get_chi_gaussian" title="Link to this definition"></a></dt>
+<dd><p>Legacy wrapper for Gaussian chi-square calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> | <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.core.chi_square.get_chi_correlated_gaussian">
+<span class="sig-prename descclassname"><span class="pre">lilit.core.chi_square.</span></span><span class="sig-name descname"><span class="pre">get_chi_correlated_gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_covariance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/core/chi_square.html#get_chi_correlated_gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.core.chi_square.get_chi_correlated_gaussian" title="Link to this definition"></a></dt>
+<dd><p>Legacy wrapper for correlated Gaussian chi-square calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.core.chi_square.get_chi_HL">
+<span class="sig-prename descclassname"><span class="pre">lilit.core.chi_square.</span></span><span class="sig-name descname"><span class="pre">get_chi_HL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fidu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_covariance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/core/chi_square.html#get_chi_HL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.core.chi_square.get_chi_HL" title="Link to this definition"></a></dt>
+<dd><p>Legacy wrapper for Hamimeche &amp; Lewis chi-square calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lilit.core.chi_square.get_chi_LoLLiPoP">
+<span class="sig-prename descclassname"><span class="pre">lilit.core.chi_square.</span></span><span class="sig-name descname"><span class="pre">get_chi_LoLLiPoP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fidu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_covariance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lilit/core/chi_square.html#get_chi_LoLLiPoP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lilit.core.chi_square.get_chi_LoLLiPoP" title="Link to this definition"></a></dt>
+<dd><p>Legacy wrapper for LoLLiPoP chi-square calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../cobaya_integration.html" class="btn btn-neutral float-right" title="Integration with Cobaya" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Giacomo Galloni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

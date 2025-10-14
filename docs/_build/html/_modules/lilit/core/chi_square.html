@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lilit.core.chi_square &#8212; LiLit 1.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=6efca38a"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for lilit.core.chi_square</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Chi-square calculations for LiLit likelihood computations.</span>
+
+<span class="sd">This module provides a unified interface for different chi-square calculation methods</span>
+<span class="sd">used in cosmological likelihood analysis, including exact, Gaussian, Hamimeche &amp; Lewis,</span>
+<span class="sd">and LoLLiPoP approximations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<div class="viewcode-block" id="ChiSquareMethod">
+<a class="viewcode-back" href="../../../api/lilit.html#lilit.core.chi_square.ChiSquareMethod">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChiSquareMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Available chi-square calculation methods.&quot;&quot;&quot;</span>
+
+    <span class="n">EXACT</span> <span class="o">=</span> <span class="s2">&quot;exact&quot;</span>
+    <span class="n">GAUSSIAN</span> <span class="o">=</span> <span class="s2">&quot;gaussian&quot;</span>
+    <span class="n">CORRELATED_GAUSSIAN</span> <span class="o">=</span> <span class="s2">&quot;correlated_gaussian&quot;</span>
+    <span class="n">HAMIMECHE_LEWIS</span> <span class="o">=</span> <span class="s2">&quot;hl&quot;</span>
+    <span class="n">LOLLIPOP</span> <span class="o">=</span> <span class="s2">&quot;lollipop&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ChiSquareCalculator">
+<a class="viewcode-back" href="../../../api/lilit.html#lilit.core.chi_square.ChiSquareCalculator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChiSquareCalculator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unified interface for chi-square calculations in likelihood analysis.</span>
+
+<span class="sd">    This class provides a factory pattern for different chi-square calculation methods,</span>
+<span class="sd">    making it easy to switch between approximations and maintain consistent interfaces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ChiSquareCalculator.calculate">
+<a class="viewcode-back" href="../../../api/lilit.html#lilit.core.chi_square.ChiSquareCalculator.calculate">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">ChiSquareMethod</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate chi-square using the specified method.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            method (ChiSquareMethod or str):</span>
+<span class="sd">                The chi-square calculation method to use.</span>
+<span class="sd">            data (ndarray):</span>
+<span class="sd">                The covariance matrix of the data.</span>
+<span class="sd">            coba (ndarray):</span>
+<span class="sd">                The covariance matrix on the MCMC step.</span>
+<span class="sd">            **kwargs:</span>
+<span class="sd">                Method-specific parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ndarray | list: Chi-square values, format depends on method.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If method is not supported or required parameters are missing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="n">ChiSquareMethod</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported chi-square method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">method_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">EXACT</span><span class="p">:</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">_calculate_exact</span><span class="p">,</span>
+            <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">GAUSSIAN</span><span class="p">:</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">_calculate_gaussian</span><span class="p">,</span>
+            <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">CORRELATED_GAUSSIAN</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">_calculate_correlated_gaussian</span>
+            <span class="p">),</span>
+            <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">HAMIMECHE_LEWIS</span><span class="p">:</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">_calculate_HL</span><span class="p">,</span>
+            <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">LOLLIPOP</span><span class="p">:</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">_calculate_LoLLiPoP</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">method_map</span><span class="p">[</span><span class="n">method</span><span class="p">](</span><span class="n">data</span><span class="p">,</span> <span class="n">coba</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_exact</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the exact likelihood case.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            data (ndarray):</span>
+<span class="sd">                The covariance matrix of the data.</span>
+<span class="sd">            coba (ndarray):</span>
+<span class="sd">                The covariance matrix on the MCMC step.</span>
+<span class="sd">            N (int):</span>
+<span class="sd">                Number of fields.</span>
+<span class="sd">            lmin (int):</span>
+<span class="sd">                The minimum multipole to consider.</span>
+<span class="sd">            lmax (int):</span>
+<span class="sd">                The maximum multipole to consider.</span>
+<span class="sd">            fsky (float):</span>
+<span class="sd">                The fraction of the sky if a unique number is provided. Otherwise, it is</span>
+<span class="sd">                the geometrical mean of the fraction of the sky for each field pair. In</span>
+<span class="sd">                other words an effective fraction of the sky.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Import here to avoid circular imports</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reduced_covariances</span>
+
+        <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+            <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">coba</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+
+            <span class="n">M_ℓ</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">,</span> <span class="n">reduced_coba</span><span class="p">,</span> <span class="n">reduced_data</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">fsky</span>
+                <span class="o">*</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">M_ℓ</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">ell</span><span class="p">)</span>
+            <span class="n">ratio</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">fsky</span> <span class="o">*</span> <span class="p">(</span><span class="n">ratio</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ratio</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_gaussian</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            data (ndarray):</span>
+<span class="sd">                The covariance matrix of the data.</span>
+<span class="sd">            coba (ndarray):</span>
+<span class="sd">                The covariance matrix on the MCMC step.</span>
+<span class="sd">            N (int):</span>
+<span class="sd">                Number of fields.</span>
+<span class="sd">            mask (ndarray):</span>
+<span class="sd">                Mask corresponding to both excluded probes and excluded multipole ranges.</span>
+<span class="sd">            inverse_covariance (list(ndarray)):</span>
+<span class="sd">                Inverse of the covariance matrices for each multipole.</span>
+<span class="sd">            lmin (int):</span>
+<span class="sd">                The minimum multipole to consider.</span>
+<span class="sd">            lmax (int):</span>
+<span class="sd">                The maximum multipole to consider.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Import here to avoid circular imports</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_reduced_data_vectors</span>
+
+        <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">coba</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+            <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="o">@</span> <span class="n">inverse_covariance</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="o">@</span> <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lmin</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">return</span> <span class="n">diff</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverse_covariance</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_correlated_gaussian</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the correlated Gaussian likelihood case.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            data (ndarray):</span>
+<span class="sd">                The covariance matrix of the data.</span>
+<span class="sd">            coba (ndarray):</span>
+<span class="sd">                The covariance matrix on the MCMC step.</span>
+<span class="sd">            inverse_covariance (list(ndarray)):</span>
+<span class="sd">                Inverse of the covariance matrices for each multipole.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">diff</span> <span class="o">@</span> <span class="n">inverse_covariance</span> <span class="o">@</span> <span class="n">diff</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_HL</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">fidu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">offset</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Hamimeche &amp; Lewis likelihood case.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            data (ndarray):</span>
+<span class="sd">                The covariance matrix of the data.</span>
+<span class="sd">            coba (ndarray):</span>
+<span class="sd">                The covariance matrix on the MCMC step.</span>
+<span class="sd">            fidu (ndarray):</span>
+<span class="sd">                The fiducial covariance matrix.</span>
+<span class="sd">            offset (ndarray):</span>
+<span class="sd">                The offset array for the calculation.</span>
+<span class="sd">            inverse_covariance (list(ndarray)):</span>
+<span class="sd">                Inverse of the covariance matrices for each multipole.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_offset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">coba_offset</span> <span class="o">=</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_offset</span> <span class="o">/</span> <span class="n">coba_offset</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">weighted_g</span> <span class="o">=</span> <span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">fidu</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="k">return</span> <span class="n">weighted_g</span> <span class="o">@</span> <span class="n">inverse_covariance</span> <span class="o">@</span> <span class="n">weighted_g</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_LoLLiPoP</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">fidu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">offset</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the LoLLiPoP likelihood case.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            data (ndarray):</span>
+<span class="sd">                The covariance matrix of the data.</span>
+<span class="sd">            coba (ndarray):</span>
+<span class="sd">                The covariance matrix on the MCMC step.</span>
+<span class="sd">            fidu (ndarray):</span>
+<span class="sd">                The fiducial covariance matrix.</span>
+<span class="sd">            offset (ndarray):</span>
+<span class="sd">                The offset array for the calculation.</span>
+<span class="sd">            inverse_covariance (list(ndarray)):</span>
+<span class="sd">                Inverse of the covariance matrices for each multipole.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_offset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">coba_offset</span> <span class="o">=</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_offset</span> <span class="o">/</span> <span class="n">coba_offset</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="n">weighted_g</span> <span class="o">=</span> <span class="n">g</span> <span class="o">*</span> <span class="p">(</span><span class="n">fidu</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="k">return</span> <span class="n">weighted_g</span> <span class="o">@</span> <span class="n">inverse_covariance</span> <span class="o">@</span> <span class="n">weighted_g</span></div>
+
+
+
+<span class="c1"># Legacy function wrappers for backward compatibility</span>
+<div class="viewcode-block" id="get_chi_exact">
+<a class="viewcode-back" href="../../../api/lilit.html#lilit.core.chi_square.get_chi_exact">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_exact</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Legacy wrapper for exact chi-square calculation.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+        <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">EXACT</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">coba</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span> <span class="n">lmin</span><span class="o">=</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span> <span class="n">fsky</span><span class="o">=</span><span class="n">fsky</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_chi_gaussian">
+<a class="viewcode-back" href="../../../api/lilit.html#lilit.core.chi_square.get_chi_gaussian">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_gaussian</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Legacy wrapper for Gaussian chi-square calculation.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+        <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">GAUSSIAN</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">coba</span><span class="p">,</span>
+        <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">,</span>
+        <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+        <span class="n">inverse_covariance</span><span class="o">=</span><span class="n">inverse_covariance</span><span class="p">,</span>
+        <span class="n">lmin</span><span class="o">=</span><span class="n">lmin</span><span class="p">,</span>
+        <span class="n">lmax</span><span class="o">=</span><span class="n">lmax</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_chi_correlated_gaussian">
+<a class="viewcode-back" href="../../../api/lilit.html#lilit.core.chi_square.get_chi_correlated_gaussian">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_correlated_gaussian</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Legacy wrapper for correlated Gaussian chi-square calculation.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+        <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">CORRELATED_GAUSSIAN</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">coba</span><span class="p">,</span>
+        <span class="n">inverse_covariance</span><span class="o">=</span><span class="n">inverse_covariance</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_chi_HL">
+<a class="viewcode-back" href="../../../api/lilit.html#lilit.core.chi_square.get_chi_HL">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_HL</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">fidu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Legacy wrapper for Hamimeche &amp; Lewis chi-square calculation.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+        <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">HAMIMECHE_LEWIS</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">coba</span><span class="p">,</span>
+        <span class="n">fidu</span><span class="o">=</span><span class="n">fidu</span><span class="p">,</span>
+        <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
+        <span class="n">inverse_covariance</span><span class="o">=</span><span class="n">inverse_covariance</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_chi_LoLLiPoP">
+<a class="viewcode-back" href="../../../api/lilit.html#lilit.core.chi_square.get_chi_LoLLiPoP">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_LoLLiPoP</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">fidu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Legacy wrapper for LoLLiPoP chi-square calculation.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ChiSquareCalculator</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+        <span class="n">ChiSquareMethod</span><span class="o">.</span><span class="n">LOLLIPOP</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">coba</span><span class="p">,</span>
+        <span class="n">fidu</span><span class="o">=</span><span class="n">fidu</span><span class="p">,</span>
+        <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
+        <span class="n">inverse_covariance</span><span class="o">=</span><span class="n">inverse_covariance</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ChiSquareCalculator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ChiSquareMethod&quot;</span><span class="p">,</span>
+    <span class="c1"># Legacy functions for backward compatibility</span>
+    <span class="s2">&quot;get_chi_exact&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_chi_gaussian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_chi_correlated_gaussian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_chi_HL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_chi_LoLLiPoP&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">LiLit</a></h1>
+
+
+
+<p class="blurb">Likelihood for LiteBIRD</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ggalloni&repo=LiLit&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Giacomo Galloni.
+      
+    </div>
+
+    
+    <a href="https://github.com/ggalloni/LiLit" class="github">
+        <img src="../../../_static/github-banner.svg" alt="Fork me on GitHub" class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

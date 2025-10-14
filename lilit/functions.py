@@ -1,7 +1,9 @@
-import numpy as np
-from numpy.ma import MaskedArray
-from camb import CAMBdata
 from typing import List
+
+import numpy as np
+from camb import CAMBdata
+from numpy.ma import MaskedArray
+
 from .binning import Bins
 
 __all__ = [
@@ -24,7 +26,8 @@ __all__ = [
 
 
 def CAMBres2dict(camb_results: CAMBdata, probes: list):
-    """Takes the CAMB result product from get_cmb_power_spectra and convert it to a dictionary with the proper keys.
+    """Takes the CAMB result product from get_cmb_power_spectra and convert it to a
+    dictionary with the proper keys.
 
     Parameters:
         camb_results (CAMBdata):
@@ -58,17 +61,19 @@ def CAMBres2dict(camb_results: CAMBdata, probes: list):
 def txt2dict(
     txt: str, *, mapping_probe2colnum: dict = None, apply_ellfactor: bool = None
 ):
-    """Takes a txt file and convert it to a dictionary. This requires a way to map the columns to the keys. Also, it is possible to apply an ell factor to the Cls.
+    """Takes a txt file and convert it to a dictionary. This requires a way to map the
+    columns to the keys. Also, it is possible to apply an ell factor to the Cls.
 
     Parameters:
         txt (str):
             Path to txt file containing the spectra as columns.
         mapping (dict):
-            Dictionary containing the mapping. Keywords will become the new keywords and values represent the index of the corresponding column.
+            Dictionary containing the mapping. Keywords will become the new keywords and
+            values represent the index of the corresponding column.
     """
-    assert (
-        mapping_probe2colnum is not None
-    ), "You must provide a way to map the columns of your txt to the keys of a dictionary"
+    assert mapping_probe2colnum is not None, (
+        "You must provide a way to map the columns of your txt to the keys of a dict"
+    )
     txt = np.loadtxt(txt)
     res = {}
     for probe, i in mapping_probe2colnum.items():
@@ -82,7 +87,8 @@ def txt2dict(
 
 
 def get_keys(fields: list, *, debug: bool = False):
-    """Extracts the keys that has to be used as a function of the requested fields. These will be the usual 2-points, e.g., tt, te, ee, etc.
+    """Extracts the keys that has to be used as a function of the requested fields. These
+    will be the usual 2-points, e.g., tt, te, ee, etc.
 
     Parameters:
         fields (list):
@@ -100,7 +106,9 @@ def get_keys(fields: list, *, debug: bool = False):
 def get_Gauss_keys(n: int, keys: list, *, debug: bool = False):
     """Find the proper dictionary keys for the requested fields.
 
-    Extracts the keys that has to be used as a function of the requested fields for the Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.
+    Extracts the keys that has to be used as a function of the requested fields for the
+    Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so
+    the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.
 
     Parameters:
         n (int):
@@ -134,7 +142,11 @@ def cov_filling(
 ):
     """Fill covariance matrix with appropriate spectra.
 
-    Computes the covariance matrix once given a dictionary. Returns the covariance matrix of the considered fields, in a shape equal to (num_fields x num_fields x lmax). Note that if more than one lmax, or lmin, is specified, there will be null values in the matrices, making them singular. This will be handled in another method.
+    Computes the covariance matrix once given a dictionary. Returns the covariance
+    matrix of the considered fields, in a shape equal to (num_fields x num_fields x
+    lmax). Note that if more than one lmax, or lmin, is specified, there will be null
+    values in the matrices, making them singular. This will be handled in another
+    method.
 
     Parameters:
         fields (list):
@@ -178,7 +190,8 @@ def cov_filling(
 def find_spectrum(lmin: int, lmax: int, input_dict: dict, key: str):
     """Find a spectrum in a given dictionary.
 
-    Returns the corresponding power sepctrum for a given key. If the key is not found, it will try to find the reverse key. Otherwise it will fill the array with zeros.
+    Returns the corresponding power sepctrum for a given key. If the key is not found,
+    it will try to find the reverse key. Otherwise it will fill the array with zeros.
 
     Parameters:
         lmin (int):
@@ -215,7 +228,8 @@ def sigma(
 ):
     """Define the covariance matrix for the Gaussian case.
 
-    In case of Gaussian likelihood, this returns the covariance matrix needed for the computation of the chi2. Note that the inversion is done in a separate funciton.
+    In case of Gaussian likelihood, this returns the covariance matrix needed for the
+    computation of the chi2. Note that the inversion is done in a separate funciton.
 
     Parameters:
         n (int):
@@ -231,7 +245,8 @@ def sigma(
         noiseDICT (dict):
             Dictionary with the noise spectra.
         fsky (float, optional):
-            The fraction of sky to consider. If not specified, it means that the fraction of sky is different for each field pair.
+            The fraction of sky to consider. If not specified, it means that the
+            fraction of sky is different for each field pair.
         fskies (dict, optional):
             The dictionary of fraction of sky to consider for each field pair.
     """
@@ -289,14 +304,16 @@ def get_masked_sigma(
     absolute_lmin: int,
     absolute_lmax: int,
     gauss_keys: dict,
-    sigma: List[np.ndarray],
+    sigma: list[np.ndarray],
     excluded_probes: list,
     lmins: dict = {},
     lmaxs: dict = {},
 ):
     """Mask the covariance matrix for the Gaussian case in certain ranges of multipoles.
 
-    The covariance matrix is correctly built between lmin and lmax by the function "sigma". However, some observables might be missing in some multipole ranges, so we need to fill the matrix with zeros.
+    The covariance matrix is correctly built between lmin and lmax by the function
+    "sigma". However, some observables might be missing in some multipole ranges, so we
+    need to fill the matrix with zeros.
 
     Parameters:
         n (int):
@@ -336,10 +353,12 @@ def get_masked_sigma(
     return np.ma.masked_array(sigma, mask)
 
 
-def inv_sigma(lmin: int, lmax: int, masked_sigma: List[MaskedArray]):
+def inv_sigma(lmin: int, lmax: int, masked_sigma: list[MaskedArray]):
     """Invert the covariance matrix of the Gaussian case.
 
-    Inverts the previously calculated sigma ndarray. Note that some elements may be null, thus the covariance may be singular. If so, this also reduces the dimension of the matrix by deleting the corresponding row and column.
+    Inverts the previously calculated sigma ndarray. Note that some elements may be
+    null, thus the covariance may be singular. If so, this also reduces the dimension
+    of the matrix by deleting the corresponding row and column.
 
     Parameters:
         lmin (int):
@@ -354,7 +373,8 @@ def inv_sigma(lmin: int, lmax: int, masked_sigma: List[MaskedArray]):
         # Here we need to remove the masked elements to get the non null covariance matrix
         new_dimension = np.count_nonzero(np.diag(masked_sigma.mask[:, :, ell]) == False)
         COV = masked_sigma[:, :, ell].compressed().reshape(new_dimension, new_dimension)
-        # This check is not necessary in principle, but it is useful to avoid singular matrices
+        # This check is not necessary in principle, but it is useful to avoid singular
+        # matrices
         if np.linalg.det(COV) == 0:
             idx = np.where(np.diag(COV) == 0)[0]
             COV = np.delete(COV, idx, axis=0)
@@ -365,7 +385,8 @@ def inv_sigma(lmin: int, lmax: int, masked_sigma: List[MaskedArray]):
 
 
 def get_reduced_covariances(covariance: np.ndarray, lmin: int, lmax: int):
-    """Reduce the dimension of the covariance matrices given that they might be singular for some multipole ranges.
+    """Reduce the dimension of the covariance matrices given that they might be
+    singular for some multipole ranges.
 
     Parameters:
         covariance (ndarray):
@@ -390,7 +411,8 @@ def get_reduced_covariances(covariance: np.ndarray, lmin: int, lmax: int):
 def get_reduced_data_vectors(
     N: int, covariance: np.ndarray, mask: np.ndarray, lmin: int, lmax: int
 ):
-    """Reduce the dimension of the data vectors given that some probe might not be defined in some multipole ranges or it might be excluded by the user.
+    """Reduce the dimension of the data vectors given that some probe might not be
+    defined in some multipole ranges or it might be excluded by the user.
 
     Parameters:
         N (int):
@@ -436,7 +458,9 @@ def get_chi_exact(
         lmax (int):
             The maximum multipole to consider.
         fsky (float):
-            The fraction of the sky if a unique number is provided. Otherwise, it is the geometrical mean of the fraction of the sky for each field pair. In other words an effective fraction of the sky.
+            The fraction of the sky if a unique number is provided. Otherwise, it is
+            the geometrical mean of the fraction of the sky for each field pair. In
+            other words an effective fraction of the sky.
     """
     ell = np.arange(lmin, lmax + 1, 1)
     if N != 1:
@@ -466,7 +490,7 @@ def get_chi_gaussian(
     data: np.ndarray,
     coba: np.ndarray,
     mask: np.ndarray,
-    inverse_covariance: List[np.ndarray],
+    inverse_covariance: list[np.ndarray],
     lmin: int,
     lmax: int,
     bins: Bins,
@@ -628,6 +652,6 @@ def get_chi_LoLLiPoP(
 
 __docformat__ = "google"
 __pdoc__ = {}
-__pdoc__[
-    "Likelihood"
-] = "Likelihood class from Cobaya, refer to Cobaya documentation for more information."
+__pdoc__["Likelihood"] = (
+    "Likelihood class from Cobaya, refer to Cobaya documentation for more information."
+)

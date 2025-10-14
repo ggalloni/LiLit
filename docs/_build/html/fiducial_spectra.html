@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fiducial Spectra &mdash; LiLit 1.2.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e917149c"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "displayMath": [["$$", "$$"], ["\\[", "\\]"]]}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
+    <link rel="prev" title="Noise Models and Fiducial Spectra" href="noise_models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            LiLit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation and quickstart</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#development-installation">Development Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#working-with-different-field-combinations">Working with Different Field Combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#temperature-only">Temperature Only</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#temperature-polarization">Temperature + Polarization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#b-modes-only">B-modes Only</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#integration-with-cobaya">Integration with Cobaya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#basic-example-temperature-and-polarization">Basic Example: Temperature and Polarization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#b-mode-analysis-with-tensor-modes">B-mode Analysis with Tensor Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#custom-fiducial-spectra">Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#running-an-mcmc-analysis">Running an MCMC Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#using-different-sky-fractions-per-field">Using Different Sky Fractions per Field</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory and Implementation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Likelihood Theory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#single-field-case">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#multi-field-case">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#implementation-details">Implementation Details</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#id1">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#id2">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#implementation-differences-from-exact-case">Implementation Differences from Exact Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#correlated-gaussian-likelihood">Correlated Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#formulation">Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#sky-cut-approximations">Sky Cut Approximations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/lilit.html">lilit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/lilit.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/lilit.html#module-lilit.functions">lilit.functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_keys"><code class="docutils literal notranslate"><span class="pre">get_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_Gauss_keys"><code class="docutils literal notranslate"><span class="pre">get_Gauss_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_reduced_covariances"><code class="docutils literal notranslate"><span class="pre">get_reduced_covariances()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_reduced_data_vectors"><code class="docutils literal notranslate"><span class="pre">get_reduced_data_vectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.cov_filling"><code class="docutils literal notranslate"><span class="pre">cov_filling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.find_spectrum"><code class="docutils literal notranslate"><span class="pre">find_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.sigma"><code class="docutils literal notranslate"><span class="pre">sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.inv_sigma"><code class="docutils literal notranslate"><span class="pre">inv_sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.CAMBres2dict"><code class="docutils literal notranslate"><span class="pre">CAMBres2dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.txt2dict"><code class="docutils literal notranslate"><span class="pre">txt2dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/lilit.html#module-lilit.likelihood">lilit.likelihood module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.likelihood.LiLit"><code class="docutils literal notranslate"><span class="pre">LiLit</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/lilit.html#module-lilit.core.chi_square">lilit.core.chi_square module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.ChiSquareCalculator"><code class="docutils literal notranslate"><span class="pre">ChiSquareCalculator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.ChiSquareMethod"><code class="docutils literal notranslate"><span class="pre">ChiSquareMethod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Integration with Cobaya</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cobaya_integration.html">Integration with Cobaya</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#basic-cobaya-configuration">Basic Cobaya Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#working-with-camb">Working with CAMB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#working-with-class">Working with CLASS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#parameter-definitions">Parameter Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#combining-multiple-likelihoods">Combining Multiple Likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#custom-sampler-settings">Custom Sampler Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#output-configuration">Output Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#running-from-python">Running from Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cobaya_integration.html#using-the-model-interface">Using the Model Interface</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced Topics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="custom_likelihoods.html">Likelihood Approximations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="custom_likelihoods.html#using-the-exact-likelihood">Using the Exact Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="custom_likelihoods.html#using-the-gaussian-likelihood">Using the Gaussian Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#field-specific-multipole-ranges">Field-Specific Multipole Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#excluding-specific-probes">Excluding Specific Probes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#sky-coverage-effects">Sky Coverage Effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#debug-mode">Debug Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#when-to-use-each-approximation">When to Use Each Approximation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="noise_models.html">Noise Models and Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#default-noise-placeholder">Default Noise Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#providing-custom-noise-spectra">Providing Custom Noise Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="noise_models.html#expected-noise-file-format">Expected Noise File Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#default-fiducial-spectra">Default Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#custom-fiducial-spectra">Custom Fiducial Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="noise_models.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#noise-requirements-for-litebird">Noise Requirements for LiteBIRD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#multipole-dependent-sky-coverage">Multipole-Dependent Sky Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#note-on-sky-cut-approximation">Note on Sky Cut Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#default-planck-2018-best-fit">Default: Planck 2018 Best-Fit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#for-b-mode-analysis">For B-mode Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-spectra-with-camb">Generating Spectra with CAMB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#modifying-default-parameters">Modifying Default Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lensed-vs-unlensed-spectra">Lensed vs Unlensed Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#field-combinations">Field Combinations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#installation-issues">Installation Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#likelihood-setup-issues">Likelihood Setup Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#cobaya-integration-issues">Cobaya Integration Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#performance-issues">Performance Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#numerical-issues">Numerical Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#common-error-messages">Common Error Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LiLit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Fiducial Spectra</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/fiducial_spectra.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fiducial-spectra">
+<h1>Fiducial Spectra<a class="headerlink" href="#fiducial-spectra" title="Link to this heading"></a></h1>
+<p>LiLit needs fiducial (theoretical) power spectra to compute forecasts. This section explains how these are handled and how to customize them.</p>
+<section id="default-planck-2018-best-fit">
+<h2>Default: Planck 2018 Best-Fit<a class="headerlink" href="#default-planck-2018-best-fit" title="Link to this heading"></a></h2>
+<p>If you don’t specify custom fiducial spectra, LiLit automatically computes them using <strong>Planck 2018 best-fit cosmological parameters</strong>. This provides a reasonable baseline for most forecasting studies.</p>
+<p>The default cosmological parameters used are:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(H_0 = 67.36\)</span> km/s/Mpc</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Omega_b h^2 = 0.02237\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\Omega_{cdm} h^2 = 0.1200\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau_{reio} = 0.0544\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(A_s = 2.1 \times 10^{-9}\)</span> (at <span class="math notranslate nohighlight">\(k_0 = 0.05\)</span> Mpc⁻¹)</p></li>
+<li><p><span class="math notranslate nohighlight">\(n_s = 0.9649\)</span></p></li>
+</ul>
+<section id="for-b-mode-analysis">
+<h3>For B-mode Analysis<a class="headerlink" href="#for-b-mode-analysis" title="Link to this heading"></a></h3>
+<p>When analyzing B-mode polarization, you must specify the tensor-to-scalar ratio:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lilit</span><span class="w"> </span><span class="kn">import</span> <span class="n">LiLit</span>
+
+<span class="n">likelihood</span> <span class="o">=</span> <span class="n">LiLit</span><span class="p">(</span>
+    <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">],</span>
+    <span class="n">r</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>  <span class="c1"># Must specify r for B-modes</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="p">[</span><span class="mi">2500</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+    <span class="n">fsky</span><span class="o">=</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The tensor spectral index <span class="math notranslate nohighlight">\(n_t\)</span> follows the consistency relation <span class="math notranslate nohighlight">\(n_t = -r/8\)</span> unless specified otherwise.</p>
+</section>
+</section>
+<section id="using-custom-fiducial-spectra">
+<h2>Using Custom Fiducial Spectra<a class="headerlink" href="#using-custom-fiducial-spectra" title="Link to this heading"></a></h2>
+<p>You can provide your own fiducial power spectra using the <code class="docutils literal notranslate"><span class="pre">fiducial_spectra</span></code> parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Your custom spectra (example format)</span>
+<span class="n">custom_spectra</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;tt&#39;</span><span class="p">:</span> <span class="n">cl_tt_array</span><span class="p">,</span>    <span class="c1"># Temperature auto-correlation</span>
+    <span class="s1">&#39;ee&#39;</span><span class="p">:</span> <span class="n">cl_ee_array</span><span class="p">,</span>    <span class="c1"># E-mode auto-correlation</span>
+    <span class="s1">&#39;bb&#39;</span><span class="p">:</span> <span class="n">cl_bb_array</span><span class="p">,</span>    <span class="c1"># B-mode auto-correlation</span>
+    <span class="s1">&#39;te&#39;</span><span class="p">:</span> <span class="n">cl_te_array</span><span class="p">,</span>    <span class="c1"># Temperature-E cross-correlation</span>
+    <span class="c1"># Add other spectra as needed</span>
+<span class="p">}</span>
+
+<span class="n">likelihood</span> <span class="o">=</span> <span class="n">LiLit</span><span class="p">(</span>
+    <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">],</span>
+    <span class="n">fiducial_spectra</span><span class="o">=</span><span class="n">custom_spectra</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="p">[</span><span class="mi">2500</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+    <span class="n">fsky</span><span class="o">=</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="generating-spectra-with-camb">
+<h2>Generating Spectra with CAMB<a class="headerlink" href="#generating-spectra-with-camb" title="Link to this heading"></a></h2>
+<p>The recommended way to generate custom fiducial spectra is using CAMB with the <code class="docutils literal notranslate"><span class="pre">CAMBres2dict</span></code> utility:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">camb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lilit</span><span class="w"> </span><span class="kn">import</span> <span class="n">CAMBres2dict</span>
+
+<span class="c1"># Set up CAMB parameters</span>
+<span class="n">pars</span> <span class="o">=</span> <span class="n">camb</span><span class="o">.</span><span class="n">CAMBparams</span><span class="p">()</span>
+
+<span class="c1"># Basic cosmology</span>
+<span class="n">pars</span><span class="o">.</span><span class="n">set_cosmology</span><span class="p">(</span>
+    <span class="n">H0</span><span class="o">=</span><span class="mf">70.0</span><span class="p">,</span>           <span class="c1"># Hubble constant</span>
+    <span class="n">ombh2</span><span class="o">=</span><span class="mf">0.022</span><span class="p">,</span>       <span class="c1"># Baryon density</span>
+    <span class="n">omch2</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span>        <span class="c1"># Cold dark matter density</span>
+    <span class="n">tau</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>          <span class="c1"># Reionization optical depth</span>
+    <span class="n">mnu</span><span class="o">=</span><span class="mf">0.06</span>           <span class="c1"># Neutrino mass (eV)</span>
+<span class="p">)</span>
+
+<span class="c1"># Primordial power spectrum</span>
+<span class="n">pars</span><span class="o">.</span><span class="n">InitPower</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
+    <span class="n">As</span><span class="o">=</span><span class="mf">2.2e-9</span><span class="p">,</span>         <span class="c1"># Amplitude of scalar perturbations</span>
+    <span class="n">ns</span><span class="o">=</span><span class="mf">0.96</span><span class="p">,</span>           <span class="c1"># Scalar spectral index</span>
+    <span class="n">r</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>            <span class="c1"># Tensor-to-scalar ratio</span>
+    <span class="n">nt</span><span class="o">=-</span><span class="mf">0.00125</span>        <span class="c1"># Tensor spectral index (or use consistency relation)</span>
+<span class="p">)</span>
+
+<span class="c1"># Set maximum multipole</span>
+<span class="n">pars</span><span class="o">.</span><span class="n">set_for_lmax</span><span class="p">(</span><span class="mi">3000</span><span class="p">,</span> <span class="n">lens_potential_accuracy</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Generate results</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">camb</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
+
+<span class="c1"># Convert to LiLit format</span>
+<span class="n">fiducial_spectra</span> <span class="o">=</span> <span class="n">CAMBres2dict</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+<span class="c1"># Use in LiLit</span>
+<span class="n">likelihood</span> <span class="o">=</span> <span class="n">LiLit</span><span class="p">(</span>
+    <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">],</span>
+    <span class="n">fiducial_spectra</span><span class="o">=</span><span class="n">fiducial_spectra</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="p">[</span><span class="mi">2500</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+    <span class="n">fsky</span><span class="o">=</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<section id="the-cambres2dict-function">
+<h3>The CAMBres2dict Function<a class="headerlink" href="#the-cambres2dict-function" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">CAMBres2dict</span></code> function converts CAMB results into the dictionary format expected by LiLit:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lilit</span><span class="w"> </span><span class="kn">import</span> <span class="n">CAMBres2dict</span>
+
+<span class="c1"># After running CAMB</span>
+<span class="n">cl_dict</span> <span class="o">=</span> <span class="n">CAMBres2dict</span><span class="p">(</span><span class="n">camb_results</span><span class="p">)</span>
+
+<span class="c1"># cl_dict contains:</span>
+<span class="c1"># - &#39;tt&#39;: Temperature power spectrum</span>
+<span class="c1"># - &#39;ee&#39;: E-mode power spectrum</span>
+<span class="c1"># - &#39;bb&#39;: B-mode power spectrum</span>
+<span class="c1"># - &#39;te&#39;: T-E cross-correlation</span>
+<span class="c1"># etc.</span>
+</pre></div>
+</div>
+<p>This function handles the unit conversions and formatting needed by LiLit.</p>
+</section>
+</section>
+<section id="modifying-default-parameters">
+<h2>Modifying Default Parameters<a class="headerlink" href="#modifying-default-parameters" title="Link to this heading"></a></h2>
+<p>You can modify specific cosmological parameters while keeping others at Planck 2018 values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: Different Hubble constant</span>
+<span class="n">pars</span> <span class="o">=</span> <span class="n">camb</span><span class="o">.</span><span class="n">CAMBparams</span><span class="p">()</span>
+<span class="n">pars</span><span class="o">.</span><span class="n">set_cosmology</span><span class="p">(</span><span class="n">H0</span><span class="o">=</span><span class="mf">73.0</span><span class="p">)</span>  <span class="c1"># Higher H0, other parameters default to Planck</span>
+<span class="n">pars</span><span class="o">.</span><span class="n">InitPower</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">As</span><span class="o">=</span><span class="mf">2.1e-9</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="mf">0.9649</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">pars</span><span class="o">.</span><span class="n">set_for_lmax</span><span class="p">(</span><span class="mi">3000</span><span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">camb</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span>
+<span class="n">custom_spectra</span> <span class="o">=</span> <span class="n">CAMBres2dict</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="lensed-vs-unlensed-spectra">
+<h2>Lensed vs Unlensed Spectra<a class="headerlink" href="#lensed-vs-unlensed-spectra" title="Link to this heading"></a></h2>
+<p>By default, LiLit uses lensed CMB power spectra, which include the effects of gravitational lensing by large-scale structure. This is appropriate for most analyses.</p>
+<p>If you need unlensed spectra for specific studies:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get unlensed spectra from CAMB</span>
+<span class="n">powers</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get_cmb_power_spectra</span><span class="p">(</span><span class="n">pars</span><span class="p">,</span> <span class="n">CMB_unit</span><span class="o">=</span><span class="s1">&#39;muK&#39;</span><span class="p">,</span> <span class="n">raw_cl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">unlensed_spectra</span> <span class="o">=</span> <span class="n">powers</span><span class="p">[</span><span class="s1">&#39;unlensed_scalar&#39;</span><span class="p">]</span>
+
+<span class="c1"># Convert to LiLit format manually or modify CAMBres2dict as needed</span>
+</pre></div>
+</div>
+</section>
+<section id="field-combinations">
+<h2>Field Combinations<a class="headerlink" href="#field-combinations" title="Link to this heading"></a></h2>
+<p>LiLit automatically includes only the power spectra needed for your chosen field combination:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fields</span> <span class="pre">=</span> <span class="pre">[&quot;t&quot;]</span></code>: Only TT spectrum</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fields</span> <span class="pre">=</span> <span class="pre">[&quot;t&quot;,</span> <span class="pre">&quot;e&quot;]</span></code>: TT, EE, TE spectra</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fields</span> <span class="pre">=</span> <span class="pre">[&quot;t&quot;,</span> <span class="pre">&quot;e&quot;,</span> <span class="pre">&quot;b&quot;]</span></code>: TT, EE, BB, TE spectra</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fields</span> <span class="pre">=</span> <span class="pre">[&quot;b&quot;]</span></code>: Only BB spectrum</p></li>
+</ul>
+<p>Cross-correlations between fields are automatically included when multiple fields are specified.</p>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h2>
+<p>Always validate your fiducial spectra before running forecasts:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="c1"># Plot your fiducial spectra</span>
+<span class="n">ells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">fiducial_spectra</span><span class="p">[</span><span class="s1">&#39;tt&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">ells</span><span class="p">,</span> <span class="n">ells</span><span class="o">*</span><span class="p">(</span><span class="n">ells</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">fiducial_spectra</span><span class="p">[</span><span class="s1">&#39;tt&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="s1">&#39;b-&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\ell$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\ell(\ell+1)C_\ell^</span><span class="si">{TT}</span><span class="s1">/2\pi$ [$\mu$K$^2$]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Temperature&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">ells</span><span class="p">,</span> <span class="n">ells</span><span class="o">*</span><span class="p">(</span><span class="n">ells</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">fiducial_spectra</span><span class="p">[</span><span class="s1">&#39;ee&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="s1">&#39;r-&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\ell$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\ell(\ell+1)C_\ell^</span><span class="si">{EE}</span><span class="s1">/2\pi$ [$\mu$K$^2$]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;E-mode&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="s1">&#39;bb&#39;</span> <span class="ow">in</span> <span class="n">fiducial_spectra</span><span class="p">:</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">ells</span><span class="p">,</span> <span class="n">ells</span><span class="o">*</span><span class="p">(</span><span class="n">ells</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">fiducial_spectra</span><span class="p">[</span><span class="s1">&#39;bb&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="s1">&#39;g-&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\ell$&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\ell(\ell+1)C_\ell^</span><span class="si">{BB}</span><span class="s1">/2\pi$ [$\mu$K$^2$]&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;B-mode&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This helps ensure your spectra have reasonable amplitudes and shapes before using them in forecasts.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="noise_models.html" class="btn btn-neutral float-left" title="Noise Models and Fiducial Spectra" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Giacomo Galloni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

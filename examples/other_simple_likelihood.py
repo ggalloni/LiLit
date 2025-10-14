@@ -1,11 +1,13 @@
-from cobaya.likelihood import Likelihood
-import numpy as np
-import matplotlib.pyplot as plt
 import pickle
+
+import matplotlib.pyplot as plt
+import numpy as np
+from cobaya.likelihood import Likelihood
 
 
 class exactXX(Likelihood):
-    """Class to define the template for an exact likelihood encoding one single field, here named X."""
+    """Class to define the template for an exact likelihood encoding one single field,
+    here named X."""
 
     def initialize(self):
         """Initialize the likelihood.
@@ -37,9 +39,10 @@ class exactXX(Likelihood):
         self.lmax = 300
         self.fsky = 0.5
 
-        # Probably at this point you may want to check what fields are contained in the fiducial
-        # dictionaries, the syntax of the keywords, or whether the lmin is 0, or 2. In case
-        # something is not consistent you may want to add some extra lines to make them so.
+        # Probably at this point you may want to check what fields are contained in the
+        # fiducial dictionaries, the syntax of the keywords, or whether lmin is 0 or 2.
+        # In case something is not consistent you may want to add some extra lines to
+        # make them so.
         if self.debug:
             print(f"Keys of fiducial CLs ---> {self.fiduCLS.keys()}")
             print(f"Keys of noise CLs ---> {self.noiseCLS.keys()}")
@@ -57,7 +60,8 @@ class exactXX(Likelihood):
         )
 
     def get_requirements(self):
-        """Define requirements of the likelihood, specifying quantities calculated by a theory code are needed.
+        """Define requirements of the likelihood, specifying quantities calculated by a
+        theory code are needed.
 
         Returns
         -------
@@ -67,21 +71,22 @@ class exactXX(Likelihood):
         requirements = {}
         requirements["Cl"] = {"xx": self.lmax}
         if self.debug:
-            requirements[
-                "CAMBdata"
-            ] = None  # This allows to get the complete product of the CAMB run
+            requirements["CAMBdata"] = (
+                None  # This allows to get the complete product of the CAMB run
+            )
         return requirements
 
     def logp(self):
-        """Compute the likelihood for each step of the chain. Note that this function has to return log-likelihood.
+        """Compute the likelihood for each step of the chain. Note that this function has
+        to return log-likelihood.
 
         Returns
         -------
             float: log-likelihood
         """
-        # You may want to check whether every parameter has been set as desided, thus you can print
-        # the parameters set in CAMB. This also allows you to do some extra computation with the CAMB
-        # results if needed.
+        # You may want to check whether every parameter has been set as decided, thus
+        # you can print the parameters set in CAMB. This also allows you to do some
+        # extra computation with the CAMB results if needed.
         if self.debug:
             _CAMBdata = self.provider.get_CAMBdata()
             _pars = _CAMBdata.Params
@@ -91,8 +96,9 @@ class exactXX(Likelihood):
         _cobaCLs = self.provider.get_Cl(ell_factor=True)
 
         # Also here you may want to check what fields are contained in the fiducial
-        # dictionaries, the syntax of the keywords, or whether the lmin is 0, or 2. In case
-        # something is not consistent you may want to add some extra lines to make them so.
+        # dictionaries, the syntax of the keywords, or whether the lmin is 0 or 2.
+        # In case something is not consistent you may want to add some extra lines to
+        # make them so.
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {_cobaCLs.keys()}")
 
@@ -106,9 +112,10 @@ class exactXX(Likelihood):
             + self.noiseCLS["xx"][self.lmin : self.lmax + 1]
         )
 
-        # At this point, you may want to check whether everything is consistent in terms of
-        # normalizations, overall values, etc... Therefore here you can plot the considered field
-        # and you can compare the fiducial and the cobaya spectra (+ noise eventually)
+        # At this point, you may want to check whether everything is consistent in terms
+        # of normalizations, overall values, etc... Therefore here you can plot the
+        # considered field and you can compare the fiducial and the cobaya spectra
+        # (+ noise eventually)
         if self.debug:
             _ell = np.arange(0, self.lmax + 1, 1)
             _field = "xx"
@@ -132,14 +139,14 @@ class exactXX(Likelihood):
             plt.legend()
             plt.show()
 
-            # Since this function is called for every step, you want to kill it if you produce
-            # this plot
+            # Since this function is called for every step, you want to kill it if you
+            # produce this plot
             exit()
 
-        # Now you want to compute the log-likelihood. This may be done in many different ways.
-        # Here you can compute the log-likelihood using an exact likelihood. Note that this
-        # example uses only one field. Thus for more complex likelihoods this may become more
-        # involved
+        # Now you want to compute the log-likelihood. This may be done in many different
+        # ways. Here you can compute the log-likelihood using an exact likelihood. Note
+        # that this example uses only one field. Thus for more complex likelihoods this
+        # may become more involved
         _ell = np.arange(self.lmin, self.lmax + 1, 1)
         M = self.data / _coba
         logp_ℓ = -0.5 * (2 * _ell + 1) * self.fsky * (M - np.log(np.abs(M)) - 1)
@@ -148,7 +155,8 @@ class exactXX(Likelihood):
 
 
 class exactYYYKKK(Likelihood):
-    """Class to define the template for an exact likelihood encoding two fields, here named here Y and K."""
+    """Class to define the template for an exact likelihood encoding two fields,
+    here named here Y and K."""
 
     def initialize(self):
         """Initialize the likelihood.
@@ -182,9 +190,10 @@ class exactYYYKKK(Likelihood):
         self.lmax = np.max(self.lmaxYY, self.lmaxKK)
         self.fsky = 0.5
 
-        # Probably at this point you may want to check what fields are contained in the fiducial
-        # dictionaries, the syntax of the keywords, or whether the lmin is 0, or 2. In case
-        # something is not consistent you may want to add some extra lines to make them so.
+        # Probably at this point you may want to check what fields are contained in the
+        # fiducial dictionaries, the syntax of the keywords, or whether the lmin is 0
+        # or 2. In case something is not consistent you may want to add some extra lines
+        # to make them so.
         if self.debug:
             print(f"Keys of fiducial CLs ---> {self.fiduCLS.keys}")
             print(f"Keys of noise CLs ---> {self.noiseCLS.keys}")
@@ -216,7 +225,8 @@ class exactYYYKKK(Likelihood):
         )
 
     def get_requirements(self):
-        """Define requirements of the likelihood, specifying quantities calculated by a theory code are needed.
+        """Define requirements of the likelihood, specifying quantities calculated by a
+        theory code are needed.
 
         Returns
         -------
@@ -226,21 +236,22 @@ class exactYYYKKK(Likelihood):
         requirements = {}
         requirements["Cl"] = {"yy": self.lmax, "kk": self.lmax, "yk": self.lmax}
         if self.debug:
-            requirements[
-                "CAMBdata"
-            ] = None  # This allows to get the complete product of the CAMB run
+            requirements["CAMBdata"] = (
+                None  # This allows to get the complete product of the CAMB run
+            )
         return requirements
 
     def logp(self):
-        """Compute the likelihood for each step of the chain. Note that this function has to return log-likelihood.
+        """Compute the likelihood for each step of the chain. Note that this function has
+        to return log-likelihood.
 
         Returns
         -------
             float: log-likelihood
         """
-        # You may want to check whether every parameter has been set as desided, thus you can print
-        # the parameters set in CAMB. This also allows you to do some extra computation with the CAMB
-        # results if needed.
+        # You may want to check whether every parameter has been set as decided, thus
+        # you can print the parameters set in CAMB. This also allows you to do some
+        # extra computation with the CAMB results if needed.
         if self.debug:
             _CAMBdata = self.provider.get_CAMBdata()
             _pars = _CAMBdata.Params
@@ -250,8 +261,9 @@ class exactYYYKKK(Likelihood):
         self.cobaCLs = self.provider.get_Cl(ell_factor=True)
 
         # Also here you may want to check what fields are contained in the fiducial
-        # dictionaries, the syntax of the keywords, or whether the lmin is 0, or 2. In case
-        # something is not consistent you may want to add some extra lines to make them so.
+        # dictionaries, the syntax of the keywords, or whether the lmin is 0 or 2.
+        # In case something is not consistent you may want to add some extra lines to
+        # make them so.
         if self.debug:
             print(f"Keys of Cobaya CLs ---> {self.cobaCLs.keys()}")
 
@@ -271,9 +283,10 @@ class exactYYYKKK(Likelihood):
             + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
         )
 
-        # At this point, you may want to check whether everything is consistent in terms of
-        # normalizations, overall values, etc... Therefore here you can plot the considered field
-        # and you can compare the fiducial and the cobaya spectra (+ noise eventually)
+        # At this point, you may want to check whether everything is consistent in terms
+        # of normalizations, overall values, etc... Therefore here you can plot the
+        # considered field and you can compare the fiducial and the cobaya spectra
+        # (+ noise eventually)
         if self.debug:
             _ell = np.arange(0, self.lmax + 1, 1)
             _field = "yy"
@@ -295,14 +308,14 @@ class exactYYYKKK(Likelihood):
             plt.legend()
             plt.show()
 
-            # Since this function is called for every step, you want to kill it if you produce
-            # this plot
+            # Since this function is called for every step, you want to kill it if you
+            # produce this plot
             exit()
 
-        # Now you want to compute the log-likelihood. This may be done in many different ways.
-        # Here you can compute the log-likelihood using an exact likelihood. Note that this
-        # example uses only one field. Thus for more complex likelihoods this may become more
-        # involved
+        # Now you want to compute the log-likelihood. This may be done in many different
+        # ways. Here you can compute the log-likelihood using an exact likelihood. Note
+        # that this example uses only one field. Thus for more complex likelihoods this
+        # may become more involved
         _ell = np.arange(self.lmin, self.lmax + 1, 1)
         logp_ℓ = np.zeros(_ell.shape)
 
@@ -320,10 +333,7 @@ class exactYYYKKK(Likelihood):
                 M = self.data[0, 0, i] / self.coba[0, 0, i]
                 _norm = 1
                 logp_ℓ[i] = (
-                    -0.5
-                    * (2 * _ell[i] + 1)
-                    * self.fsky
-                    * (M - np.log(np.abs(M)) - _norm)
+                    -0.5 * (2 * _ell[i] + 1) * self.fsky * (M - np.log(np.abs(M)) - _norm)
                 )
 
         return np.sum(logp_ℓ)

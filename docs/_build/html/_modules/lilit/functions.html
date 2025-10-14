@@ -1,0 +1,974 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lilit.functions &mdash; LiLit 1.2.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e917149c"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            LiLit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation and quickstart</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#development-installation">Development Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#working-with-different-field-combinations">Working with Different Field Combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../quickstart.html#temperature-only">Temperature Only</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../quickstart.html#temperature-polarization">Temperature + Polarization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../quickstart.html#b-modes-only">B-modes Only</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#integration-with-cobaya">Integration with Cobaya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../quickstart.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#basic-example-temperature-and-polarization">Basic Example: Temperature and Polarization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#b-mode-analysis-with-tensor-modes">B-mode Analysis with Tensor Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#custom-fiducial-spectra">Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#running-an-mcmc-analysis">Running an MCMC Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples.html#using-different-sky-fractions-per-field">Using Different Sky Fractions per Field</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory and Implementation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory.html">Likelihood Theory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#single-field-case">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#multi-field-case">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#implementation-details">Implementation Details</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#id1">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#id2">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#implementation-differences-from-exact-case">Implementation Differences from Exact Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#correlated-gaussian-likelihood">Correlated Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#formulation">Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../theory.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#sky-cut-approximations">Sky Cut Approximations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/lilit.html">lilit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/lilit.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/lilit.html#module-lilit.functions">lilit.functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_keys"><code class="docutils literal notranslate"><span class="pre">get_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_Gauss_keys"><code class="docutils literal notranslate"><span class="pre">get_Gauss_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_reduced_covariances"><code class="docutils literal notranslate"><span class="pre">get_reduced_covariances()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.get_reduced_data_vectors"><code class="docutils literal notranslate"><span class="pre">get_reduced_data_vectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.cov_filling"><code class="docutils literal notranslate"><span class="pre">cov_filling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.find_spectrum"><code class="docutils literal notranslate"><span class="pre">find_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.sigma"><code class="docutils literal notranslate"><span class="pre">sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.inv_sigma"><code class="docutils literal notranslate"><span class="pre">inv_sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.CAMBres2dict"><code class="docutils literal notranslate"><span class="pre">CAMBres2dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.functions.txt2dict"><code class="docutils literal notranslate"><span class="pre">txt2dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/lilit.html#module-lilit.likelihood">lilit.likelihood module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.likelihood.LiLit"><code class="docutils literal notranslate"><span class="pre">LiLit</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/lilit.html#module-lilit.core.chi_square">lilit.core.chi_square module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.ChiSquareCalculator"><code class="docutils literal notranslate"><span class="pre">ChiSquareCalculator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.ChiSquareMethod"><code class="docutils literal notranslate"><span class="pre">ChiSquareMethod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/lilit.html#lilit.core.chi_square.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Integration with Cobaya</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cobaya_integration.html">Integration with Cobaya</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#basic-cobaya-configuration">Basic Cobaya Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#working-with-camb">Working with CAMB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#working-with-class">Working with CLASS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#parameter-definitions">Parameter Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#combining-multiple-likelihoods">Combining Multiple Likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#custom-sampler-settings">Custom Sampler Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#output-configuration">Output Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#running-from-python">Running from Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cobaya_integration.html#using-the-model-interface">Using the Model Interface</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced Topics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../custom_likelihoods.html">Likelihood Approximations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../custom_likelihoods.html#using-the-exact-likelihood">Using the Exact Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../custom_likelihoods.html#using-the-gaussian-likelihood">Using the Gaussian Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#field-specific-multipole-ranges">Field-Specific Multipole Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#excluding-specific-probes">Excluding Specific Probes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#sky-coverage-effects">Sky Coverage Effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#debug-mode">Debug Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../custom_likelihoods.html#when-to-use-each-approximation">When to Use Each Approximation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../noise_models.html">Noise Models and Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#default-noise-placeholder">Default Noise Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#providing-custom-noise-spectra">Providing Custom Noise Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../noise_models.html#expected-noise-file-format">Expected Noise File Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#default-fiducial-spectra">Default Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#custom-fiducial-spectra">Custom Fiducial Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../noise_models.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#noise-requirements-for-litebird">Noise Requirements for LiteBIRD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#multipole-dependent-sky-coverage">Multipole-Dependent Sky Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#note-on-sky-cut-approximation">Note on Sky Cut Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../noise_models.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../fiducial_spectra.html">Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#default-planck-2018-best-fit">Default: Planck 2018 Best-Fit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../fiducial_spectra.html#for-b-mode-analysis">For B-mode Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#generating-spectra-with-camb">Generating Spectra with CAMB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../fiducial_spectra.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#modifying-default-parameters">Modifying Default Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#lensed-vs-unlensed-spectra">Lensed vs Unlensed Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#field-combinations">Field Combinations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../fiducial_spectra.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#installation-issues">Installation Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#likelihood-setup-issues">Likelihood Setup Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#cobaya-integration-issues">Cobaya Integration Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#performance-issues">Performance Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#numerical-issues">Numerical Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#common-error-messages">Common Error Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting.html#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LiLit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">lilit.functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lilit.functions</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bins</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">camb</span><span class="w"> </span><span class="kn">import</span> <span class="n">CAMBdata</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.ma</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaskedArray</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bins</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;get_chi_exact&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_chi_gaussian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_chi_correlated_gaussian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_chi_HL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_chi_LoLLiPoP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_keys&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_Gauss_keys&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_reduced_covariances&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_reduced_data_vectors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cov_filling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;find_spectrum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inv_sigma&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CAMBres2dict&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;txt2dict&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="CAMBres2dict">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.CAMBres2dict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">CAMBres2dict</span><span class="p">(</span><span class="n">camb_results</span><span class="p">:</span> <span class="n">CAMBdata</span><span class="p">,</span> <span class="n">probes</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Takes the CAMB result product from get_cmb_power_spectra and convert it to a</span>
+<span class="sd">    dictionary with the proper keys.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        camb_results (CAMBdata):</span>
+<span class="sd">            CAMB result product from the method get_cmb_power_spectra.</span>
+<span class="sd">        probes (dict):</span>
+<span class="sd">            Keys for the spectra dictionary we want to save.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">camb_results</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="c1"># Mapping between the CAMB keys and the ones we want</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tt&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ee&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;bb&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;te&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;et&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ell&quot;</span><span class="p">:</span> <span class="n">ls</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">probe</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">res</span><span class="p">[</span><span class="n">probe</span><span class="p">]</span> <span class="o">=</span> <span class="n">camb_results</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">][:,</span> <span class="n">i</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;pp&quot;</span> <span class="ow">in</span> <span class="n">probes</span><span class="p">:</span>
+        <span class="n">cl_lens</span> <span class="o">=</span> <span class="n">camb_results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lens_potential&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cl_lens</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Save it with the normalization to obtain phiphi</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">cl_lens</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">/=</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;ell&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;ell&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;pp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span>
+            <span class="k">if</span> <span class="s2">&quot;pt&quot;</span> <span class="ow">in</span> <span class="n">probes</span> <span class="ow">and</span> <span class="s2">&quot;pe&quot;</span> <span class="ow">in</span> <span class="n">probes</span><span class="p">:</span>
+                <span class="c1"># Loop over the cross terms correcting the normalization to phiX</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cross</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span> <span class="s2">&quot;pe&quot;</span><span class="p">]):</span>
+                    <span class="n">array</span> <span class="o">=</span> <span class="n">cl_lens</span><span class="p">[:,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;ell&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;ell&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[</span><span class="mi">2</span><span class="p">:]</span>
+                    <span class="n">res</span><span class="p">[</span><span class="n">cross</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span>
+                    <span class="n">res</span><span class="p">[</span><span class="n">cross</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">cross</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<div class="viewcode-block" id="txt2dict">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.txt2dict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">txt2dict</span><span class="p">(</span>
+    <span class="n">txt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mapping_probe2colnum</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">apply_ellfactor</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Takes a txt file and convert it to a dictionary. This requires a way to map the</span>
+<span class="sd">    columns to the keys. Also, it is possible to apply an ell factor to the Cls.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        txt (str):</span>
+<span class="sd">            Path to txt file containing the spectra as columns.</span>
+<span class="sd">        mapping (dict):</span>
+<span class="sd">            Dictionary containing the mapping. Keywords will become the new keywords and</span>
+<span class="sd">            values represent the index of the corresponding column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">mapping_probe2colnum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;You must provide a way to map the columns of your txt to the keys of a dict&quot;</span>
+    <span class="p">)</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">probe</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mapping_probe2colnum</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">txt</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;ell&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ls</span>
+        <span class="k">if</span> <span class="n">apply_ellfactor</span><span class="p">:</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">probe</span><span class="p">]</span> <span class="o">=</span> <span class="n">txt</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">ls</span> <span class="o">*</span> <span class="p">(</span><span class="n">ls</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">probe</span><span class="p">]</span> <span class="o">=</span> <span class="n">txt</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<div class="viewcode-block" id="get_keys">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_keys">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_keys</span><span class="p">(</span><span class="n">fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts the keys that has to be used as a function of the requested fields. These</span>
+<span class="sd">    will be the usual 2-points, e.g., tt, te, ee, etc.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        fields (list):</span>
+<span class="sd">            List of fields</span>
+<span class="sd">        debug (bool, optional):</span>
+<span class="sd">            If True, print out the requested keys</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">fields</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The requested keys are </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<div class="viewcode-block" id="get_Gauss_keys">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_Gauss_keys">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_Gauss_keys</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the proper dictionary keys for the requested fields.</span>
+
+<span class="sd">    Extracts the keys that has to be used as a function of the requested fields for the</span>
+<span class="sd">    Gaussian likelihood. Indeed, the Gaussian likelihood is computed using 4-points, so</span>
+<span class="sd">    the keys are different. E.g., there will be keys such as tttt, ttee, tete, etc.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        n (int):</span>
+<span class="sd">            Number of fields.</span>
+<span class="sd">        keys (list):</span>
+<span class="sd">            List of keys to use for the computation.</span>
+<span class="sd">        debug (bool, optional):</span>
+<span class="sd">            If set, print the keys that are used, by default False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">keys</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">elem</span><span class="p">)[</span><span class="n">k</span><span class="p">])</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The requested keys are </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<div class="viewcode-block" id="cov_filling">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.cov_filling">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cov_filling</span><span class="p">(</span>
+    <span class="n">fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">excluded_probes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">absolute_lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">absolute_lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cov_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">lmins</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">lmaxs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill covariance matrix with appropriate spectra.</span>
+
+<span class="sd">    Computes the covariance matrix once given a dictionary. Returns the covariance</span>
+<span class="sd">    matrix of the considered fields, in a shape equal to (num_fields x num_fields x</span>
+<span class="sd">    lmax). Note that if more than one lmax, or lmin, is specified, there will be null</span>
+<span class="sd">    values in the matrices, making them singular. This will be handled in another</span>
+<span class="sd">    method.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        fields (list):</span>
+<span class="sd">            The list of fields to consider.</span>
+<span class="sd">        excluded_probes (list):</span>
+<span class="sd">            The list of probes to exclude.</span>
+<span class="sd">        absolute_lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        absolute_lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">        cov_dict (dict):</span>
+<span class="sd">            The input dictionary of spectra.</span>
+<span class="sd">        lmins (dict):</span>
+<span class="sd">            The dictionary of minimum multipole to consider for each field pair.</span>
+<span class="sd">        lmaxs (dict):</span>
+<span class="sd">            The dictionary of maximum multipole to consider for each field pair.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">absolute_lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">field1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">field2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">:]):</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="n">i</span>
+
+            <span class="n">key</span> <span class="o">=</span> <span class="n">field1</span> <span class="o">+</span> <span class="n">field2</span>
+
+            <span class="n">lmin</span> <span class="o">=</span> <span class="n">lmins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">absolute_lmin</span><span class="p">)</span>
+            <span class="n">lmax</span> <span class="o">=</span> <span class="n">lmaxs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">absolute_lmax</span><span class="p">)</span>
+
+            <span class="n">cov</span> <span class="o">=</span> <span class="n">cov_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">excluded_probes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">excluded_probes</span><span class="p">:</span>
+                <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">lmin</span><span class="p">:</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">lmin</span><span class="p">:</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<div class="viewcode-block" id="find_spectrum">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.find_spectrum">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_spectrum</span><span class="p">(</span><span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find a spectrum in a given dictionary.</span>
+
+<span class="sd">    Returns the corresponding power sepctrum for a given key. If the key is not found,</span>
+<span class="sd">    it will try to find the reverse key. Otherwise it will fill the array with zeros.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">        input_dict (dict):</span>
+<span class="sd">            Dictionary where you want to search for keys.</span>
+<span class="sd">        key (str):</span>
+<span class="sd">            Key to search for.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">input_dict</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">input_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="c1"># if the key is not found, try the reverse key, otherwise fill with zeros</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">input_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">res</span><span class="p">[</span><span class="n">lmin</span><span class="p">:</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">lmin</span><span class="p">:</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<div class="viewcode-block" id="sigma">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.sigma">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sigma</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">gauss_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">fiduDICT</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">noiseDICT</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fskies</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define the covariance matrix for the Gaussian case.</span>
+
+<span class="sd">    In case of Gaussian likelihood, this returns the covariance matrix needed for the</span>
+<span class="sd">    computation of the chi2. Note that the inversion is done in a separate funciton.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        n (int):</span>
+<span class="sd">            Number of fields.</span>
+<span class="sd">        lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">        keys (dict):</span>
+<span class="sd">            Keys for the covariance elements.</span>
+<span class="sd">        fiduDICT (dict):</span>
+<span class="sd">            Dictionary with the fiducial spectra.</span>
+<span class="sd">        noiseDICT (dict):</span>
+<span class="sd">            Dictionary with the noise spectra.</span>
+<span class="sd">        fsky (float, optional):</span>
+<span class="sd">            The fraction of sky to consider. If not specified, it means that the</span>
+<span class="sd">            fraction of sky is different for each field pair.</span>
+<span class="sd">        fskies (dict, optional):</span>
+<span class="sd">            The dictionary of fraction of sky to consider for each field pair.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># Num. of probes from num. of fields</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="n">C_AC</span> <span class="o">=</span> <span class="n">find_spectrum</span><span class="p">(</span>
+                <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">fiduDICT</span><span class="p">,</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">C_BD</span> <span class="o">=</span> <span class="n">find_spectrum</span><span class="p">(</span>
+                <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">fiduDICT</span><span class="p">,</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">C_AD</span> <span class="o">=</span> <span class="n">find_spectrum</span><span class="p">(</span>
+                <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">fiduDICT</span><span class="p">,</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">C_BC</span> <span class="o">=</span> <span class="n">find_spectrum</span><span class="p">(</span>
+                <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">fiduDICT</span><span class="p">,</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">N_AC</span> <span class="o">=</span> <span class="n">find_spectrum</span><span class="p">(</span>
+                <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">noiseDICT</span><span class="p">,</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">N_BD</span> <span class="o">=</span> <span class="n">find_spectrum</span><span class="p">(</span>
+                <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">noiseDICT</span><span class="p">,</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">N_AD</span> <span class="o">=</span> <span class="n">find_spectrum</span><span class="p">(</span>
+                <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">noiseDICT</span><span class="p">,</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">N_BC</span> <span class="o">=</span> <span class="n">find_spectrum</span><span class="p">(</span>
+                <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">noiseDICT</span><span class="p">,</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">C_AC</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">fsky</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">C_AC</span> <span class="o">+</span> <span class="n">N_AC</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C_BD</span> <span class="o">+</span> <span class="n">N_BD</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">C_AD</span> <span class="o">+</span> <span class="n">N_AD</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C_BC</span> <span class="o">+</span> <span class="n">N_BC</span><span class="p">)</span>
+                <span class="p">)</span> <span class="o">/</span> <span class="n">fsky</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">AC</span> <span class="o">=</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">BD</span> <span class="o">=</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                <span class="n">AD</span> <span class="o">=</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                <span class="n">BC</span> <span class="o">=</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">AB</span> <span class="o">=</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">CD</span> <span class="o">=</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">fskies</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">*</span> <span class="n">fskies</span><span class="p">[</span><span class="n">BD</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">C_AC</span> <span class="o">+</span> <span class="n">N_AC</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C_BD</span> <span class="o">+</span> <span class="n">N_BD</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">fskies</span><span class="p">[</span><span class="n">AD</span><span class="p">]</span> <span class="o">*</span> <span class="n">fskies</span><span class="p">[</span><span class="n">BC</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">C_AD</span> <span class="o">+</span> <span class="n">N_AD</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">C_BC</span> <span class="o">+</span> <span class="n">N_BC</span><span class="p">)</span>
+                <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">fskies</span><span class="p">[</span><span class="n">AB</span><span class="p">]</span> <span class="o">*</span> <span class="n">fskies</span><span class="p">[</span><span class="n">CD</span><span class="p">])</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_masked_sigma</span><span class="p">(</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">absolute_lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">absolute_lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">gauss_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">excluded_probes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">lmins</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">lmaxs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mask the covariance matrix for the Gaussian case in certain ranges of multipoles.</span>
+
+<span class="sd">    The covariance matrix is correctly built between lmin and lmax by the function</span>
+<span class="sd">    &quot;sigma&quot;. However, some observables might be missing in some multipole ranges, so we</span>
+<span class="sd">    need to fill the matrix with zeros.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        n (int):</span>
+<span class="sd">            Number of fields.</span>
+<span class="sd">        absolute_lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        absolute_lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">        gauss_keys (dict):</span>
+<span class="sd">            Keys for the covariance elements.</span>
+<span class="sd">        sigma (ndarray):</span>
+<span class="sd">            The covariance matrix.</span>
+<span class="sd">        excluded_probes (list):</span>
+<span class="sd">            List of probes to exclude.</span>
+<span class="sd">        lmins (dict):</span>
+<span class="sd">            The dictionary of minimum multipole to consider for each field pair.</span>
+<span class="sd">        lmaxs (dict):</span>
+<span class="sd">            The dictionary of maximum multipole to consider for each field pair.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">sigma</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gauss_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">lmin</span> <span class="o">=</span> <span class="n">lmins</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">absolute_lmin</span><span class="p">)</span>
+        <span class="n">lmax</span> <span class="o">=</span> <span class="n">lmaxs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">absolute_lmax</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">absolute_lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ell</span> <span class="o">&lt;</span> <span class="n">lmin</span> <span class="ow">or</span> <span class="n">ell</span> <span class="o">&gt;</span> <span class="n">lmax</span><span class="p">:</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="n">ell</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">mask</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">ell</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">excluded_probes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">excluded_probes</span><span class="p">:</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="n">ell</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">mask</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">ell</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="inv_sigma">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.inv_sigma">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">inv_sigma</span><span class="p">(</span><span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">masked_sigma</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MaskedArray</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Invert the covariance matrix of the Gaussian case.</span>
+
+<span class="sd">    Inverts the previously calculated sigma ndarray. Note that some elements may be</span>
+<span class="sd">    null, thus the covariance may be singular. If so, this also reduces the dimension</span>
+<span class="sd">    of the matrix by deleting the corresponding row and column.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">        masked_sigma (np.ma.masked_array):</span>
+<span class="sd">            Previously computed and masked covariance matrix (not inverted).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># Here we need to remove the masked elements to get the non null covariance matrix</span>
+        <span class="n">new_dimension</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">masked_sigma</span><span class="o">.</span><span class="n">mask</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ell</span><span class="p">])</span> <span class="o">==</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">COV</span> <span class="o">=</span> <span class="n">masked_sigma</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ell</span><span class="p">]</span><span class="o">.</span><span class="n">compressed</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">new_dimension</span><span class="p">,</span> <span class="n">new_dimension</span><span class="p">)</span>
+        <span class="c1"># This check is not necessary in principle, but it is useful to avoid singular</span>
+        <span class="c1"># matrices</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">COV</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">COV</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">COV</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">COV</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">COV</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="n">lmin</span><span class="p">:],</span> <span class="n">masked_sigma</span><span class="o">.</span><span class="n">mask</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">lmin</span><span class="p">:]</span></div>
+
+
+
+<div class="viewcode-block" id="get_reduced_covariances">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_reduced_covariances">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_reduced_covariances</span><span class="p">(</span><span class="n">covariance</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reduce the dimension of the covariance matrices given that they might be</span>
+<span class="sd">    singular for some multipole ranges.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        covariance (ndarray):</span>
+<span class="sd">            The covariance matrix.</span>
+<span class="sd">        lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reduced_covariance</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lmin</span><span class="p">):</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ell</span><span class="p">]</span>
+        <span class="c1"># If the determinant is null, we need to reduce the covariance matrix</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">reduced_covariance</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reduced_covariance</span></div>
+
+
+
+<div class="viewcode-block" id="get_reduced_data_vectors">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_reduced_data_vectors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_reduced_data_vectors</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">covariance</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reduce the dimension of the data vectors given that some probe might not be</span>
+<span class="sd">    defined in some multipole ranges or it might be excluded by the user.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        N (int):</span>
+<span class="sd">            Number of fields.</span>
+<span class="sd">        covariance (ndarray):</span>
+<span class="sd">            The covariance matrix.</span>
+<span class="sd">        mask (ndarray):</span>
+<span class="sd">            The mask matrix.</span>
+<span class="sd">        lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reduced_data_vector</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lmin</span><span class="p">):</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ell</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+        <span class="n">reduced_data_vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">mask</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ell</span><span class="p">]))</span><span class="o">.</span><span class="n">compressed</span><span class="p">()</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">reduced_data_vector</span></div>
+
+
+
+<div class="viewcode-block" id="get_chi_exact">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_chi_exact">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_exact</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">fsky</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">bins</span><span class="p">:</span> <span class="n">Bins</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the exact likelihood case.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        N (int):</span>
+<span class="sd">            Number of fields.</span>
+<span class="sd">        data (ndarray):</span>
+<span class="sd">            The covariance matrix of the data.</span>
+<span class="sd">        coba (ndarray):</span>
+<span class="sd">            The covariance matrix on the MCMC step.</span>
+<span class="sd">        lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">        fsky (float):</span>
+<span class="sd">            The fraction of the sky if a unique number is provided. Otherwise, it is</span>
+<span class="sd">            the geometrical mean of the fraction of the sky for each field pair. In</span>
+<span class="sd">            other words an effective fraction of the sky.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_covariances</span><span class="p">(</span><span class="n">coba</span><span class="p">,</span> <span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+
+        <span class="n">M_ℓ</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">,</span> <span class="n">reduced_coba</span><span class="p">,</span> <span class="n">reduced_data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">fsky</span>
+            <span class="o">*</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">M</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">M_ℓ</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">bins</span><span class="p">:</span>
+            <span class="n">dl</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">dl</span>
+            <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">ell</span><span class="p">))</span>
+            <span class="n">ell</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ell</span><span class="p">,</span> <span class="n">ell</span><span class="p">,</span> <span class="n">ell</span><span class="p">]))[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">M</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">]))[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">fsky</span> <span class="o">*</span> <span class="n">M</span> <span class="o">*</span> <span class="n">dl</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ell</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">fsky</span> <span class="o">*</span> <span class="n">M</span></div>
+
+
+
+<div class="viewcode-block" id="get_chi_gaussian">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_chi_gaussian">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_gaussian</span><span class="p">(</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">lmin</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">bins</span><span class="p">:</span> <span class="n">Bins</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        N (int):</span>
+<span class="sd">            Number of fields.</span>
+<span class="sd">        data (ndarray):</span>
+<span class="sd">            The covariance matrix of the data.</span>
+<span class="sd">        coba (ndarray):</span>
+<span class="sd">            The covariance matrix on the MCMC step.</span>
+<span class="sd">        mask (ndarray):</span>
+<span class="sd">            Mask corresponding to both excluded probes and excluded multipole ranges.</span>
+<span class="sd">        inverse_covariance (list(ndarray)):</span>
+<span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
+<span class="sd">        lmin (int):</span>
+<span class="sd">            The minimum multipole to consider.</span>
+<span class="sd">        lmax (int):</span>
+<span class="sd">            The maximum multipole to consider.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">reduced_coba</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
+            <span class="n">N</span><span class="p">,</span>
+            <span class="n">coba</span><span class="p">,</span>
+            <span class="n">mask</span><span class="p">,</span>
+            <span class="n">lmin</span><span class="p">,</span>
+            <span class="n">lmax</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">reduced_data</span> <span class="o">=</span> <span class="n">get_reduced_data_vectors</span><span class="p">(</span>
+            <span class="n">N</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">mask</span><span class="p">,</span>
+            <span class="n">lmin</span><span class="p">,</span>
+            <span class="n">lmax</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+<div class="viewcode-block" id="get_chi_correlated_gaussian">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_chi_correlated_gaussian">[docs]</a>
+            <span class="o">@</span> <span class="n">inverse_covariance</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="o">@</span> <span class="p">(</span><span class="n">reduced_coba</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">reduced_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lmin</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">inverse_covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverse_covariance</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">bins</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">M</span><span class="p">))</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">]))[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">inverse_covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">inverse_covariance</span><span class="p">))</span>
+            <span class="n">inverse_covariance</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">inverse_covariance</span><span class="p">,</span> <span class="n">inverse_covariance</span><span class="p">,</span> <span class="n">inverse_covariance</span><span class="p">])</span>
+            <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">M</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">inverse_covariance</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_correlated_gaussian</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">bins</span><span class="p">:</span> <span class="n">Bins</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Gaussian likelihood case.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        data (ndarray):</span>
+<span class="sd">            The covariance matrix of the data.</span>
+<span class="sd">        coba (ndarray):</span>
+<span class="sd">            The covariance matrix on the MCMC step.</span>
+<span class="sd">        inverse_covariance (list(ndarray)):</span>
+<span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">M</span> <span class="o">=</span> <span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">bins</span><span class="p">:</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">]))[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">M</span> <span class="o">@</span> <span class="n">inverse_covariance</span> <span class="o">@</span> <span class="n">M</span></div>
+
+
+
+<div class="viewcode-block" id="get_chi_HL">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_chi_HL">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_HL</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">fidu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">bins</span><span class="p">:</span> <span class="n">Bins</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Hamimeche &amp; Lewis likelihood case.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        data (ndarray):</span>
+<span class="sd">            The covariance matrix of the data.</span>
+<span class="sd">        coba (ndarray):</span>
+<span class="sd">            The covariance matrix on the MCMC step.</span>
+<span class="sd">        inverse_covariance (list(ndarray)):</span>
+<span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">/</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]))</span>
+
+    <span class="n">reference_spectrum</span> <span class="o">=</span> <span class="n">fidu</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">if</span> <span class="n">bins</span><span class="p">:</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">]))[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">reference_spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">reference_spectrum</span><span class="p">))</span>
+        <span class="n">reference_spectrum</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">reference_spectrum</span><span class="p">,</span> <span class="n">reference_spectrum</span><span class="p">,</span> <span class="n">reference_spectrum</span><span class="p">])</span>
+        <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">reference_spectrum</span><span class="p">)</span> <span class="o">@</span> <span class="n">inverse_covariance</span> <span class="o">@</span> <span class="p">(</span><span class="n">reference_spectrum</span> <span class="o">*</span> <span class="n">g</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_chi_LoLLiPoP">
+<a class="viewcode-back" href="../../api/lilit.html#lilit.functions.get_chi_LoLLiPoP">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chi_LoLLiPoP</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">coba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">fidu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">inverse_covariance</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">bins</span><span class="p">:</span> <span class="n">Bins</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes proper chi-square term for the Hamimeche &amp; Lewis likelihood case.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        data (ndarray):</span>
+<span class="sd">            The covariance matrix of the data.</span>
+<span class="sd">        coba (ndarray):</span>
+<span class="sd">            The covariance matrix on the MCMC step.</span>
+<span class="sd">        inverse_covariance (list(ndarray)):</span>
+<span class="sd">            Inverse of the covaraince matrices for each multipole.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span> <span class="o">/</span> <span class="p">(</span><span class="n">coba</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]))</span>
+
+    <span class="n">reference_spectrum</span> <span class="o">=</span> <span class="n">fidu</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">if</span> <span class="n">bins</span><span class="p">:</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">M</span><span class="p">))</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">]))[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">reference_spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">reference_spectrum</span><span class="p">))</span>
+        <span class="n">reference_spectrum</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">bin_spectra</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">reference_spectrum</span><span class="p">,</span> <span class="n">reference_spectrum</span><span class="p">,</span> <span class="n">reference_spectrum</span><span class="p">])</span>
+        <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">M</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">reference_spectrum</span><span class="p">)</span> <span class="o">@</span> <span class="n">inverse_covariance</span> <span class="o">@</span> <span class="p">(</span><span class="n">reference_spectrum</span> <span class="o">*</span> <span class="n">g</span><span class="p">)</span></div>
+
+
+
+<span class="n">__docformat__</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span>
+<span class="n">__pdoc__</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">__pdoc__</span><span class="p">[</span><span class="s2">&quot;Likelihood&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Likelihood class from Cobaya, refer to Cobaya documentation for more information.&quot;</span>
+<span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Giacomo Galloni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

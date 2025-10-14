@@ -1,21 +1,15 @@
 import os
 import pickle
-from typing import Union, Optional, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 from cobaya.likelihood import Likelihood
 
 from .binning import get_binning
-
+from .core import ChiSquareCalculator, ChiSquareMethod
 from .functions import (
     CAMBres2dict,
     cov_filling,
-    get_chi_correlated_gaussian,
-    get_chi_exact,
-    get_chi_gaussian,
-    get_chi_HL,
-    get_chi_LoLLiPoP,
     get_Gauss_keys,
     get_keys,
     get_masked_sigma,
@@ -25,14 +19,21 @@ from .functions import (
 
 
 class LiLit(Likelihood):
-
     """Class defining the Likelihood for LiteBIRD (LiLit).
 
-    Within LiLit, the most relevant study cases of LiteBIRD (T, E, B) are already tested and working. So, if you need to work with those, you should not need to look into the actual definition of the likelihood function, since you can proptly start running your MCMCs. Despite this, you should provide to the likelihood some file where to find the proper LiteBIRD noise power spectra, given that LiLit is implementing a simple inverse noise weighting just as a place-holder for something more realistic. As regards lensing, LiLit will need you to pass the reconstruction noise, since its computation is not coded, thus there is no place-holder for lensing.
+    Within LiLit, the most relevant study cases of LiteBIRD (T, E, B) are already tested
+    and working. So, if you need to work with those, you should not need to look into
+    the actual definition of the likelihood function, since you can promptly start
+    running your MCMCs. Despite this, you should provide to the likelihood some file
+    where to find the proper LiteBIRD noise power spectra, given that LiLit is
+    implementing a simple inverse noise weighting just as a place-holder for something
+    more realistic. As regards lensing, LiLit will need you to pass the reconstruction
+    noise, since its computation is not coded, thus there is no place-holder for lensing.
 
     Parameters:
         name (str):
-            The name for the likelihood, used in the output. It is necessary to pass it to LiLit. (default: None).
+            The name for the likelihood, used in the output. It is necessary to pass it
+            to LiLit. (default: None).
         fields (list):
             List of fields in the data file (default: None).
         lmin (int or list):
@@ -40,7 +41,8 @@ class LiLit(Likelihood):
         lmax (int or list):
             Maximum multipole to consider (default: None).
         like_approx (str, optional):
-            Type of likelihood to use (default: "exact"). Currently supports "exact" and "gaussian", soon "correlated_gaussian".
+            Type of likelihood to use (default: "exact"). Currently supports "exact"
+            and "gaussian", soon "correlated_gaussian".
         cl_file (str, dict, optional):
             Path to Cl file or dictionary of fiducial spectra (default: None).
         nl_file (str, dict, optional):
@@ -131,44 +133,46 @@ class LiLit(Likelihood):
     def __init__(
         self,
         name: str = None,
-        fields: List[str] = None,
-        lmin: Optional[Union[int, List[int]]] = 2,
-        lmax: Union[int, List[int]] = None,
+        fields: list[str] = None,
+        lmin: int | list[int] | None = 2,
+        lmax: int | list[int] = None,
         like: str = "exact",
-        cl_file: Optional[Union[dict, str]] = None,
-        nl_file: Optional[Union[dict, str]] = None,
-        bias_file: Optional[Union[dict, str]] = None,
-        fidu_guess_file: Optional[Union[dict, str]] = None,
-        offset_file: Optional[Union[dict, str]] = None,
-        external_covariance: Optional[np.ndarray] = None,
-        experiment: Optional[str] = None,
-        nside: Optional[int] = None,
-        r: Optional[float] = None,
-        nt: Optional[float] = None,
-        pivot_t: Optional[float] = 0.01,
-        fsky: Union[float, List[float]] = 1,
-        excluded_probes: Optional[List[str]] = None,
-        want_binning: Optional[bool] = False,
-        debug: Optional[bool] = None,
+        cl_file: dict | str | None = None,
+        nl_file: dict | str | None = None,
+        bias_file: dict | str | None = None,
+        fidu_guess_file: dict | str | None = None,
+        offset_file: dict | str | None = None,
+        external_covariance: np.ndarray | None = None,
+        experiment: str | None = None,
+        nside: int | None = None,
+        r: float | None = None,
+        nt: float | None = None,
+        pivot_t: float | None = 0.01,
+        fsky: float | list[float] = 1,
+        excluded_probes: list[str] | None = None,
+        want_binning: bool | None = False,
+        debug: bool | None = None,
     ):
         # Check that the user has provided the name of the likelihood
-        assert (
-            name is not None
-        ), "You must provide the name of the likelihood (e.g. 'BB' or 'TTTEEE')"
+        assert name is not None, (
+            "You must provide the name of the likelihood (e.g. 'BB' or 'TTTEEE')"
+        )
         # Check that the user has provided the fields
-        assert (
-            fields is not None
-        ), "You must provide the fields (e.g. 'b' or ['t', 'e'])"
+        assert fields is not None, "You must provide the fields (e.g. 'b' or ['t', 'e'])"
         # Check that the user has provided the maximum multipole
         assert lmax is not None, "You must provide the lmax (e.g. 300)"
 
         self.fields = fields
         self.N = len(fields)
         self.like_approx = like
+        self.chi_method = ChiSquareMethod(like.lower())
         self.excluded_probes = excluded_probes
         if excluded_probes is not None:
+            # Create a copy to avoid modifying the list we're iterating over
+            self.excluded_probes = list(excluded_probes)
             for probe in excluded_probes:
                 self.excluded_probes.append(probe[::-1])
+            self.excluded_probes = list(set(self.excluded_probes))
         self.cl_file = cl_file
         self.nl_file = nl_file
         self.bias_file = bias_file
@@ -176,13 +180,17 @@ class LiLit(Likelihood):
         self.offset_file = offset_file
         self.external_covariance = external_covariance
         if self.like_approx == "correlated_gaussian":
-            assert (
-                self.external_covariance is not None
-            ), "You must provide a covariance matrix for the correlated Gaussian likelihood"
+            assert self.external_covariance is not None, (
+                "You must provide a covariance matrix for the correlated Gaussian "
+                "likelihood"
+            )
         if self.like_approx == "HL" or self.like_approx == "lollipop":
-            assert (
-                self.fidu_guess_file is not None
-            ), "You must provide a fiducial spectrum for the H&L likelihood"
+            assert self.fidu_guess_file is not None, (
+                "You must provide a fiducial spectrum for the H&L likelihood"
+            )
+            assert self.external_covariance is not None, (
+                "You must provide a covariance matrix for the H&L/LoLLiPoP likelihood"
+            )
         self.experiment = experiment
         if self.experiment is not None:
             # Check that the user has provided the nside if an experiment is used
@@ -192,11 +200,13 @@ class LiLit(Likelihood):
         self.debug = debug
         self.keys = get_keys(fields=self.fields, debug=self.debug)
         if "bb" in self.keys:
-            # Check that the user has provided the tensor-to-scalar ratio if a BB likelihood is used
+            # Check that the user has provided the tensor-to-scalar ratio if a BB
+            # likelihood is used
             if cl_file is None:
-                assert (
-                    r is not None
-                ), "You must provide the tensor-to-scalar ratio r for the fiducial production (defaul is at 0.01 Mpc^-1)"
+                assert r is not None, (
+                    "You must provide the tensor-to-scalar ratio r for the fiducial "
+                    "production (default is at 0.01 Mpc^-1)"
+                )
             self.r = r
             self.nt = nt
             self.pivot_t = pivot_t
@@ -214,16 +224,23 @@ class LiLit(Likelihood):
         Note: the correlated Gaussian is supported for a single field, not multiple ones.
         """
         self.supported = ["exact", "gaussian", "correlated_gaussian", "HL", "lollipop"]
-        assert (
-            self.like_approx in self.supported
-        ), f"The likelihood approximation you specified, {self.like_approx}, is not supported! Available options are {self.supported}"
+        assert self.like_approx in self.supported, (
+            f"The likelihood approximation you specified, {self.like_approx}, is not "
+            f"supported! Available options are {self.supported}"
+        )
 
         return
 
-    def set_lmin(self, lmin: Union[int, List[int]]):
+    def set_lmin(self, lmin: int | list[int]):
         """Take lmin parameter and set the corresponding attributes.
 
-        This handles automatically the case of a single value or a list of values. Note that the lmin for the cross-correlations is set to the geometrical mean of the lmin of the two fields when the likelihood approximation is not exact. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped. On the other hand, lmin is set to the maximum of the two other probes for the exact likelihood. Indeed, the geometrical mean causes some issues in this case.
+        This handles automatically the case of a single value or a list of values. Note
+        that the lmin for the cross-correlations is set to the geometrical mean of the
+        lmin of the two fields when the likelihood approximation is not exact. This
+        approximation has been tested and found to be accurate, at least assuming that
+        the two masks of the two considered multipoles are very overlapped. On the
+        other hand, lmin is set to the maximum of the two other probes for the exact
+        likelihood. Indeed, the geometrical mean causes some issues in this case.
 
         Parameters:
             lmin (int or list):
@@ -231,9 +248,10 @@ class LiLit(Likelihood):
         """
         self.lmins = {}
         if isinstance(lmin, list):
-            assert (
-                len(lmin) == self.N
-            ), "If you provide multiple lmin, they must match the number of requested fields with the same order"
+            assert len(lmin) == self.N, (
+                "If you provide multiple lmin, they must match the number of requested "
+                "fields with the same order"
+            )
             for i in range(self.N):
                 for j in range(i, self.N):
                     key = self.fields[i] + self.fields[j]
@@ -246,10 +264,16 @@ class LiLit(Likelihood):
             self.lmin = lmin
         return
 
-    def set_lmax(self, lmax: Union[int, List[int]]):
+    def set_lmax(self, lmax: int | list[int]):
         """Take lmax parameter and set the corresponding attributes.
 
-        This handles automatically the case of a single value or a list of values. Note that the lmax for the cross-correlations is set to the geometrical mean of the lmax of the two fields when the likelihood approximation is not exact. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped. On the other hand, lmax is set to the minimum of the two other probes for the exact likelihood. Indeed, the geometrical mean causes some issues in this case.
+        This handles automatically the case of a single value or a list of values. Note
+        that the lmax for the cross-correlations is set to the geometrical mean of the
+        lmax of the two fields when the likelihood approximation is not exact. This
+        approximation has been tested and found to be accurate, at least assuming that
+        the two masks of the two considered multipoles are very overlapped. On the
+        other hand, lmax is set to the minimum of the two other probes for the exact
+        likelihood. Indeed, the geometrical mean causes some issues in this case.
 
         Parameters:
             lmax (int or list):
@@ -257,9 +281,10 @@ class LiLit(Likelihood):
         """
         self.lmaxs = {}
         if isinstance(lmax, list):
-            assert (
-                len(lmax) == self.N
-            ), "If you provide multiple lmax, they must match the number of requested fields with the same order"
+            assert len(lmax) == self.N, (
+                "If you provide multiple lmax, they must match the number of requested "
+                "fields with the same order"
+            )
             for i in range(self.N):
                 for j in range(i, self.N):
                     key = self.fields[i] + self.fields[j]
@@ -272,10 +297,14 @@ class LiLit(Likelihood):
             self.lmax = lmax
         return
 
-    def set_fsky(self, fsky: Union[float, List[float]]):
+    def set_fsky(self, fsky: float | list[float]):
         """Take fsky parameter and set the corresponding attributes.
 
-        This handles automatically the case of a single value or a list of values. Note that the fsky for the cross-correlations is set to the geometrical mean of the fsky of the two fields. This approximation has been tested and found to be accurate, at least assuming that the two masks of the two considered multipoles are very overlapped.
+        This handles automatically the case of a single value or a list of values. Note
+        that the fsky for the cross-correlations is set to the geometrical mean of the
+        fsky of the two fields. This approximation has been tested and found to be
+        accurate, at least assuming that the two masks of the two considered multipoles
+        are very overlapped.
 
         Parameters:
             fsky (float or list):
@@ -283,9 +312,10 @@ class LiLit(Likelihood):
         """
         self.fskies = {}
         if isinstance(fsky, list):
-            assert (
-                len(fsky) == self.N
-            ), "If you provide multiple fsky, they must match the number of requested fields with the same order"
+            assert len(fsky) == self.N, (
+                "If you provide multiple fsky, they must match the number of requested "
+                "fields with the same order"
+            )
             for i in range(self.N):
                 for j in range(i, self.N):
                     key = self.fields[i] + self.fields[j]
@@ -299,7 +329,13 @@ class LiLit(Likelihood):
     def get_fiducial_spectra(self):
         """Produce fiducial spectra or read the input ones.
 
-        If the user has not provided a Cl file, this function will produce the fiducial power spectra starting from the CAMB inifile for Planck2018. The extra keywords defined will maximize the accordance between the fiducial Cls and the ones obtained from Cobaya. If B-modes are requested, the tensor-to-scalar ratio and the spectral tilt will be set to the requested values. Note that if you do not provide a tilt, this will follow the standard single-field consistency relation. If instead you provide a custom file, stores that.
+        If the user has not provided a Cl file, this function will produce the fiducial
+        power spectra starting from the CAMB inifile for Planck2018. The extra keywords
+        defined will maximize the accordance between the fiducial Cls and the ones
+        obtained from Cobaya. If B-modes are requested, the tensor-to-scalar ratio and
+        the spectral tilt will be set to the requested values. Note that if you do not
+        provide a tilt, this will follow the standard single-field consistency
+        relation. If instead you provide a custom file, stores that.
         """
 
         if self.cl_file is not None:
@@ -307,7 +343,9 @@ class LiLit(Likelihood):
                 return self.cl_file
             elif not self.cl_file.endswith(".pkl"):
                 print(
-                    "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+                    "The file provided is not a pickle file. You should provide a pickle "
+                    "file containing a dictionary with keys such as 'tt', 'ee', 'te', "
+                    "'bb' and 'tb'."
                 )
                 raise TypeError
             with open(self.cl_file, "rb") as pickle_file:
@@ -350,23 +388,31 @@ class LiLit(Likelihood):
     def get_noise_spectra(self):
         """Produce noise power spectra or read the input ones.
 
-        If the user has not provided a noise file, this function will produce the noise power spectra for a given experiment with inverse noise weighting of white noise in each channel (TT, EE, BB). Note that you may want to have a look at the procedure since it is merely a place-holder. Indeed, you should provide a more realistic file from which to read the noise spectra, given that inverse noise weighting severely underestimates the amount of noise. If instead you provide the proper custom file, this method stores that.
+        If the user has not provided a noise file, this function will produce the noise
+        power spectra for a given experiment with inverse noise weighting of white
+        noise in each channel (TT, EE, BB). Note that you may want to have a look at
+        the procedure since it is merely a place-holder. Indeed, you should provide a
+        more realistic file from which to read the noise spectra, given that inverse
+        noise weighting severely underestimates the amount of noise. If instead you
+        provide the proper custom file, this method stores that.
         """
         if self.nl_file is not None:
             if isinstance(self.nl_file, dict):
                 return self.nl_file
             elif not self.nl_file.endswith(".pkl"):
                 print(
-                    "The file provided for the noise is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+                    "The file provided for the noise is not a pickle file. You should "
+                    "provide a pickle file containing a dictionary with keys such as "
+                    "'tt', 'ee', 'te', 'bb' and 'tb'."
                 )
                 raise TypeError
             with open(self.nl_file, "rb") as pickle_file:
                 return pickle.load(pickle_file)
 
         print(
-            "***WARNING***: the inverse noise weighting performed here severely underestimates \
-            the actual noise level of LiteBIRD. You should provide an input \
-            noise power spectrum with a more realistic noise."
+            "***WARNING***: the inverse noise weighting performed here severely "
+            "underestimates the actual noise level of LiteBIRD. You should provide an "
+            "input noise power spectrum with a more realistic noise."
         )
 
         try:
@@ -376,9 +422,9 @@ class LiLit(Likelihood):
         except ImportError:
             print("YAML or Healpy seems to be not installed. Check the requirements.")
 
-        assert (
-            self.experiment is not None
-        ), "You must specify the experiment you want to consider"
+        assert self.experiment is not None, (
+            "You must specify the experiment you want to consider"
+        )
         print(f"\nComputing noise for {self.experiment}")
 
         path = os.path.dirname(os.path.abspath(__file__))
@@ -441,14 +487,19 @@ class LiLit(Likelihood):
     def get_bias_spectra(self):
         """Store the input spectra for the bias.
 
-        The bias spectra stored here will be add to the fiducial power spectra, but not to the ones prodeced by Cobaya. In this way, one can study the case in which something is causing a bias in the spectra reconstruction (e.g. foregrounds, systematics and such).
+        The bias spectra stored here will be add to the fiducial power spectra, but not
+        to the ones prodeced by Cobaya. In this way, one can study the case in which
+        something is causing a bias in the spectra reconstruction (e.g. foregrounds,
+        systematics and such).
         """
 
         if isinstance(self.bias_file, dict):
             return self.bias_file
         elif not self.bias_file.endswith(".pkl"):
             print(
-                "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+                "The file provided is not a pickle file. You should provide a pickle "
+                "file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' "
+                "and 'tb'."
             )
             raise TypeError
         with open(self.bias_file, "rb") as pickle_file:
@@ -457,14 +508,19 @@ class LiLit(Likelihood):
     def get_fidu_guess_spectra(self):
         """Store the input spectra for a fiducial guess on the spectrum of data.
 
-        The bias spectra stored here will be add to the fiducial power spectra, but not to the ones prodeced by Cobaya. In this way, one can study the case in which something is causing a bias in the spectra reconstruction (e.g. foregrounds, systematics and such).
+        The bias spectra stored here will be add to the fiducial power spectra, but not
+        to the ones prodeced by Cobaya. In this way, one can study the case in which
+        something is causing a bias in the spectra reconstruction (e.g. foregrounds,
+        systematics and such).
         """
 
         if isinstance(self.fidu_guess_file, dict):
             return self.fidu_guess_file
         elif not self.fidu_guess_file.endswith(".pkl"):
             print(
-                "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+                "The file provided is not a pickle file. You should provide a pickle "
+                "file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' "
+                "and 'tb'."
             )
             raise TypeError
         with open(self.fidu_guess_file, "rb") as pickle_file:
@@ -473,14 +529,19 @@ class LiLit(Likelihood):
     def get_offset_spectra(self):
         """Store the input spectra for the offset (H&L approximation).
 
-        The bias spectra stored here will be add to the fiducial power spectra, but not to the ones prodeced by Cobaya. In this way, one can study the case in which something is causing a bias in the spectra reconstruction (e.g. foregrounds, systematics and such).
+        The bias spectra stored here will be add to the fiducial power spectra, but not
+        to the ones prodeced by Cobaya. In this way, one can study the case in which
+        something is causing a bias in the spectra reconstruction (e.g. foregrounds,
+        systematics and such).
         """
 
         if isinstance(self.offset_file, dict):
             return self.offset_file
         elif not self.offset_file.endswith(".pkl"):
             print(
-                "The file provided is not a pickle file. You should provide a pickle file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' and 'tb'."
+                "The file provided is not a pickle file. You should provide a pickle "
+                "file containing a dictionary with keys such as 'tt', 'ee', 'te', 'bb' "
+                "and 'tb'."
             )
             raise TypeError
         with open(self.offset_file, "rb") as pickle_file:
@@ -582,8 +643,22 @@ class LiLit(Likelihood):
             or self.like_approx == "HL"
             or self.like_approx == "lollipop"
         ):
-            # Note that the external covariance must be invertible. This means that the covariance should start from ell = 2.
-            self.inverse_covariance = np.linalg.inv(self.external_covariance)
+            # Note that the external covariance must be invertible. This means that
+            # the covariance should start from ell = 2.
+            try:
+                self.inverse_covariance = np.linalg.inv(self.external_covariance)
+            except np.linalg.LinAlgError as e:
+                raise ValueError(
+                    f"Cannot invert external covariance matrix for {self.like_approx} "
+                    f"likelihood. The matrix must be square, non-singular, and positive "
+                    f"definite. Original error: {e}"
+                ) from e
+            except Exception as e:
+                raise ValueError(
+                    f"Error processing external covariance matrix: {e}. "
+                    f"Please check that the matrix has the correct shape and contains "
+                    f"valid numerical values."
+                ) from e
 
         if self.like_approx == "HL" or self.like_approx == "lollipop":
             self.fidu_guessCLS = self.get_fidu_guess_spectra()
@@ -616,81 +691,47 @@ class LiLit(Likelihood):
                 self.offset = np.zeros_like(self.guess)
 
     def get_requirements(self):
-        """Defines requirements of the likelihood, specifying quantities calculated by a theory code are needed. Note that you may want to change the overall keyword from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
+        """Defines requirements of the likelihood, specifying quantities calculated by
+        a theory code are needed. Note that you may want to change the overall keyword
+        from 'Cl' to 'unlensed_Cl' if you want to work without considering lensing."""
         requirements = {}
         requirements["Cl"] = {cl: self.lmax for cl in self.keys}
         if self.debug:
             requirements["CAMBdata"] = None
             print(
-                f"\nYou requested that Cobaya provides to the likelihood the following items: {requirements}",
+                "\nYou requested that Cobaya provides to the likelihood the "
+                f"following items: {requirements}",
             )
         return requirements
 
+    def get_likelihood_kwargs(self):
+        """Defines the keyword arguments to pass to the likelihood function."""
+        return {
+            "fields": self.fields,
+            "lmin": self.lmin,
+            "lmax": self.lmax,
+            "fsky": self.fsky,
+            "fskies": self.fskies,
+            "like_approx": self.like_approx,
+            "chi_method": self.chi_method,
+            "excluded_probes": self.excluded_probes,
+            "debug": self.debug,
+            "N": self.N,
+            "inverse_covariance": getattr(self, "inverse_covariance", None),
+            "mask": getattr(self, "mask", None),
+            "offset": getattr(self, "offset", None),
+            "fidu": getattr(self, "guess", None),
+            "bins": getattr(self, "bins", None),
+        }
+
     def log_likelihood(self):
         """Convert into log likelihood and sum over multipoles."""
-        if self.like_approx == "exact":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_exact(
-                    N=self.N,
-                    data=self.data,
-                    coba=self.coba,
-                    lmin=self.lmin,
-                    lmax=self.lmax,
-                    fsky=self.fsky,
-                    bins=self.bins,
-                )
-            )
-        elif self.like_approx == "gaussian":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_gaussian(
-                    N=self.N,
-                    data=self.data,
-                    coba=self.coba,
-                    mask=self.mask,
-                    inverse_covariance=self.inverse_covariance,
-                    lmin=self.lmin,
-                    lmax=self.lmax,
-                    bins=self.bins,
-                )
-            )
-        elif self.like_approx == "correlated_gaussian":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_correlated_gaussian(
-                    data=self.data,
-                    coba=self.coba,
-                    inverse_covariance=self.inverse_covariance,
-                    bins=self.bins,
-                )
-            )
-        elif self.like_approx == "HL":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_HL(
-                    data=self.data,
-                    coba=self.coba,
-                    fidu=self.guess,
-                    offset=self.offset,
-                    inverse_covariance=self.inverse_covariance,
-                    bins=self.bins,
-                )
-            )
-        elif self.like_approx == "lollipop":
-            logp_ℓ = -0.5 * np.array(
-                get_chi_LoLLiPoP(
-                    data=self.data,
-                    coba=self.coba,
-                    fidu=self.guess,
-                    offset=self.offset,
-                    inverse_covariance=self.inverse_covariance,
-                    bins=self.bins,
-                )
-            )
-        else:
-            print(
-                f"You requested some likelihood approximation (i.e. {self.like_approx}) which is not supported!"
-            )
-            raise KeyError
 
-        return np.sum(logp_ℓ)
+        kwargs = self.get_likelihood_kwargs()
+        chi_squared = ChiSquareCalculator.calculate(
+            method=self.chi_method, data=self.data, coba=self.coba, **kwargs
+        )
+        return np.sum(-0.5 * chi_squared)
 
     def logp(self, **params_values):
         """Gets the log likelihood and pass it to Cobaya to carry on the MCMC process."""
@@ -759,6 +800,6 @@ __all__ = ["LiLit"]
 
 __docformat__ = "google"
 __pdoc__ = {}
-__pdoc__[
-    "Likelihood"
-] = "Likelihood class from Cobaya, refer to Cobaya documentation for more information."
+__pdoc__["Likelihood"] = (
+    "Likelihood class from Cobaya, refer to Cobaya documentation for more information."
+)

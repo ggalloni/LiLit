@@ -1,0 +1,30 @@
+# .readthedocs.yaml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.11"
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: docs/conf.py
+  fail_on_warning: false
+
+# Install Python dependencies using uv when available, pip as fallback
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - dev
+
+# Build pull request previews
+# This enables documentation builds for pull requests
+formats:
+  - pdf
+  - htmlzip

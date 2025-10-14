@@ -1,0 +1,95 @@
+name: Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-skip:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Run skip-check
+        id: check
+        uses: ./.github/actions/check-skip
+
+  test:
+    needs: check-skip
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python-version: '3.13'
+            tags: []
+
+          - os: ubuntu-latest
+            python-version: '3.12'
+            tags: []
+
+          - os: ubuntu-latest
+            python-version: '3.11'
+            tags: cov
+
+          - os: ubuntu-latest
+            python-version: '3.10'
+            tags: []
+
+          - os: macos-latest
+            python-version: '3.11'
+            tags: []
+
+    if: ${{ needs.check-skip.outputs.skip != 'true' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv and set the Python version
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          prune-cache: true
+          cache-dependency-glob: |
+            pyproject.toml
+            uv.lock
+
+      - name: Cache virtual environment
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('uv.lock') }}
+
+      - name: Install LiLit dependencies
+        run: |
+          uv sync --all-extras --dev --locked
+
+      - name: Run tests (coverage)
+        if: contains(matrix.tags, 'cov')
+        run: |
+          uv run pytest --cov --cov-branch --cov-report=xml -vv --durations=10
+
+      - name: Run tests (no coverage)
+        if: ${{ !contains(matrix.tags, 'cov') }}
+        run: |
+          uv run pytest -vv --durations=10
+
+      - if: contains(matrix.tags, 'cov')
+        name: Report Coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

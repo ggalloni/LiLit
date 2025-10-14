@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integration with Cobaya &mdash; LiLit 1.2.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e917149c"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Likelihood Approximations" href="custom_likelihoods.html" />
+    <link rel="prev" title="lilit package" href="api/lilit.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            LiLit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation and quickstart</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#development-installation">Development Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#working-with-different-field-combinations">Working with Different Field Combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#temperature-only">Temperature Only</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#temperature-polarization">Temperature + Polarization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#b-modes-only">B-modes Only</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#integration-with-cobaya">Integration with Cobaya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#basic-example-temperature-and-polarization">Basic Example: Temperature and Polarization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#b-mode-analysis-with-tensor-modes">B-mode Analysis with Tensor Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#custom-fiducial-spectra">Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#running-an-mcmc-analysis">Running an MCMC Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#using-different-sky-fractions-per-field">Using Different Sky Fractions per Field</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory and Implementation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Likelihood Theory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#single-field-case">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#multi-field-case">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#implementation-details">Implementation Details</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#id1">Single-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#id2">Multi-field Case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#implementation-differences-from-exact-case">Implementation Differences from Exact Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#correlated-gaussian-likelihood">Correlated Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#formulation">Formulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="theory.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#sky-cut-approximations">Sky Cut Approximations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/lilit.html">lilit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/lilit.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/lilit.html#module-lilit.functions">lilit.functions module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_keys"><code class="docutils literal notranslate"><span class="pre">get_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_Gauss_keys"><code class="docutils literal notranslate"><span class="pre">get_Gauss_keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_reduced_covariances"><code class="docutils literal notranslate"><span class="pre">get_reduced_covariances()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.get_reduced_data_vectors"><code class="docutils literal notranslate"><span class="pre">get_reduced_data_vectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.cov_filling"><code class="docutils literal notranslate"><span class="pre">cov_filling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.find_spectrum"><code class="docutils literal notranslate"><span class="pre">find_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.sigma"><code class="docutils literal notranslate"><span class="pre">sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.inv_sigma"><code class="docutils literal notranslate"><span class="pre">inv_sigma()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.CAMBres2dict"><code class="docutils literal notranslate"><span class="pre">CAMBres2dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.functions.txt2dict"><code class="docutils literal notranslate"><span class="pre">txt2dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/lilit.html#module-lilit.likelihood">lilit.likelihood module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.likelihood.LiLit"><code class="docutils literal notranslate"><span class="pre">LiLit</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/lilit.html#module-lilit.core.chi_square">lilit.core.chi_square module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.ChiSquareCalculator"><code class="docutils literal notranslate"><span class="pre">ChiSquareCalculator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.ChiSquareMethod"><code class="docutils literal notranslate"><span class="pre">ChiSquareMethod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_exact"><code class="docutils literal notranslate"><span class="pre">get_chi_exact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_correlated_gaussian"><code class="docutils literal notranslate"><span class="pre">get_chi_correlated_gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_HL"><code class="docutils literal notranslate"><span class="pre">get_chi_HL()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/lilit.html#lilit.core.chi_square.get_chi_LoLLiPoP"><code class="docutils literal notranslate"><span class="pre">get_chi_LoLLiPoP()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Integration with Cobaya</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Integration with Cobaya</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-cobaya-configuration">Basic Cobaya Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-camb">Working with CAMB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-class">Working with CLASS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-definitions">Parameter Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#combining-multiple-likelihoods">Combining Multiple Likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-sampler-settings">Custom Sampler Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-configuration">Output Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-from-python">Running from Python</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-model-interface">Using the Model Interface</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced Topics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="custom_likelihoods.html">Likelihood Approximations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#exact-likelihood">Exact Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="custom_likelihoods.html#using-the-exact-likelihood">Using the Exact Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#gaussian-likelihood">Gaussian Likelihood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="custom_likelihoods.html#using-the-gaussian-likelihood">Using the Gaussian Likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#field-specific-multipole-ranges">Field-Specific Multipole Ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#excluding-specific-probes">Excluding Specific Probes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#sky-coverage-effects">Sky Coverage Effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#debug-mode">Debug Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_likelihoods.html#when-to-use-each-approximation">When to Use Each Approximation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="noise_models.html">Noise Models and Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#default-noise-placeholder">Default Noise Placeholder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#providing-custom-noise-spectra">Providing Custom Noise Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="noise_models.html#expected-noise-file-format">Expected Noise File Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#default-fiducial-spectra">Default Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#custom-fiducial-spectra">Custom Fiducial Spectra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="noise_models.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#noise-requirements-for-litebird">Noise Requirements for LiteBIRD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#multipole-dependent-sky-coverage">Multipole-Dependent Sky Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#note-on-sky-cut-approximation">Note on Sky Cut Approximation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noise_models.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fiducial_spectra.html">Fiducial Spectra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fiducial_spectra.html#default-planck-2018-best-fit">Default: Planck 2018 Best-Fit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fiducial_spectra.html#for-b-mode-analysis">For B-mode Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fiducial_spectra.html#using-custom-fiducial-spectra">Using Custom Fiducial Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fiducial_spectra.html#generating-spectra-with-camb">Generating Spectra with CAMB</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fiducial_spectra.html#the-cambres2dict-function">The CAMBres2dict Function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fiducial_spectra.html#modifying-default-parameters">Modifying Default Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fiducial_spectra.html#lensed-vs-unlensed-spectra">Lensed vs Unlensed Spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fiducial_spectra.html#field-combinations">Field Combinations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fiducial_spectra.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#installation-issues">Installation Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#likelihood-setup-issues">Likelihood Setup Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#cobaya-integration-issues">Cobaya Integration Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#performance-issues">Performance Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#numerical-issues">Numerical Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#common-error-messages">Common Error Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LiLit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Integration with Cobaya</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/cobaya_integration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="integration-with-cobaya">
+<h1>Integration with Cobaya<a class="headerlink" href="#integration-with-cobaya" title="Link to this heading"></a></h1>
+<p>LiLit is designed to work seamlessly with <a class="reference external" href="https://cobaya.readthedocs.io/">Cobaya</a>, the code for Bayesian analysis in cosmology. This section explains how to integrate LiLit into your Cobaya workflows.</p>
+<section id="basic-cobaya-configuration">
+<h2>Basic Cobaya Configuration<a class="headerlink" href="#basic-cobaya-configuration" title="Link to this heading"></a></h2>
+<p>LiLit can be used directly in Cobaya input files. Here’s the basic structure:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">likelihood</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lilit.LiLit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;t&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;e&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;b&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lmax</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2500</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2000</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">500</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lmin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">fsky</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.7</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.7</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.6</span><span class="p p-Indicator">]</span>
+
+<span class="nt">params</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Your cosmological parameters</span>
+<span class="w">  </span><span class="nt">H0</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prior</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">      </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">dist</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">norm</span>
+<span class="w">      </span><span class="nt">loc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">67.4</span>
+<span class="w">      </span><span class="nt">scale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span>
+
+<span class="nt">theory</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">camb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="nt">sampler</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mcmc</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">max_tries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000</span>
+</pre></div>
+</div>
+</section>
+<section id="working-with-camb">
+<h2>Working with CAMB<a class="headerlink" href="#working-with-camb" title="Link to this heading"></a></h2>
+<p>LiLit integrates with CAMB through Cobaya’s theory interface:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">theory</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">camb</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">extra_args</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">halofit_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mead</span>
+<span class="w">      </span><span class="nt">AccuracyBoost</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2</span>
+<span class="w">      </span><span class="nt">lSampleBoost</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2</span>
+<span class="w">      </span><span class="nt">lAccuracyBoost</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2</span>
+
+<span class="nt">likelihood</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lilit.LiLit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;t&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;e&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lmax</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2500</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2000</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lmin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">fsky</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.7</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.7</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+<section id="working-with-class">
+<h2>Working with CLASS<a class="headerlink" href="#working-with-class" title="Link to this heading"></a></h2>
+<p>You can also use CLASS as your theory code:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">theory</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">classy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">extra_args</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">non_linear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">halofit</span>
+
+<span class="nt">likelihood</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lilit.LiLit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;t&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;e&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;b&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lmax</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2500</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2000</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">500</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lmin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">fsky</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.7</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.7</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.6</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+<section id="parameter-definitions">
+<h2>Parameter Definitions<a class="headerlink" href="#parameter-definitions" title="Link to this heading"></a></h2>
+<p>When working with tensor modes (B-mode analysis), you need to include the appropriate parameters:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Standard cosmological parameters</span>
+<span class="w">  </span><span class="nt">H0</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prior</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="nv">60</span><span class="p p-Indicator">,</span><span class="nt"> max</span><span class="p">:</span><span class="w"> </span><span class="nv">80</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">dist</span><span class="p">:</span><span class="w"> </span><span class="nv">norm</span><span class="p p-Indicator">,</span><span class="nt"> loc</span><span class="p">:</span><span class="w"> </span><span class="nv">67.4</span><span class="p p-Indicator">,</span><span class="nt"> scale</span><span class="p">:</span><span class="w"> </span><span class="nv">0.5</span><span class="p p-Indicator">}</span>
+
+<span class="w">  </span><span class="nt">omega_b</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prior</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="nv">0.019</span><span class="p p-Indicator">,</span><span class="nt"> max</span><span class="p">:</span><span class="w"> </span><span class="nv">0.025</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">dist</span><span class="p">:</span><span class="w"> </span><span class="nv">norm</span><span class="p p-Indicator">,</span><span class="nt"> loc</span><span class="p">:</span><span class="w"> </span><span class="nv">0.02237</span><span class="p p-Indicator">,</span><span class="nt"> scale</span><span class="p">:</span><span class="w"> </span><span class="nv">0.00037</span><span class="p p-Indicator">}</span>
+
+<span class="w">  </span><span class="nt">omega_cdm</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prior</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="nv">0.09</span><span class="p p-Indicator">,</span><span class="nt"> max</span><span class="p">:</span><span class="w"> </span><span class="nv">0.15</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">dist</span><span class="p">:</span><span class="w"> </span><span class="nv">norm</span><span class="p p-Indicator">,</span><span class="nt"> loc</span><span class="p">:</span><span class="w"> </span><span class="nv">0.1200</span><span class="p p-Indicator">,</span><span class="nt"> scale</span><span class="p">:</span><span class="w"> </span><span class="nv">0.0036</span><span class="p p-Indicator">}</span>
+
+<span class="w">  </span><span class="nt">tau_reio</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prior</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="nv">0.01</span><span class="p p-Indicator">,</span><span class="nt"> max</span><span class="p">:</span><span class="w"> </span><span class="nv">0.10</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">dist</span><span class="p">:</span><span class="w"> </span><span class="nv">norm</span><span class="p p-Indicator">,</span><span class="nt"> loc</span><span class="p">:</span><span class="w"> </span><span class="nv">0.0544</span><span class="p p-Indicator">,</span><span class="nt"> scale</span><span class="p">:</span><span class="w"> </span><span class="nv">0.0074</span><span class="p p-Indicator">}</span>
+
+<span class="w">  </span><span class="nt">A_s</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prior</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="nv">1.7e-9</span><span class="p p-Indicator">,</span><span class="nt"> max</span><span class="p">:</span><span class="w"> </span><span class="nv">3.5e-9</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">dist</span><span class="p">:</span><span class="w"> </span><span class="nv">norm</span><span class="p p-Indicator">,</span><span class="nt"> loc</span><span class="p">:</span><span class="w"> </span><span class="nv">2.1e-9</span><span class="p p-Indicator">,</span><span class="nt"> scale</span><span class="p">:</span><span class="w"> </span><span class="nv">3e-11</span><span class="p p-Indicator">}</span>
+
+<span class="w">  </span><span class="nt">n_s</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prior</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="nv">0.92</span><span class="p p-Indicator">,</span><span class="nt"> max</span><span class="p">:</span><span class="w"> </span><span class="nv">1.02</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">dist</span><span class="p">:</span><span class="w"> </span><span class="nv">norm</span><span class="p p-Indicator">,</span><span class="nt"> loc</span><span class="p">:</span><span class="w"> </span><span class="nv">0.9649</span><span class="p p-Indicator">,</span><span class="nt"> scale</span><span class="p">:</span><span class="w"> </span><span class="nv">0.0042</span><span class="p p-Indicator">}</span>
+
+<span class="w">  </span><span class="c1"># Tensor parameters (for B-mode analysis)</span>
+<span class="w">  </span><span class="nt">r</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prior</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> max</span><span class="p">:</span><span class="w"> </span><span class="nv">0.1</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">ref</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">dist</span><span class="p">:</span><span class="w"> </span><span class="nv">norm</span><span class="p p-Indicator">,</span><span class="nt"> loc</span><span class="p">:</span><span class="w"> </span><span class="nv">0.01</span><span class="p p-Indicator">,</span><span class="nt"> scale</span><span class="p">:</span><span class="w"> </span><span class="nv">0.01</span><span class="p p-Indicator">}</span>
+
+<span class="w">  </span><span class="nt">n_t</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">derived</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;lambda</span><span class="nv"> </span><span class="s">r:</span><span class="nv"> </span><span class="s">-r/8&#39;</span><span class="w">  </span><span class="c1"># Consistency relation</span>
+</pre></div>
+</div>
+</section>
+<section id="combining-multiple-likelihoods">
+<h2>Combining Multiple Likelihoods<a class="headerlink" href="#combining-multiple-likelihoods" title="Link to this heading"></a></h2>
+<p>You can combine LiLit with other cosmological likelihoods:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">likelihood</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># LiteBIRD forecast</span>
+<span class="w">  </span><span class="nt">lilit.LiLit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;t&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;e&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;b&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lmax</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2500</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2000</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">500</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lmin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">fsky</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.7</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.7</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.6</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="c1"># Add BAO measurements</span>
+<span class="w">  </span><span class="nt">bao.sixdf_2011_bao</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">bao.sdss_dr7_mgs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+
+<span class="w">  </span><span class="c1"># Add supernovae</span>
+<span class="w">  </span><span class="nt">sn.pantheon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-sampler-settings">
+<h2>Custom Sampler Settings<a class="headerlink" href="#custom-sampler-settings" title="Link to this heading"></a></h2>
+<p>Configure your sampler appropriately for the problem size:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">sampler</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mcmc</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Number of samples after burn-in</span>
+<span class="w">    </span><span class="nt">max_tries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100000</span>
+
+<span class="w">    </span><span class="c1"># Convergence criteria</span>
+<span class="w">    </span><span class="nt">Rminus1_stop</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.01</span>
+<span class="w">    </span><span class="nt">Rminus1_cl_stop</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.2</span>
+
+<span class="w">    </span><span class="c1"># Chain settings</span>
+<span class="w">    </span><span class="nt">learn_every</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+
+<span class="w">    </span><span class="c1"># Proposal covariance</span>
+<span class="w">    </span><span class="nt">covmat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">auto</span>
+<span class="w">    </span><span class="nt">proposal_scale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.4</span>
+</pre></div>
+</div>
+</section>
+<section id="output-configuration">
+<h2>Output Configuration<a class="headerlink" href="#output-configuration" title="Link to this heading"></a></h2>
+<p>Set up output appropriately:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chains/lilit_run</span>
+
+<span class="c1"># Optional: save additional info</span>
+<span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">resume</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="running-from-python">
+<h2>Running from Python<a class="headerlink" href="#running-from-python" title="Link to this heading"></a></h2>
+<p>You can also run Cobaya with LiLit from Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cobaya.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">run</span>
+
+<span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;likelihood&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;lilit.LiLit&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;lmax&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2500</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">500</span><span class="p">],</span>
+            <span class="s1">&#39;lmin&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="s1">&#39;fsky&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># ... your parameters</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;theory&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;camb&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+    <span class="s1">&#39;sampler&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;mcmc&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;max_tries&#39;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">}},</span>
+    <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="s1">&#39;chains/my_run&#39;</span>
+<span class="p">}</span>
+
+<span class="n">updated_info</span><span class="p">,</span> <span class="n">sampler</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="using-the-model-interface">
+<h2>Using the Model Interface<a class="headerlink" href="#using-the-model-interface" title="Link to this heading"></a></h2>
+<p>For more control, use Cobaya’s model interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cobaya.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_model</span>
+
+<span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># ... your configuration</span>
+<span class="p">}</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+
+<span class="c1"># Evaluate likelihood at a point</span>
+<span class="n">point</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;H0&#39;</span><span class="p">:</span> <span class="mf">67.4</span><span class="p">,</span>
+    <span class="s1">&#39;omega_b&#39;</span><span class="p">:</span> <span class="mf">0.02237</span><span class="p">,</span>
+    <span class="s1">&#39;omega_cdm&#39;</span><span class="p">:</span> <span class="mf">0.1200</span><span class="p">,</span>
+    <span class="c1"># ... other parameters</span>
+<span class="p">}</span>
+
+<span class="n">loglike</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">loglike</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log-likelihood: </span><span class="si">{</span><span class="n">loglike</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get derived parameters</span>
+<span class="n">derived</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">loglike</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">return_derived</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Derived parameters: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">provider</span><span class="o">.</span><span class="n">get_param_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This flexibility allows you to integrate LiLit into complex analysis pipelines and combine it with other cosmological data as needed.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api/lilit.html" class="btn btn-neutral float-left" title="lilit package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="custom_likelihoods.html" class="btn btn-neutral float-right" title="Likelihood Approximations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Giacomo Galloni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
