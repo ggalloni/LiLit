@@ -6,6 +6,8 @@ import numpy as np
 from cobaya.likelihood import Likelihood
 
 from .core import ChiSquareCalculator, ChiSquareMethod
+from .binning import get_binning
+
 from .functions import (
     CAMBres2dict,
     cov_filling,
@@ -149,6 +151,7 @@ class LiLit(Likelihood):
         pivot_t: float | None = 0.01,
         fsky: float | list[float] = 1,
         excluded_probes: list[str] | None = None,
+        want_binning: bool | None = False,
         debug: bool | None = None,
     ):
         # Check that the user has provided the name of the likelihood
@@ -194,6 +197,7 @@ class LiLit(Likelihood):
             # Check that the user has provided the nside if an experiment is used
             assert nside is not None, "You must provide an nside to compute the noise"
             self.nside = nside
+        self.want_binning = want_binning
         self.debug = debug
         self.keys = get_keys(fields=self.fields, debug=self.debug)
         if "bb" in self.keys:
@@ -622,6 +626,10 @@ class LiLit(Likelihood):
             + self.noiseCOV[:, :, self.lmin : self.lmax + 1]
         )
 
+        self.bins = None
+        if self.want_binning:
+            self.bins = get_binning(lmax=self.lmax, delta_ell=10, transition=35)
+
         if self.like_approx == "exact" and self.fsky is None:
             effective_fsky = 1
             for k in self.fskies.keys():
@@ -714,6 +722,7 @@ class LiLit(Likelihood):
             "mask": getattr(self, "mask", None),
             "offset": getattr(self, "offset", None),
             "fidu": getattr(self, "guess", None),
+            "bins": getattr(self, "bins", None),
         }
 
     def log_likelihood(self):
