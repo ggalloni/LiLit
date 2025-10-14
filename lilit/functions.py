@@ -1,5 +1,4 @@
 from typing import List
-from .binning import Bins
 
 import numpy as np
 from camb import CAMBdata

@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cobaya.likelihood import Likelihood
 
-from .core import ChiSquareCalculator, ChiSquareMethod
 from .binning import get_binning
-
+from .core import ChiSquareCalculator, ChiSquareMethod
 from .functions import (
     CAMBres2dict,
     cov_filling,

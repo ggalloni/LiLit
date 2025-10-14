@@ -9,10 +9,6 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.11"
-  jobs:
-    # Install uv for faster dependency resolution
-    pre_install:
-      - pip install uv
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
