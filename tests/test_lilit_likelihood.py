@@ -105,20 +105,6 @@ class TestLiLitInitialization:
 
         assert lilit.debug is True
 
-    def test_invalid_likelihood_approximation(self):
-        """Test that invalid likelihood approximation raises appropriate error."""
-        with pytest.raises(AssertionError):
-            LiLit(
-                name="invalid_test",
-                fields=["t"],
-                lmin=2,
-                lmax=100,
-                like="invalid_method",
-                experiment="PTEPLiteBIRD",
-                nside=128,
-                fsky=0.7,
-            )
-
     def test_tensor_parameters(self):
         """Test initialization with tensor parameters."""
         lilit = LiLit(

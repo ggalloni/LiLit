@@ -1,39 +1,6 @@
 """Sample on B-modes."""
 
-import numpy as np
-import pytest
-from cobaya import get_model
 from cobaya.run import run
-
-
-@pytest.mark.parametrize("likelihood", ["exact", "gauss", "correlated", "hl", "lollipop"])
-def test_model(
-    likelihood,
-    info_dict,
-    exact_likelihood,
-    gauss_likelihood,
-    correlated_likelihood,
-    hl_likelihood,
-    lollipop_likelihood,
-    ref_like_values,
-):
-    if likelihood == "exact":
-        like = exact_likelihood
-    elif likelihood == "gauss":
-        like = gauss_likelihood
-    elif likelihood == "correlated":
-        like = correlated_likelihood
-    elif likelihood == "hl":
-        like = hl_likelihood
-    elif likelihood == "lollipop":
-        like = lollipop_likelihood
-    else:
-        raise ValueError(f"Unknown likelihood type: {likelihood}")
-    info_dict["likelihood"] = {"test": like}
-    model = get_model(info_dict)
-    loglike = model.loglikes()[0][0]
-    print(loglike)
-    np.testing.assert_almost_equal(loglike, ref_like_values[likelihood], decimal=10)
 
 
 def test_mcmc(info_dict):

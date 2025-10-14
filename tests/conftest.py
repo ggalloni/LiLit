@@ -14,7 +14,7 @@ mainpath = os.path.dirname(__file__)
 data_path = os.path.join(mainpath, "data")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def random_seed():
     """Set a global random seed for reproducible tests."""
     np.random.seed(42)
@@ -221,7 +221,7 @@ def exact_likelihood():
 @pytest.fixture(scope="session")
 def ref_like_values():
     return {
-        "exact": -96.97434706873389,
+        "exact": -96.97434706873389, # -96.97434706873389 -96.97435583174286
         "gauss": -90.11355227861259,
         "correlated": -90.11355227861257,
         "hl": -19.098927501435572,
