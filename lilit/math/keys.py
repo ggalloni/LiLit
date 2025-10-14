@@ -5,12 +5,10 @@ This module provides functions to generate proper keys for different
 types of likelihood computations based on the fields being analyzed.
 """
 
-from typing import List
-
 import numpy as np
 
 
-def get_keys(fields: List[str], *, debug: bool = False) -> List[str]:
+def get_keys(fields: list[str], *, debug: bool = False) -> list[str]:
     """Extracts the keys that has to be used as a function of the requested fields. These
     will be the usual 2-points, e.g., tt, te, ee, etc.
 
@@ -30,7 +28,7 @@ def get_keys(fields: List[str], *, debug: bool = False) -> List[str]:
     return res
 
 
-def get_Gauss_keys(n: int, keys: List[str], *, debug: bool = False) -> np.ndarray:
+def get_Gauss_keys(n: int, keys: list[str], *, debug: bool = False) -> np.ndarray:
     """Find the proper dictionary keys for the requested fields.
 
     Extracts the keys that has to be used as a function of the requested fields for the

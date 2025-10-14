@@ -5,12 +5,10 @@ This module provides functions for spectrum operations including
 covariance matrix filling and spectrum lookup operations.
 """
 
-from typing import Dict, List, Optional
-
 import numpy as np
 
 
-def find_spectrum(lmin: int, lmax: int, input_dict: Dict, key: str) -> np.ndarray:
+def find_spectrum(lmin: int, lmax: int, input_dict: dict, key: str) -> np.ndarray:
     """Find a spectrum in a given dictionary.
 
     Returns the corresponding power sepctrum for a given key. If the key is not found,
@@ -43,13 +41,13 @@ def find_spectrum(lmin: int, lmax: int, input_dict: Dict, key: str) -> np.ndarra
 
 
 def cov_filling(
-    fields: List[str],
-    excluded_probes: Optional[List[str]],
+    fields: list[str],
+    excluded_probes: list[str] | None,
     absolute_lmin: int,
     absolute_lmax: int,
-    cov_dict: Dict,
-    lmins: Dict[str, int] = None,
-    lmaxs: Dict[str, int] = None,
+    cov_dict: dict,
+    lmins: dict[str, int] = None,
+    lmaxs: dict[str, int] = None,
 ) -> np.ndarray:
     """Fill covariance matrix with appropriate spectra.
 

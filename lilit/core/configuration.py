@@ -5,7 +5,6 @@ This module provides classes for managing likelihood configuration,
 including multipole ranges, sky fractions, and approximation settings.
 """
 
-
 import numpy as np
 
 

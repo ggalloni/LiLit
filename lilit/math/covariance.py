@@ -5,8 +5,6 @@ This module provides functions for covariance matrix computation, masking,
 and inversion operations used in Gaussian likelihood approximations.
 """
 
-from typing import Dict, List, Optional, Tuple
-
 import numpy as np
 from numpy.ma import MaskedArray
 
@@ -18,10 +16,10 @@ def sigma(
     lmin: int,
     lmax: int,
     gauss_keys: np.ndarray,
-    fiduDICT: Dict,
-    noiseDICT: Dict,
-    fsky: Optional[float] = None,
-    fskies: Dict[str, float] = None,
+    fiduDICT: dict,
+    noiseDICT: dict,
+    fsky: float | None = None,
+    fskies: dict[str, float] = None,
 ) -> np.ndarray:
     """Define the covariance matrix for the Gaussian case.
 
@@ -109,9 +107,9 @@ def get_masked_sigma(
     absolute_lmax: int,
     gauss_keys: np.ndarray,
     sigma_array: np.ndarray,
-    excluded_probes: Optional[List[str]],
-    lmins: Dict[str, int] = None,
-    lmaxs: Dict[str, int] = None,
+    excluded_probes: list[str] | None,
+    lmins: dict[str, int] = None,
+    lmaxs: dict[str, int] = None,
 ) -> np.ndarray:
     """Mask the covariance matrix for the Gaussian case in certain ranges of multipoles.
 
@@ -167,7 +165,7 @@ def get_masked_sigma(
 
 def inv_sigma(
     lmin: int, lmax: int, masked_sigma: MaskedArray
-) -> Tuple[List[np.ndarray], np.ndarray]:
+) -> tuple[list[np.ndarray], np.ndarray]:
     """Invert the covariance matrix of the Gaussian case.
 
     Inverts the previously calculated sigma ndarray. Note that some elements may be
@@ -204,7 +202,7 @@ def inv_sigma(
 
 def get_reduced_covariances(
     covariance: np.ndarray, lmin: int, lmax: int
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """Reduce the dimension of the covariance matrices given that they might be
     singular for some multipole ranges.
 
@@ -233,7 +231,7 @@ def get_reduced_covariances(
 
 def get_reduced_data_vectors(
     N: int, covariance: np.ndarray, mask: np.ndarray, lmin: int, lmax: int
-) -> List[int]:
+) -> list[int]:
     """Reduce the dimension of the data vectors given that some probe might not be
     defined in some multipole ranges or it might be excluded by the user.
 
