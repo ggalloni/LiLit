@@ -169,7 +169,8 @@ class LiLit(Likelihood):
             "You must provide the name of the likelihood (e.g. 'BB' or 'TTTEEE')"
         )
         # Check that the user has provided the fields
-        assert fields is not None, "You must provide the fields (e.g. 'b' or ['t', 'e'])"
+        assert fields is not None, "You must provide the fields "
+        "(e.g. 'b' or ['t', 'e'])"
         # Check that the user has provided the maximum multipole
         assert lmax is not None, "You must provide the lmax (e.g. 300)"
 
@@ -237,8 +238,9 @@ class LiLit(Likelihood):
             None if effective_dof is None else np.asarray(effective_dof, dtype=float)
         )
         if self.binning_mode != "none":
-            assert self.like_approx in ("gaussian", "exact"), (
-                "binning_mode != 'none' currently supports like='gaussian' or 'exact'."
+            assert self.like_approx in ("gaussian", "exact", "correlated_gaussian"), (
+                "binning_mode != 'none' currently supports like='gaussian', 'exact' "
+                "or 'correlated_gaussian' (the latter needs external_covariance)."
             )
             assert self.N == 1, (
                 "binning_mode != 'none' currently supports a single field (e.g. ['B'])."
@@ -777,7 +779,27 @@ class LiLit(Likelihood):
         # kernel gets the same mode count via self.binned_modes (passed as 'modes').
         self.binned_noise = Nb
         self.data = (Sb + Nb).reshape(1, 1, -1)  # (N, N, nbins), N == 1
-        self.inverse_covariance = (1.0 / sigma2_b).reshape(-1, 1, 1)  # (nbins, 1, 1)
+        if self.like_approx == "correlated_gaussian":
+            # Full bandpower covariance supplied by the user (e.g. estimated from sims);
+            # chi2 = diff^T C^-1 diff via ChiSquareCalculator.
+            # _calculate_correlated_gaussian.
+            # This replaces the Knox diagonal so off-diagonal band-band
+            # correlations (mask
+            # mode-coupling, foreground/noise residuals) are propagated into sigma(r).
+            if self.external_covariance is None:
+                raise ValueError(
+                    "binned correlated_gaussian requires external_covariance, an "
+                    "(nbins, nbins) bandpower covariance matrix."
+                )
+            cov = np.asarray(self.external_covariance, dtype=float)
+            if cov.shape != (nbins, nbins):
+                raise ValueError(
+                    f"external_covariance has shape {cov.shape}, expected "
+                    f"({nbins}, {nbins}) to match the {nbins} bandpowers."
+                )
+            self.inverse_covariance = np.linalg.inv(cov)
+        else:
+            self.inverse_covariance = (1.0 / sigma2_b).reshape(-1, 1, 1)
         self.mask = None  # unused by the N == 1 gaussian/exact branches
 
         if self.debug:
