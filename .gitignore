@@ -7,3 +7,4 @@ lilit.egg-info/
 build/
 .eggs/
 .vscode/
+lilit/_version.py
