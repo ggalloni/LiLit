@@ -31,7 +31,8 @@ class LiLit(Likelihood):
     where to find the proper LiteBIRD noise power spectra, given that LiLit is
     implementing a simple inverse noise weighting just as a place-holder for something
     more realistic. As regards lensing, LiLit will need you to pass the reconstruction
-    noise, since its computation is not coded, thus there is no place-holder for lensing.
+    noise, since its computation is not coded, thus there is
+    no place-holder for lensing.
 
     Parameters:
         name (str):
@@ -80,7 +81,8 @@ class LiLit(Likelihood):
         gauss_keys (list):
             List of keywords for the Gaussian likelihood (4-points).
         inverse_covariance (list):
-            List of covariances for the Gaussian likelihood case, one for each multipole.
+            List of covariances for the Gaussian likelihood case,
+            one for each multipole.
         lmin (int or list):
             Minimum multipole to consider.
         lmins (dict):
@@ -154,6 +156,12 @@ class LiLit(Likelihood):
         fsky: float | list[float] = 1,
         excluded_probes: list[str] | None = None,
         want_binning: bool | None = False,
+        delta_ell: int | None = 10,
+        binning_transition: int | None = 35,
+        binning_mode: str = "none",
+        bin_lmins: list | np.ndarray | None = None,
+        bin_lmaxs: list | np.ndarray | None = None,
+        effective_dof: list | np.ndarray | None = None,
         debug: bool | None = None,
     ):
         # Check that the user has provided the name of the likelihood
@@ -200,6 +208,56 @@ class LiLit(Likelihood):
             assert nside is not None, "You must provide an nside to compute the noise"
             self.nside = nside
         self.want_binning = want_binning
+        self.delta_ell = delta_ell
+        self.binning_transition = binning_transition
+        # Externally-binned (bandpower) input path. Opt-in and backward-compatible:
+        # when binned=True, cl_file/nl_file are interpreted as already-binned bandpowers
+        # (one value per bin defined by bin_lmins/bin_lmaxs, inclusive edges) and the
+        # likelihood is evaluated directly in bandpower space with a Knox covariance.
+        # Binning mode (replaces the legacy, never-wired want_binning flag):
+        #   "none"     -> standard per-multipole likelihood (unchanged default);
+        #   "external" -> cl_file/nl_file are ALREADY bandpowers (length nbins);
+        #   "internal" -> cl_file/nl_file are per-multipole and get binned here.
+        # Both binned modes then share the exact same bandpower algebra downstream.
+        self.binning_mode = (binning_mode or "none").lower()
+        assert self.binning_mode in ("none", "internal", "external"), (
+            f"binning_mode must be one of 'none', 'internal', 'external', "
+            f"got '{self.binning_mode}'."
+        )
+        # The legacy want_binning is dead code (never read by any chi-square); keep it
+        # accepted for backward compatibility but forbid mixing it with binning_mode.
+        if self.binning_mode != "none" and want_binning:
+            raise ValueError(
+                "want_binning (legacy, no-op) cannot be combined with binning_mode; "
+                "use binning_mode='internal' instead."
+            )
+        self.bin_lmins = None if bin_lmins is None else np.asarray(bin_lmins, dtype=int)
+        self.bin_lmaxs = None if bin_lmaxs is None else np.asarray(bin_lmaxs, dtype=int)
+        self.effective_dof = (
+            None if effective_dof is None else np.asarray(effective_dof, dtype=float)
+        )
+        if self.binning_mode != "none":
+            assert self.like_approx in ("gaussian", "exact"), (
+                "binning_mode != 'none' currently supports like='gaussian' or 'exact'."
+            )
+            assert self.N == 1, (
+                "binning_mode != 'none' currently supports a single field (e.g. ['B'])."
+            )
+            # Bandpower edges are either given explicitly (bin_lmins/bin_lmaxs) or built
+            # as uniform bands of width delta_ell from lmin to
+            # lmax (see _build_bin_edges).
+            if (self.bin_lmins is None) != (self.bin_lmaxs is None):
+                raise ValueError(
+                    "Provide both bin_lmins and bin_lmaxs, or neither "
+                    "(neither -> uniform bins of width delta_ell from lmin to lmax)."
+                )
+            if self.bin_lmins is not None and len(self.bin_lmins) != len(self.bin_lmaxs):
+                raise ValueError("bin_lmins and bin_lmaxs must have the same length.")
+            if self.bin_lmins is None and not self.delta_ell:
+                raise ValueError(
+                    "binning_mode != 'none' needs either bin_lmins/bin_lmaxs "
+                    "or delta_ell."
+                )
         self.debug = debug
         self.keys = get_keys(fields=self.fields, debug=self.debug)
 
@@ -227,7 +285,8 @@ class LiLit(Likelihood):
     def check_supported_approximations(self):
         """Check that the requested likelihood approximation is actually supported.
 
-        Note: the correlated Gaussian is supported for a single field, not multiple ones.
+        Note: the correlated Gaussian is supported for a single field,
+        not multiple ones.
         """
         self.supported = ["exact", "gaussian", "correlated_gaussian", "HL", "lollipop"]
         assert self.like_approx in self.supported, (
@@ -439,6 +498,9 @@ class LiLit(Likelihood):
 
     def initialize(self):
         """Initializes the fiducial spectra and the noise power spectra."""
+        if self.binning_mode != "none":
+            self._initialize_binned()
+            return
         self.fiduCLS = self.get_fiducial_spectra()
         self.noiseCLS = self.get_noise_spectra()
 
@@ -486,7 +548,12 @@ class LiLit(Likelihood):
 
         self.bins = None
         if self.want_binning:
-            self.bins = get_binning(lmax=self.lmax, delta_ell=10, transition=35)
+            self.bins = get_binning(
+                lmin=self.lmin,
+                lmax=self.lmax,
+                delta_ell=self.delta_ell,
+                transition=self.binning_transition,
+            )
 
         if self.like_approx == "exact" and self.fsky is None:
             effective_fsky = 1
@@ -509,8 +576,8 @@ class LiLit(Likelihood):
             except np.linalg.LinAlgError as e:
                 raise ValueError(
                     f"Cannot invert external covariance matrix for {self.like_approx} "
-                    f"likelihood. The matrix must be square, non-singular, and positive "
-                    f"definite. Original error: {e}"
+                    f"likelihood. The matrix must be square, non-singular, "
+                    f"and positive definite. Original error: {e}"
                 ) from e
             except Exception as e:
                 raise ValueError(
@@ -549,6 +616,198 @@ class LiLit(Likelihood):
             else:
                 self.offset = np.zeros_like(self.guess)
 
+    def _get_binned_array(self, file, key):
+        """Fetch a bandpower array from a dict, matching the field
+        key case-insensitively."""
+        if file is None:
+            raise ValueError(
+                "binned=True requires cl_file (and usually nl_file) as bandpower dicts."
+            )
+        for k in (key, key[::-1], key.lower(), key.upper()):
+            if k in file:
+                return np.asarray(file[k], dtype=float)
+        raise KeyError(
+            f"Could not find bandpower spectrum '{key}' in provided dict "
+            f"(keys: {list(file.keys())})."
+        )
+
+    def _dell_to_cell(self, arr):
+        """Convert D_ell = ell(ell+1)/(2pi) C_ell to C_ell (ell < 2 set to 0)."""
+        arr = np.asarray(arr, dtype=float)
+        ell = np.arange(arr.shape[0])
+        factor = np.zeros_like(arr)
+        factor[2:] = 2.0 * np.pi / (ell[2:] * (ell[2:] + 1.0))
+        return arr * factor
+
+    def _build_bin_edges(self):
+        """Set self.bin_lmins/bin_lmaxs. Uses the explicit edges if provided, otherwise
+        builds uniform bands of width delta_ell from lmin to lmax (the last band is
+        clipped to lmax)."""
+        if self.bin_lmins is not None and self.bin_lmaxs is not None:
+            return
+        lmins = np.arange(self.lmin, self.lmax + 1, self.delta_ell)
+        lmaxs = lmins + self.delta_ell - 1
+        # Keep only full-width bands inside [lmin, lmax]; drop a
+        # partial trailing band so
+        # that e.g. lmin=30, lmax=120, delta_ell=10 gives the 9 clean
+        # bands [30,39]..[110,119]
+        # (matching a NaMaster run cut at the same lmax), not a width-1 [120,120] band.
+        keep = lmaxs <= self.lmax
+        self.bin_lmins = lmins[keep].astype(int)
+        self.bin_lmaxs = lmaxs[keep].astype(int)
+
+    def _bin_average_operator(self):
+        """Flat C_ell averaging operator P[b, ell] = 1/dl_b for ell in [lmin_b, lmax_b].
+
+        This matches NaMaster flat-C_ell bandpowers (and the BBin flat averaging used to
+        bin the data), so the theory is binned exactly the same way as the data."""
+        lmax_bin = int(np.max(self.bin_lmaxs))
+        P = np.zeros((len(self.bin_lmins), lmax_bin + 1))
+        for b, (a, z) in enumerate(zip(self.bin_lmins, self.bin_lmaxs)):
+            P[b, a : z + 1] = 1.0 / (z - a + 1)
+        return P, lmax_bin
+
+    def _as_bandpowers(self, arr, name):
+        """Reduce a raw input spectrum to bandpowers, honouring binning_mode.
+
+        - 'external': ``arr`` is already a bandpower vector (length nbins), used as-is.
+        - 'internal': ``arr`` is a per-multipole spectrum, flat-binned with self._bin_P
+          (same operator used for the theory), so internal and external paths
+          coincide.
+        """
+        arr = np.asarray(arr, dtype=float)
+        nbins = len(self.bin_lmins)
+        if self.binning_mode == "external":
+            if arr.shape[0] != nbins:
+                raise ValueError(
+                    f"binning_mode='external': {name} has length {arr.shape[0]} but "
+                    f"{nbins} bandpowers are defined by bin_lmins/bin_lmaxs. "
+                    f"(Did you mean binning_mode='internal' for per-multipole input?)"
+                )
+            return arr
+        # internal: bin the per-multipole input
+        if arr.shape[0] < self._lmax_bin + 1:
+            arr = np.concatenate([arr, np.zeros(self._lmax_bin + 1 - arr.shape[0])])
+        return self._bin_P @ arr[: self._lmax_bin + 1]
+
+    def _initialize_binned(self):
+        """Initialize the binned (bandpower) gaussian/exact likelihood.
+
+        cl_file/nl_file are reduced to bandpowers (one value per bin defined by
+        bin_lmins/bin_lmaxs) -- taken as-is for binning_mode='external', or binned here
+        for 'internal'. The bandpower covariance is the Knox formula lifted to bandpower
+        level, consistent with LiLit's per-multipole gaussian covariance:
+
+            sigma_b^2 = 2 (C_b + N_b)^2 / (fsky * nu_b),
+            nu_b = (lmax_b + 1)^2 - lmin_b^2   (exact number of modes in the band)
+
+        which reduces to the per-ell Knox term 2 (C+N)^2 / ((2l+1) fsky) for
+        unit bins.
+        """
+        self._build_bin_edges()
+        if self.bin_lmaxs.max() > self.lmax or self.bin_lmins.min() < self.lmin:
+            raise ValueError(
+                f"Bandpower edges [{self.bin_lmins.min()}, "
+                f"{self.bin_lmaxs.max()}] must lie "
+                f"within [lmin, lmax] = [{self.lmin}, {self.lmax}]."
+            )
+        if self.fsky is None:
+            raise ValueError("binning_mode != 'none' requires a single scalar fsky.")
+
+        self._bin_P, self._lmax_bin = self._bin_average_operator()
+        nbins = len(self.bin_lmins)
+
+        # Obtain per-band signal/noise. In 'external' mode cl_file/nl_file are already
+        # bandpowers (used as-is). In 'internal' mode we build the
+        # per-multipole fiducial
+        # and noise with the SAME loaders as the unbinned path -- so this works whether
+        # the spectra come from a file or are generated from r +
+        # experiment (cl_file=None)
+        # -- and then flat-bin them. After this step both modes are identical
+        # downstream.
+        key = (self.fields[0] + self.fields[0]).upper()  # e.g. "BB"
+        if self.binning_mode == "external":
+            raw_S = self._get_binned_array(self.cl_file, key)
+            raw_N = (
+                self._get_binned_array(self.nl_file, key)
+                if self.nl_file is not None
+                else np.zeros(nbins)
+            )
+        else:  # internal
+            # The loaders return D_ell = ell(ell+1)/(2pi) C_ell (fiducial: raw_cl=False;
+            # noise: explicit ell(ell+1)/2pi factor). Convert to C_ell so the internal
+            # bandpowers use the same flat-C_ell scheme as the external NaMaster
+            # spectra.
+            fiduCLS = self.get_fiducial_spectra()
+            noiseCLS = self.get_noise_spectra()
+            raw_S = self._dell_to_cell(self._get_binned_array(fiduCLS, key))
+            raw_N = self._dell_to_cell(self._get_binned_array(noiseCLS, key))
+        Sb = self._as_bandpowers(raw_S, "cl_file")
+        Nb = self._as_bandpowers(raw_N, "nl_file")
+
+        # Effective number of modes per band. Analytic default is the exact sum of
+        # (2*ell + 1) over the band, scaled by fsky:
+        #   nu_b = (lmax_b + 1)^2 - lmin_b^2 = (2*ell_center + 1) * delta_ell,
+        # times fsky.
+        # On a cut sky with mode-coupling the honest value is
+        # nu_b = 2 (C_b / sigma_b)^2;
+        # pass it via effective_dof to override.
+        nu_b = ((self.bin_lmaxs + 1) ** 2 - self.bin_lmins**2).astype(float) * self.fsky
+        if self.effective_dof is not None:
+            if len(self.effective_dof) != nbins:
+                raise ValueError(
+                    f"effective_dof has length {len(self.effective_dof)} but there are "
+                    f"{nbins} bins."
+                )
+            self.binned_modes = self.effective_dof
+        else:
+            self.binned_modes = nu_b
+
+        # Knox bandpower variance, consistent with the per-multipole gaussian covariance
+        # and with the Wishart dof: sigma_b^2 = 2 (C_b + N_b)^2 / nu_b  <=>
+        # nu_b = 2 C^2/sigma^2.
+        sigma2_b = 2.0 * (Sb + Nb) ** 2 / self.binned_modes
+
+        # Assemble the data and inverse-covariance in EXACTLY the shapes the
+        # per-multipole
+        # machinery already expects: data is (N, N, naxis) and inverse_covariance is
+        # (naxis, N, N). Here the last/leading axis simply indexes bandpowers instead of
+        # multipoles, so the standard log_likelihood() -> ChiSquareCalculator path runs
+        # unchanged -- no bespoke chi-square for the binned case. The Wishart 'exact'
+        # kernel gets the same mode count via self.binned_modes (passed as 'modes').
+        self.binned_noise = Nb
+        self.data = (Sb + Nb).reshape(1, 1, -1)  # (N, N, nbins), N == 1
+        self.inverse_covariance = (1.0 / sigma2_b).reshape(-1, 1, 1)  # (nbins, 1, 1)
+        self.mask = None  # unused by the N == 1 gaussian/exact branches
+
+        if self.debug:
+            print(
+                f"[binned] nbins={nbins}, ell in [{self.bin_lmins.min()}, "
+                f"{self.bin_lmaxs.max()}]"
+            )
+            print(f"[binned] modes/band = {self.binned_modes}")
+            print(f"[binned] data bandpowers = {self.data[0, 0]}")
+
+    def _bin_theory(self):
+        """Reduce the current-step CAMB theory to C_ell bandpowers (flat C_ell average).
+
+        Everything in the binned path works in flat-C_ell so that all cases share ONE
+        binning scheme: 'external' bandpowers (NaMaster C_ell from the generate
+        notebooks)
+        and 'internal' (the loader D_ell converted to C_ell, see _initialize_binned) are
+        binned identically, and the theory is binned the same way here. The three
+        analyses
+        (ideal / semi-realistic / realistic) then differ only in the input spectra."""
+        cls = self.provider.get_Cl(ell_factor=False, units="muK2")
+        key = (self.fields[0] + self.fields[0]).lower()  # e.g. "bb"
+        cl_theory = np.asarray(cls[key], dtype=float)
+        if cl_theory.shape[0] < self._lmax_bin + 1:
+            cl_theory = np.concatenate([
+                cl_theory,
+                np.zeros(self._lmax_bin + 1 - cl_theory.shape[0]),
+            ])
+        return self._bin_P @ cl_theory[: self._lmax_bin + 1]
+
     def get_requirements(self):
         """Defines requirements of the likelihood, specifying quantities calculated by
         a theory code are needed. Note that you may want to change the overall keyword
@@ -581,6 +840,7 @@ class LiLit(Likelihood):
             "offset": getattr(self, "offset", None),
             "fidu": getattr(self, "guess", None),
             "bins": getattr(self, "bins", None),
+            "modes": getattr(self, "binned_modes", None),
         }
 
     def log_likelihood(self):
@@ -593,7 +853,13 @@ class LiLit(Likelihood):
         return np.sum(-0.5 * chi_squared)
 
     def logp(self, **params_values):
-        """Gets the log likelihood and pass it to Cobaya to carry on the MCMC process."""
+        """Gets the log likelihood and pass it to Cobaya to carry on the MCMC
+        process."""
+        if self.binning_mode != "none":
+            # Only the theory object differs (bandpowers, with binned noise added);
+            # the chi-square itself is the standard one.
+            self.coba = (self._bin_theory() + self.binned_noise).reshape(1, 1, -1)
+            return self.log_likelihood()
         if self.debug:
             CAMBdata = self.provider.get_CAMBdata()
             pars = CAMBdata.Params
