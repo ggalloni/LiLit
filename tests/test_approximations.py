@@ -12,6 +12,7 @@ def test_exact(info_dict, exact_likelihood, ref_like_values):
     print(loglike)
     np.testing.assert_almost_equal(loglike, ref_like_values["exact"], decimal=5)
 
+
 def test_gaussian(info_dict, gauss_likelihood, ref_like_values):
     """Test gaussian likelihood in isolation to check for initialization issues."""
     info_dict["likelihood"] = {"test": gauss_likelihood}
@@ -19,6 +20,7 @@ def test_gaussian(info_dict, gauss_likelihood, ref_like_values):
     loglike = model.loglikes()[0][0]
     print(loglike)
     np.testing.assert_almost_equal(loglike, ref_like_values["gauss"], decimal=5)
+
 
 def test_correlated(info_dict, correlated_likelihood, ref_like_values):
     """Test correlated likelihood in isolation to check for initialization issues."""
@@ -28,6 +30,7 @@ def test_correlated(info_dict, correlated_likelihood, ref_like_values):
     print(loglike)
     np.testing.assert_almost_equal(loglike, ref_like_values["correlated"], decimal=5)
 
+
 def test_hl(info_dict, hl_likelihood, ref_like_values):
     """Test Hamimeche-Lewis likelihood in isolation to check for initialization issues."""
     info_dict["likelihood"] = {"test": hl_likelihood}
@@ -35,6 +38,7 @@ def test_hl(info_dict, hl_likelihood, ref_like_values):
     loglike = model.loglikes()[0][0]
     print(loglike)
     np.testing.assert_almost_equal(loglike, ref_like_values["hl"], decimal=5)
+
 
 def test_lollipop(info_dict, lollipop_likelihood, ref_like_values):
     """Test lollipop likelihood in isolation to check for initialization issues."""

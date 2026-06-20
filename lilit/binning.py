@@ -7,42 +7,65 @@ class Bins:
         Lower bound of the bins
     lmaxs : list of integers
         Upper bound of the bins
+    lmin_floor : int
+        Minimum lmin value to keep (default 2, for spin-2 analyses).
     """
 
-    def __init__(self, lmins, lmaxs):
+    def __init__(self, lmins, lmaxs, lmin_floor=2):
         if not (len(lmins) == len(lmaxs)):
             msg = "Incoherent inputs"
             raise ValueError(msg)
 
-        lmins = np.asarray(lmins)
-        lmaxs = np.asarray(lmaxs)
-        cutfirst = np.logical_and(lmaxs >= 2, lmins >= 2)
-        self.lmins = lmins[cutfirst]
-        self.lmaxs = lmaxs[cutfirst]
+        lmins = np.asarray(lmins, dtype=int)
+        lmaxs = np.asarray(lmaxs, dtype=int)
+        if lmin_floor < 0:
+            raise ValueError(f"lmin_floor must be >= 0, got {lmin_floor}")
+        # Reject bins entirely below lmin_floor (default 2 reproduces the
+        # legacy spin-2 floor; pass lmin_floor=1 for dipole or 0 for
+        # monopole-aware analyses).
+        keep = np.logical_and(lmaxs >= lmin_floor, lmins >= lmin_floor)
+        self.lmins = lmins[keep]
+        self.lmaxs = lmaxs[keep]
+        self.lmin_floor = int(lmin_floor)
 
         self._derive_ext()
 
     @classmethod
     def fromdeltal(cls, lmin, lmax, delta_ell):
+        """Create uniform bins with constant width.
+
+        ``lmin`` doubles as the bin floor; values below 2 are honoured
+        (e.g. ``Bins.fromdeltal(1, 4, 1)`` includes the dipole).
+        """
         nbins = (lmax - lmin + 1) // delta_ell
         lmins = lmin + np.arange(nbins) * delta_ell
         lmaxs = lmins + delta_ell - 1
-        return cls(lmins, lmaxs)
+        return cls(lmins, lmaxs, lmin_floor=lmin)
 
     def _derive_ext(self):
-        for l1, l2 in zip(self.lmins, self.lmaxs):
-            if l1 > l2:
-                msg = "Incoherent inputs"
-                raise ValueError(msg)
-        self.lmin = np.min(self.lmins)
-        self.lmax = np.max(self.lmaxs)
-        if self.lmin < 1:
-            msg = "Input lmin is less than 1."
-            raise ValueError(msg)
-        if self.lmax < self.lmin:
-            msg = "Input lmax is less than lmin."
-            raise ValueError(msg)
+        if len(self.lmins) == 0:
+            raise ValueError(
+                f"No valid bins (all bins below lmin_floor={self.lmin_floor})"
+            )
 
+        for i, (l1, l2) in enumerate(zip(self.lmins, self.lmaxs)):
+            if l1 > l2:
+                raise ValueError(f"Bin {i}: lmin={l1} > lmax={l2}")
+
+        # Check for overlaps (bins must be non-overlapping and sorted)
+        order = np.argsort(self.lmins)
+        self.lmins = self.lmins[order]
+        self.lmaxs = self.lmaxs[order]
+        for i in range(len(self.lmins) - 1):
+            if self.lmins[i + 1] <= self.lmaxs[i]:
+                raise ValueError(
+                    f"Bins {i} and {i + 1} overlap: "
+                    f"[{self.lmins[i]}, {self.lmaxs[i]}] and "
+                    f"[{self.lmins[i + 1]}, {self.lmaxs[i + 1]}]"
+                )
+
+        self.lmin = int(np.min(self.lmins))
+        self.lmax = int(np.max(self.lmaxs))
         self.nbins = len(self.lmins)
         self.lbin = (self.lmins + self.lmaxs) / 2.0
         self.dl = self.lmaxs - self.lmins + 1
@@ -75,16 +98,19 @@ class Bins:
 
         return p, q
 
-    def bin_spectra(self, spectra):
+    def bin_spectra(self, spectra, Dl=False):
         """
         Average spectra in bins specified by lmin, lmax and delta_ell,
         weighted by `l(l+1)/2pi`.
         Return Cb
         """
         spectra = np.asarray(spectra)
+        if self.lmin_floor > 0:
+            pad = np.zeros((*spectra.shape[:-1], self.lmin_floor))
+            spectra = np.concatenate([pad, spectra], axis=-1)
         minlmax = np.min([spectra.shape[-1] - 1, self.lmax])
 
-        _p, _q = self._bin_operators()
+        _p, _q = self._bin_operators(Dl=Dl)
         return np.dot(spectra[..., : minlmax + 1], _p.T[: minlmax + 1, ...])
 
     def bin_covariance(self, clcov):
@@ -92,8 +118,8 @@ class Bins:
         return np.matmul(p, np.matmul(clcov, q))
 
 
-def get_binning(lmax, delta_ell, transition=35):
-    llmin = 2
+def get_binning(lmin, lmax, delta_ell, transition=35):
+    llmin = lmin
     llmax = transition
     hlmin = transition + 1
     lmins = list(range(llmin, llmax + 1)) + list(

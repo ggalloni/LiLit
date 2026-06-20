@@ -1,6 +1,6 @@
 [project]
 name = "lilit"
-version = "1.3.0"
+dynamic = ["version"]
 authors = [
     { name = "Giacomo Galloni", email = "giacomo.galloni@unife.it" }
 ]
@@ -43,6 +43,9 @@ zip-safe = false
 [tool.setuptools.packages.find]
 include = [
     "lilit",
+    "lilit.core",
+    "lilit.data",
+    "lilit.math",
     "tests",
 ]
 
@@ -71,6 +74,7 @@ line-ending = "auto"
 [tool.ruff]
 exclude = [".tox", "build", "cobaya_packages", "test", ".eggs"]
 line-length = 90
+preview = true
 
 [tool.coverage.run]
 omit = ["tests/*", "*/tests/*"]
@@ -107,4 +111,9 @@ python_functions = ["test_*"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
+]
+
+[dependency-groups]
+dev = [
+    "setuptools-scm>=9.2.1",
 ]
