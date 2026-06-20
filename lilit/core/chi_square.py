@@ -94,25 +94,33 @@ class ChiSquareCalculator:
                 The fraction of the sky if a unique number is provided. Otherwise, it is
                 the geometrical mean of the fraction of the sky for each field pair. In
                 other words an effective fraction of the sky.
+            modes (ndarray, optional):
+                Effective number of modes (degrees of freedom) per element of the last
+                axis. If given, it replaces the per-multipole (2*ell + 1) * fsky weight,
+                which makes the exact (Wishart) algebra agnostic to whether the last axis
+                indexes multipoles or bandpowers. For bandpowers the natural choice is
+                nu_b = (2*ell_center + 1) * delta_ell * fsky = ((lmax_b+1)^2 - lmin_b^2) *
+                fsky, i.e. the exact sum of (2*ell + 1) over the band.
         """
         # Import here to avoid circular imports
         from ..functions import get_reduced_covariances
 
-        ell = np.arange(lmin, lmax + 1, 1)
+        modes = kwargs.get("modes", None)
+        if modes is None:
+            ell = np.arange(lmin, lmax + 1, 1)
+            modes = (2 * ell + 1) * fsky
+        modes = np.asarray(modes, dtype=float)
         if N != 1:
             reduced_data = get_reduced_covariances(data, lmin, lmax)
             reduced_coba = get_reduced_covariances(coba, lmin, lmax)
 
             M_ℓ = list(map(np.linalg.solve, reduced_coba, reduced_data))
-            return (
-                (2 * ell + 1)
-                * fsky
-                * [np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ]
-            )
+            return modes * np.array([
+                np.trace(M) - np.linalg.slogdet(M)[1] - M.shape[0] for M in M_ℓ
+            ])
         else:
-            print(ell)
             ratio = data[0, 0, :] / coba[0, 0, :]
-            return (2 * ell + 1) * fsky * (ratio - np.log(ratio) - 1)
+            return modes * (ratio - np.log(ratio) - 1)
 
     @staticmethod
     def _calculate_gaussian(
